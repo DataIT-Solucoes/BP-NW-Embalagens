@@ -1,7 +1,40 @@
+// Tabulator (tabela) vem do CDN. Carregado uma vez só, mesmo com várias instâncias do widget na página.
+var NWE_TABULATOR_JS = 'https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.4.0/js/tabulator.min.js';
+var nweTabulatorPromise = null;
+
+// DADOS MOCKADOS, só para visualizar a tabela. Trocar pelo dataset quando ele for definido.
+var NWE_DADOS_MOCK = [
+    { descricao: 'Caixa', sigla: 'CX' },
+    { descricao: 'Fardo', sigla: 'FD' },
+    { descricao: 'Saco', sigla: 'SC' },
+    { descricao: 'Pallet', sigla: 'PL' },
+    { descricao: 'Bag', sigla: 'BG' },
+    { descricao: 'Granel', sigla: 'GR' },
+    { descricao: 'Pacote', sigla: 'PC' },
+    { descricao: 'Tambor', sigla: 'TB' },
+    { descricao: 'Bombona', sigla: 'BB' },
+    { descricao: 'Contêiner', sigla: 'CT' },
+    { descricao: 'Engradado', sigla: 'EG' },
+    { descricao: 'Bobina', sigla: 'BO' },
+    { descricao: 'Rolo', sigla: 'RL' },
+    { descricao: 'Unidade', sigla: 'UN' },
+    { descricao: 'Lata', sigla: 'LT' },
+    { descricao: 'Garrafa', sigla: 'GF' },
+    { descricao: 'Barrica', sigla: 'BR' },
+    { descricao: 'Sacola', sigla: 'SL' },
+    { descricao: 'Envelope', sigla: 'EV' },
+    { descricao: 'Display', sigla: 'DP' },
+    { descricao: 'Kit', sigla: 'K' },
+    { descricao: 'Balde', sigla: 'BD' }
+];
+
 var widget_nw_embalagens = SuperWidget.extend({
 
     //aba atualmente selecionada
     abaAtual: 'tipos-embalagem',
+
+    //instância do Tabulator
+    tabela: null,
 
     //método iniciado quando a widget é carregada
     init() {
@@ -9,12 +42,26 @@ var widget_nw_embalagens = SuperWidget.extend({
         this.$tabs = $('.nwe-tabs', this.DOM);
         this.moverIndicador();
         $(window).on('resize.nwe' + this.instanceId, function () { self.moverIndicador(); });
+        //a fonte Mulish chega depois e muda a largura da aba: medir de novo
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(function () { self.moverIndicador(); });
+            document.fonts.addEventListener('loadingdone', function () { self.moverIndicador(); });
+        }
+
+        this.carregarTabulator().then(function () {
+            self.montarTabela();
+        }, function () {
+            $('[data-tabela]', self.DOM).html('<p class="nwe-tabela-erro">Não foi possível carregar a tabela. Verifique a conexão com a internet e recarregue a página.</p>');
+        });
     },
 
     //BIND de eventos
     bindings: {
         local: {
-            'tab': ['click_selecionarAba', 'keydown_navegarAbas']
+            'tab': ['click_selecionarAba', 'keydown_navegarAbas'],
+            'buscar': ['click_buscar'],
+            'filtro-tipo': ['keydown_teclaFiltro'],
+            'filtro-sigla': ['keydown_teclaFiltro']
         },
         global: {}
     },
@@ -55,5 +102,94 @@ var widget_nw_embalagens = SuperWidget.extend({
             width: $ativa.outerWidth() + 'px',
             transform: 'translateX(' + $ativa.position().left + 'px)'
         });
+    },
+
+    // ---------- Tabela ----------
+
+    carregarTabulator() {
+        if (window.Tabulator) return Promise.resolve();
+        if (!nweTabulatorPromise) {
+            nweTabulatorPromise = new Promise(function (resolve, reject) {
+                var script = document.createElement('script');
+                script.src = NWE_TABULATOR_JS;
+                script.onload = resolve;
+                script.onerror = function () {
+                    nweTabulatorPromise = null;
+                    reject();
+                };
+                document.head.appendChild(script);
+            });
+        }
+        return nweTabulatorPromise;
+    },
+
+    montarTabela() {
+        this.tabela = new Tabulator($('[data-tabela]', this.DOM)[0], {
+            data: NWE_DADOS_MOCK,
+            layout: 'fitColumns',
+            responsiveLayout: false,
+            pagination: true,
+            paginationSize: 10,
+            paginationCounter: function (pageSize, currentRow, currentPage, totalRows) {
+                if (!totalRows) return '';
+                var ate = Math.min(currentRow + pageSize - 1, totalRows);
+                return 'Mostrando ' + currentRow + '–' + ate + ' de ' + totalRows;
+            },
+            initialSort: [{ column: 'descricao', dir: 'asc' }],
+            placeholder: 'Nenhum tipo de embalagem encontrado.',
+            locale: 'pt-br',
+            langs: {
+                'pt-br': {
+                    data: { loading: 'Carregando...', error: 'Erro ao carregar' },
+                    pagination: {
+                        first: '«', first_title: 'Primeira página',
+                        last: '»', last_title: 'Última página',
+                        prev: '‹', prev_title: 'Página anterior',
+                        next: '›', next_title: 'Próxima página'
+                    }
+                }
+            },
+            columns: [
+                { title: 'Descrição', field: 'descricao', sorter: 'string', widthGrow: 3, minWidth: 160, vertAlign: 'middle' },
+                {
+                    title: 'Sigla', field: 'sigla', sorter: 'string', width: 140, hozAlign: 'left', vertAlign: 'middle',
+                    formatter: function (cell) {
+                        var span = document.createElement('span');
+                        span.className = 'nwe-sigla';
+                        span.textContent = cell.getValue();
+                        return span;
+                    }
+                }
+            ]
+        });
+    },
+
+    buscar(htmlElement, event) {
+        if (!this.tabela) return;
+        var tipo = this.normalizar($('[data-filtro-tipo]', this.DOM).val());
+        var sigla = this.normalizar($('[data-filtro-sigla]', this.DOM).val());
+        var self = this;
+
+        if (!tipo && !sigla) {
+            this.tabela.clearFilter();
+            return;
+        }
+        this.tabela.setFilter(function (linha) {
+            return self.normalizar(linha.descricao).indexOf(tipo) !== -1
+                && self.normalizar(linha.sigla).indexOf(sigla) !== -1;
+        });
+    },
+
+    //Enter nos campos de filtro dispara a busca
+    teclaFiltro(htmlElement, event) {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        this.buscar();
+    },
+
+    //minúsculas e sem acento, para a busca não depender disso
+    normalizar(texto) {
+        return String(texto || '').trim().toLowerCase()
+            .normalize('NFD').replace(/[̀-ͯ]/g, '');
     }
 });

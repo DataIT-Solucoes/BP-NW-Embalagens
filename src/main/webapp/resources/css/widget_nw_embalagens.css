@@ -1,70 +1,483 @@
-/* Abas (somente o cabeçalho). Tudo escopado em .nwe-tabs para não vazar para outros widgets. */
-.nwe-tabs {
-    --nwe-cor: #e09414;                     /* laranja do logo Branco Peres */
-    --nwe-cor-fundo: rgba(224, 148, 20, 0.14);
+/*
+ * widget_nw_embalagens
+ * Todos os seletores começam com ".fluig-style-guide.nwe": sem isso as regras do Style Guide
+ * (ex.: ".fluig-style-guide header", ".fluig-style-guide h2") têm especificidade maior e vencem.
+ */
+
+/* Cores da Branco Peres (tiradas do logo e do site institucional) */
+.fluig-style-guide.nwe {
+    --nwe-amarelo: #f5bc16;
+    --nwe-laranja: #e09414;
+    --nwe-vermelho: #e7383b;
+    --nwe-tinta: #222222;
+    --nwe-tinta-suave: #6b6b6b;
+    --nwe-linha: #e6e6e6;
+    --nwe-laranja-fundo: rgba(224, 148, 20, 0.12);
+
+    padding: 28px;
+    font-family: "Mulish", "Open Sans", Helvetica, Arial, sans-serif;
+    color: var(--nwe-tinta);
+}
+
+/* ---------- Cabeçalho ---------- */
+.fluig-style-guide.nwe .nwe-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-bottom: 24px;
+}
+
+/* Selo redondo: anel laranja (mesma cor do indicador da aba) e centro transparente */
+.fluig-style-guide.nwe .nwe-selo {
+    flex: 0 0 auto;
+    display: inline-flex;
+    box-sizing: border-box;
+    width: 56px;
+    height: 56px;
+    border: 3px solid var(--nwe-laranja);
+    border-radius: 50%;
+}
+
+.fluig-style-guide.nwe .nwe-selo-miolo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    color: #000;
+    font-size: 24px;
+}
+
+.fluig-style-guide.nwe .nwe-cabecalho-texto {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.fluig-style-guide.nwe .nwe-cabecalho-acoes {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.fluig-style-guide.nwe .nwe-cabecalho-titulo {
+    margin: 0;
+    font-family: inherit;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-cabecalho-subtitulo {
+    margin: 6px 0 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--nwe-tinta-suave);
+}
+
+/* ---------- Abas ---------- */
+.fluig-style-guide.nwe .nwe-tabs {
     position: relative;
     display: flex;
     gap: 4px;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+    border-bottom: 1px solid var(--nwe-linha);
     overflow-x: auto;
     scrollbar-width: none;
 }
 
-.nwe-tabs::-webkit-scrollbar {
+.fluig-style-guide.nwe .nwe-tabs::-webkit-scrollbar {
     display: none;
 }
 
-.nwe-tab {
+.fluig-style-guide.nwe .nwe-tab {
     appearance: none;
     background: transparent;
     border: 0;
     border-radius: 8px 8px 0 0;
     padding: 12px 18px;
     font: inherit;
-    font-weight: 500;
-    color: inherit;
-    opacity: 0.65;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--nwe-tinta-suave);
     cursor: pointer;
     white-space: nowrap;
-    transition: opacity 0.2s ease, background-color 0.2s ease;
+    transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-.nwe-tab:hover {
-    opacity: 1;
-    background-color: rgba(128, 128, 128, 0.12);
+.fluig-style-guide.nwe .nwe-tab:hover {
+    color: var(--nwe-tinta);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
-.nwe-tab i {
+.fluig-style-guide.nwe .nwe-tab i {
     margin-right: 8px;
-    vertical-align: middle;
+    vertical-align: -1px;
 }
 
-.nwe-tab.is-active {
-    background-color: var(--nwe-cor-fundo);
-    opacity: 1;
-    font-weight: 600;
+.fluig-style-guide.nwe .nwe-tab.is-active {
+    color: #000;
+    font-weight: 700;
+    background-color: var(--nwe-laranja-fundo);
 }
 
-.nwe-tab:focus-visible {
-    outline: 2px solid var(--nwe-cor);
+.fluig-style-guide.nwe .nwe-tab:focus-visible {
+    outline: 2px solid var(--nwe-laranja);
     outline-offset: -2px;
 }
 
-.nwe-tabs-indicador {
+.fluig-style-guide.nwe .nwe-tabs-indicador {
     position: absolute;
     bottom: -1px;
     left: 0;
     height: 3px;
     width: 0;
     border-radius: 3px 3px 0 0;
-    background: var(--nwe-cor);
+    background: var(--nwe-laranja);
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
 }
 
+/* ---------- Filtros ---------- */
+.fluig-style-guide.nwe .nwe-filtros {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 16px 20px;
+    margin: 24px 0 28px;
+    padding: 20px;
+    border: 1px solid var(--nwe-linha);
+    border-radius: 14px;
+    background-color: #fafafa;
+}
+
+.fluig-style-guide.nwe .nwe-campo-rotulo {
+    display: block;
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-campo-caixa {
+    position: relative;
+}
+
+.fluig-style-guide.nwe .nwe-campo-caixa i {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: var(--nwe-tinta-suave);
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.fluig-style-guide.nwe .nwe-campo-input {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 44px;
+    margin: 0;
+    padding: 0 14px 0 40px;
+    border: 1px solid #d9d9d9;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--nwe-tinta);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fluig-style-guide.nwe .nwe-campo-input::placeholder {
+    color: #9e9e9e;
+    opacity: 1;
+}
+
+.fluig-style-guide.nwe .nwe-campo-input:hover {
+    border-color: #bdbdbd;
+}
+
+.fluig-style-guide.nwe .nwe-campo-input:focus {
+    outline: none;
+    border-color: var(--nwe-laranja);
+    box-shadow: 0 0 0 3px rgba(224, 148, 20, 0.2);
+}
+
+.fluig-style-guide.nwe .nwe-campo-caixa:focus-within i {
+    color: var(--nwe-laranja);
+}
+
+.fluig-style-guide.nwe .nwe-filtros-acoes {
+    display: flex;
+    gap: 10px;
+}
+
+/* ---------- Botões ---------- */
+.fluig-style-guide.nwe .nwe-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
+    height: 44px;
+    margin: 0;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.fluig-style-guide.nwe .nwe-btn i {
+    font-size: 15px;
+}
+
+.fluig-style-guide.nwe .nwe-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(224, 148, 20, 0.35);
+}
+
+.fluig-style-guide.nwe .nwe-btn:active {
+    transform: translateY(1px);
+}
+
+/* Novo: ação principal da tela (laranja da marca, texto escuro para manter contraste) */
+.fluig-style-guide.nwe .nwe-btn-destaque {
+    background-color: var(--nwe-laranja);
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-btn-destaque:hover {
+    background-color: #cc840f;
+}
+
+/* Buscar: contorno laranja, ganha fundo laranja claro no hover */
+.fluig-style-guide.nwe .nwe-btn-contorno {
+    border-color: var(--nwe-laranja);
+    background-color: #fff;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-btn-contorno:hover {
+    background-color: var(--nwe-laranja-fundo);
+}
+
+/* ---------- Tabela (Tabulator, tema "simple" sobrescrito com a paleta da tela) ---------- */
+.fluig-style-guide.nwe .nwe-tabela.tabulator {
+    border: 1px solid var(--nwe-linha);
+    border-radius: 14px;
+    overflow: hidden;
+    background-color: #fff;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header {
+    border-bottom: 1px solid var(--nwe-linha);
+    background-color: #fafafa;
+    color: var(--nwe-tinta-suave);
+    font-weight: 700;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col {
+    border-right: 0;
+    background-color: transparent;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 14px 20px;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col .tabulator-col-title {
+    font-size: 13px;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col.tabulator-sortable:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: var(--nwe-tinta);
+}
+
+/* seta de ordenação: cinza quando inativa, laranja na coluna ordenada */
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col .tabulator-col-sorter .tabulator-arrow {
+    border-bottom-color: #cfcfcf;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col[aria-sort="ascending"] .tabulator-col-sorter .tabulator-arrow {
+    border-bottom-color: var(--nwe-laranja);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col[aria-sort="descending"] .tabulator-col-sorter .tabulator-arrow {
+    border-top-color: var(--nwe-laranja);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row {
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fff;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row:hover {
+    background-color: var(--nwe-laranja-fundo);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row .tabulator-cell {
+    padding: 14px 20px;
+    border-right: 0;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row .tabulator-cell:first-child {
+    font-weight: 600;
+}
+
+.fluig-style-guide.nwe .nwe-sigla {
+    display: inline-block;
+    min-width: 40px;
+    padding: 3px 10px;
+    border: 1px solid #e3e3e3;
+    border-radius: 999px;
+    background-color: #f5f5f5;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: center;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-placeholder .tabulator-placeholder-contents {
+    padding: 32px 16px;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--nwe-tinta-suave);
+}
+
+/* rodapé: contador à esquerda, páginas à direita */
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer {
+    border-top: 1px solid var(--nwe-linha);
+    background-color: #fafafa;
+    color: var(--nwe-tinta-suave);
+    font-weight: 400;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-footer-contents {
+    padding: 10px 16px;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page-counter {
+    font-size: 13px;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page {
+    min-width: 34px;
+    height: 34px;
+    margin: 0 2px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page:not(:disabled):hover {
+    border-color: var(--nwe-linha);
+    background-color: #fff;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page.active {
+    border-color: var(--nwe-laranja);
+    background-color: #fff;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page:disabled {
+    opacity: 0.35;
+}
+
+.fluig-style-guide.nwe .nwe-tabela-erro {
+    margin: 0;
+    padding: 24px;
+    border: 1px solid var(--nwe-linha);
+    border-radius: 14px;
+    color: var(--nwe-tinta-suave);
+}
+
+/* ---------- Tablet: botões de filtro descem para uma linha própria ---------- */
+@media (max-width: 991px) {
+    .fluig-style-guide.nwe .nwe-filtros {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+
+    .fluig-style-guide.nwe .nwe-filtros-acoes {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 767px) {
+    .fluig-style-guide.nwe {
+        padding: 20px 16px;
+    }
+
+    .fluig-style-guide.nwe .nwe-filtros {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 16px;
+    }
+
+    .fluig-style-guide.nwe .nwe-cabecalho {
+        flex-wrap: wrap;
+    }
+
+    .fluig-style-guide.nwe .nwe-cabecalho-acoes {
+        flex: 1 1 100%;
+    }
+
+    .fluig-style-guide.nwe .nwe-cabecalho-acoes .nwe-btn,
+    .fluig-style-guide.nwe .nwe-filtros-acoes .nwe-btn {
+        flex: 1 1 0;
+        width: 100%;
+    }
+
+    .fluig-style-guide.nwe .nwe-cabecalho {
+        gap: 14px;
+        padding-bottom: 18px;
+    }
+
+    .fluig-style-guide.nwe .nwe-selo {
+        width: 46px;
+        height: 46px;
+    }
+
+    .fluig-style-guide.nwe .nwe-selo-miolo {
+        font-size: 18px;
+    }
+
+    .fluig-style-guide.nwe .nwe-cabecalho-titulo {
+        font-size: 21px;
+    }
+
+    .fluig-style-guide.nwe .nwe-cabecalho-subtitulo {
+        font-size: 14px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .nwe-tab,
-    .nwe-tabs-indicador {
+    .fluig-style-guide.nwe .nwe-tab,
+    .fluig-style-guide.nwe .nwe-tabs-indicador,
+    .fluig-style-guide.nwe .nwe-campo-caixa i,
+    .fluig-style-guide.nwe .nwe-campo-input,
+    .fluig-style-guide.nwe .nwe-btn {
         transition: none;
     }
 }
