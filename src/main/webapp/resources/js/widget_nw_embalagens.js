@@ -36,6 +36,10 @@ var widget_nw_embalagens = SuperWidget.extend({
     //instância do Tabulator
     tabela: null,
 
+    //linha do Tabulator em edição (null = modal em modo "novo") e linha aguardando confirmação de exclusão
+    linhaEditando: null,
+    linhaExcluindo: null,
+
     //método iniciado quando a widget é carregada
     init() {
         var self = this;
@@ -55,6 +59,7 @@ var widget_nw_embalagens = SuperWidget.extend({
         });
 
         this.prepararModalNovo();
+        this.prepararModalExcluir();
     },
 
     //BIND de eventos
@@ -65,7 +70,9 @@ var widget_nw_embalagens = SuperWidget.extend({
             'filtro-tipo': ['keydown_teclaFiltro'],
             'filtro-sigla': ['keydown_teclaFiltro'],
             'novo': ['click_abrirModalNovo'],
-            'fechar-modal': ['click_fecharModalNovo']
+            'fechar-modal': ['click_fecharModalNovo'],
+            'fechar-excluir': ['click_fecharModalExcluir'],
+            'confirmar-excluir': ['click_confirmarExclusao']
         },
         global: {}
     },
@@ -128,6 +135,7 @@ var widget_nw_embalagens = SuperWidget.extend({
     },
 
     montarTabela() {
+        var self = this;
         this.tabela = new Tabulator($('[data-tabela]', this.DOM)[0], {
             data: NWE_DADOS_MOCK,
             layout: 'fitColumns',
@@ -146,10 +154,11 @@ var widget_nw_embalagens = SuperWidget.extend({
                 'pt-br': {
                     data: { loading: 'Carregando...', error: 'Erro ao carregar' },
                     pagination: {
-                        first: '«', first_title: 'Primeira página',
-                        last: '»', last_title: 'Última página',
-                        prev: '‹', prev_title: 'Página anterior',
-                        next: '›', next_title: 'Próxima página'
+                        //o Tabulator coloca estes textos como HTML no botão: ícones em vez de « ‹ › »
+                        first: '<i class="bi bi-chevron-double-left" aria-hidden="true"></i>', first_title: 'Primeira página',
+                        last: '<i class="bi bi-chevron-double-right" aria-hidden="true"></i>', last_title: 'Última página',
+                        prev: '<i class="bi bi-chevron-left" aria-hidden="true"></i>', prev_title: 'Página anterior',
+                        next: '<i class="bi bi-chevron-right" aria-hidden="true"></i>', next_title: 'Próxima página'
                     }
                 }
             },
@@ -163,9 +172,39 @@ var widget_nw_embalagens = SuperWidget.extend({
                         span.textContent = cell.getValue();
                         return span;
                     }
+                },
+                {
+                    //sem ordenação de verdade: a seta do cabeçalho é só visual (CSS .nwe-col-acoes)
+                    title: 'Ações', headerSort: false, cssClass: 'nwe-col-acoes', width: 120, hozAlign: 'right', vertAlign: 'middle',
+                    formatter: function (cell) { return self.montarBotoesAcoes(cell.getRow().getData()); },
+                    cellClick: function (event, cell) {
+                        var botao = event.target.closest('[data-acao]');
+                        if (!botao) return;
+                        if (botao.getAttribute('data-acao') === 'editar') self.abrirModalEditar(cell.getRow());
+                        else self.abrirModalExcluir(cell.getRow());
+                    }
                 }
             ]
         });
+    },
+
+    montarBotoesAcoes(dados) {
+        var grupo = document.createElement('div');
+        grupo.className = 'nwe-acoes';
+        [
+            { acao: 'editar', icone: 'bi-pencil', texto: 'Editar' },
+            { acao: 'excluir', icone: 'bi-trash3', texto: 'Excluir' }
+        ].forEach(function (b) {
+            var botao = document.createElement('button');
+            botao.type = 'button';
+            botao.className = 'nwe-acao nwe-acao-' + b.acao;
+            botao.setAttribute('data-acao', b.acao);
+            botao.setAttribute('aria-label', b.texto + ' ' + dados.descricao);
+            botao.title = b.texto;
+            botao.innerHTML = '<i class="bi ' + b.icone + '" aria-hidden="true"></i>';
+            grupo.appendChild(botao);
+        });
+        return grupo;
     },
 
     buscar(htmlElement, event) {
@@ -198,8 +237,11 @@ var widget_nw_embalagens = SuperWidget.extend({
         this.$modal = $('[data-modal-novo]', this.DOM);
         this.$formNovo = this.$modal.find('form');
 
-        //fechar com Esc não passa por fecharModalNovo: o "close" cobre esse caso
-        this.$modal.on('close', function () { self.limparFormNovo(); });
+        //fechar com Esc não passa por fecharModalNovo: o "close" cobre esse caso.
+        //Ele é assíncrono: se o modal já foi reaberto (ex.: em modo edição), não apaga o que foi preenchido.
+        this.$modal.on('close', function () {
+            if (!self.$modal[0].open) self.limparFormNovo();
+        });
 
         //clique no fundo escurecido: o alvo é o próprio <dialog> (o conteúdo fica dentro do <form>)
         this.$modal.on('click', function (event) {
@@ -218,10 +260,29 @@ var widget_nw_embalagens = SuperWidget.extend({
     },
 
     abrirModalNovo(htmlElement, event) {
+        this.abrirModalCadastro(null);
+    },
+
+    abrirModalEditar(linha) {
+        this.abrirModalCadastro(linha);
+    },
+
+    //mesmo modal para criar (linha = null) e editar (linha = linha do Tabulator)
+    abrirModalCadastro(linha) {
         var modal = this.$modal[0];
         if (!modal || typeof modal.showModal !== 'function' || modal.open) return;
         //limpa também ao abrir: o evento "close" é assíncrono e o Chrome não o dispara com a aba oculta
         this.limparFormNovo();
+
+        var editando = !!linha;
+        this.$modal.find('[data-modal-titulo]').text(editando ? 'Editar tipo de embalagem' : 'Novo tipo de embalagem');
+        this.$modal.find('[data-modal-subtitulo]').text(editando ? 'Altere a descrição ou a sigla e salve.' : 'Preencha a descrição e a sigla para cadastrar.');
+        this.$modal.find('[data-modal-salvar]').text(editando ? 'Salvar alterações' : 'Salvar');
+        if (editando) {
+            this.linhaEditando = linha;
+            this.$formNovo.find('[name="descricao"]').val(linha.getData().descricao);
+            this.$formNovo.find('[name="sigla"]').val(linha.getData().sigla);
+        }
         modal.showModal();
     },
 
@@ -233,6 +294,7 @@ var widget_nw_embalagens = SuperWidget.extend({
     },
 
     limparFormNovo() {
+        this.linhaEditando = null;
         this.$formNovo[0].reset();
         this.marcarErro('descricao', '');
         this.marcarErro('sigla', '');
@@ -267,14 +329,62 @@ var widget_nw_embalagens = SuperWidget.extend({
             return;
         }
 
-        //MOCK: só adiciona na tabela da tela. Trocar pela gravação no dataset quando ele for definido.
+        //MOCK: só altera a tabela da tela. Trocar pela gravação no dataset quando ele for definido.
+        var linhaEditando = this.linhaEditando;   //guardar antes: fechar limpa o formulário
         this.fecharModalNovo();
         if (!this.tabela) return;
-        this.tabela.addRow({ descricao: descricao, sigla: sigla }).then(function (linha) {
-            var ordem = self.tabela.getSorters().map(function (s) { return { column: s.field, dir: s.dir }; });
-            if (ordem.length) self.tabela.setSort(ordem);
+
+        var gravar = linhaEditando
+            ? linhaEditando.update({ descricao: descricao, sigla: sigla }).then(function () {
+                linhaEditando.reformat();   //atualiza o aria-label dos botões de ação
+                return linhaEditando;
+            })
+            : this.tabela.addRow({ descricao: descricao, sigla: sigla });
+
+        gravar.then(function (linha) {
+            self.reaplicarOrdem();
             self.destacarLinha(linha);
         });
+    },
+
+    reaplicarOrdem() {
+        var ordem = this.tabela.getSorters().map(function (s) { return { column: s.field, dir: s.dir }; });
+        if (ordem.length) this.tabela.setSort(ordem);
+    },
+
+    // ---------- Confirmação de exclusão ----------
+
+    prepararModalExcluir() {
+        var self = this;
+        this.$modalExcluir = $('[data-modal-excluir]', this.DOM);
+        this.$modalExcluir.on('close', function () {
+            if (!self.$modalExcluir[0].open) self.linhaExcluindo = null;
+        });
+        this.$modalExcluir.on('click', function (event) {
+            if (event.target === self.$modalExcluir[0]) self.fecharModalExcluir();
+        });
+    },
+
+    abrirModalExcluir(linha) {
+        var modal = this.$modalExcluir[0];
+        if (!modal || typeof modal.showModal !== 'function' || modal.open) return;
+        var dados = linha.getData();
+        this.linhaExcluindo = linha;
+        this.$modalExcluir.find('[data-excluir-item]').text(dados.descricao + ' (' + dados.sigla + ')');
+        modal.showModal();
+    },
+
+    fecharModalExcluir(htmlElement, event) {
+        var modal = this.$modalExcluir[0];
+        if (modal && modal.open) modal.close();
+        this.linhaExcluindo = null;
+    },
+
+    //MOCK: só remove da tabela da tela. Trocar pela exclusão no dataset quando ele for definido.
+    confirmarExclusao(htmlElement, event) {
+        var linha = this.linhaExcluindo;
+        this.fecharModalExcluir();
+        if (linha) linha.delete();
     },
 
     //leva até a página da linha nova e pisca em laranja (se ela não estiver escondida pelo filtro)

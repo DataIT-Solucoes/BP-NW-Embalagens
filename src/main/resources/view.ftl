@@ -42,8 +42,8 @@
         <form class="nwe-modal-form" novalidate>
             <div class="nwe-modal-cabecalho">
                 <div>
-                    <h3 class="nwe-modal-titulo" id="nwe-modal-titulo-${instanceId}">Novo tipo de embalagem</h3>
-                    <p class="nwe-modal-subtitulo">Preencha a descrição e a sigla para cadastrar.</p>
+                    <h3 class="nwe-modal-titulo" id="nwe-modal-titulo-${instanceId}" data-modal-titulo>Novo tipo de embalagem</h3>
+                    <p class="nwe-modal-subtitulo" data-modal-subtitulo>Preencha a descrição e a sigla para cadastrar.</p>
                 </div>
                 <button type="button" class="nwe-modal-fechar" aria-label="Fechar" data-fechar-modal><i class="bi bi-x-lg" aria-hidden="true"></i></button>
             </div>
@@ -64,8 +64,20 @@
 
             <div class="nwe-modal-rodape">
                 <button type="button" class="nwe-btn nwe-btn-contorno" data-fechar-modal>Cancelar</button>
-                <button type="submit" class="nwe-btn nwe-btn-destaque"><i class="bi bi-check-lg" aria-hidden="true"></i>Salvar</button>
+                <button type="submit" class="nwe-btn nwe-btn-destaque"><i class="bi bi-check-lg" aria-hidden="true"></i><span data-modal-salvar>Salvar</span></button>
             </div>
         </form>
+    </dialog>
+
+    <dialog class="nwe-modal nwe-modal-pequeno" role="alertdialog" aria-labelledby="nwe-excluir-titulo-${instanceId}" aria-describedby="nwe-excluir-texto-${instanceId}" data-modal-excluir>
+        <div class="nwe-modal-confirmacao">
+            <span class="nwe-confirmacao-icone" aria-hidden="true"><i class="bi bi-trash3"></i></span>
+            <h3 class="nwe-modal-titulo" id="nwe-excluir-titulo-${instanceId}">Excluir tipo de embalagem?</h3>
+            <p class="nwe-modal-subtitulo" id="nwe-excluir-texto-${instanceId}">O tipo <strong data-excluir-item></strong> será removido da lista. Essa ação não pode ser desfeita.</p>
+        </div>
+        <div class="nwe-modal-rodape">
+            <button type="button" class="nwe-btn nwe-btn-contorno" autofocus data-fechar-excluir>Cancelar</button>
+            <button type="button" class="nwe-btn nwe-btn-perigo" data-confirmar-excluir><i class="bi bi-trash3" aria-hidden="true"></i>Excluir</button>
+        </div>
     </dialog>
 </div>
