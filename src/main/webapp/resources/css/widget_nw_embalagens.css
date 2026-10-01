@@ -412,6 +412,163 @@
     color: var(--nwe-tinta-suave);
 }
 
+/* linha recém-cadastrada pisca em laranja */
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row.nwe-linha-nova {
+    animation: nwe-linha-nova 2.2s ease-out;
+}
+
+@keyframes nwe-linha-nova {
+    0%, 35% { background-color: rgba(224, 148, 20, 0.28); }
+    100% { background-color: #fff; }
+}
+
+/* ---------- Modal "Novo tipo de embalagem" (<dialog> nativo) ---------- */
+.fluig-style-guide.nwe .nwe-modal {
+    box-sizing: border-box;
+    width: min(480px, calc(100vw - 32px));
+    max-width: none;
+    max-height: calc(100vh - 32px);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+    font-family: inherit;
+    color: var(--nwe-tinta);
+    overflow: auto;
+}
+
+.fluig-style-guide.nwe .nwe-modal[open] {
+    animation: nwe-modal-entrar 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ::backdrop não herda variáveis CSS em todos os navegadores: cores escritas direto */
+.fluig-style-guide.nwe .nwe-modal::backdrop {
+    background-color: rgba(20, 20, 20, 0.45);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+.fluig-style-guide.nwe .nwe-modal[open]::backdrop {
+    animation: nwe-fundo-entrar 0.22s ease-out;
+}
+
+@keyframes nwe-modal-entrar {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes nwe-fundo-entrar {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fluig-style-guide.nwe .nwe-modal-form {
+    margin: 0;
+}
+
+.fluig-style-guide.nwe .nwe-modal-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 24px 4px;
+}
+
+.fluig-style-guide.nwe .nwe-modal-titulo {
+    margin: 0;
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-modal-subtitulo {
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--nwe-tinta-suave);
+}
+
+.fluig-style-guide.nwe .nwe-modal-fechar {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: -6px -8px 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    font-size: 16px;
+    color: var(--nwe-tinta-suave);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.fluig-style-guide.nwe .nwe-modal-fechar:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-modal-fechar:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(224, 148, 20, 0.35);
+}
+
+.fluig-style-guide.nwe .nwe-modal-corpo {
+    display: grid;
+    gap: 18px;
+    padding: 20px 24px 8px;
+}
+
+/* campo sem ícone dentro */
+.fluig-style-guide.nwe .nwe-campo-input.nwe-campo-input-simples {
+    padding: 0 14px;
+}
+
+.fluig-style-guide.nwe .nwe-campo-input.nwe-campo-input-sigla {
+    max-width: 140px;
+}
+
+.fluig-style-guide.nwe .nwe-campo-dica {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: var(--nwe-tinta-suave);
+}
+
+.fluig-style-guide.nwe .nwe-campo-erro {
+    margin: 6px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #c4262a;
+}
+
+.fluig-style-guide.nwe .nwe-campo-erro:empty {
+    display: none;
+}
+
+.fluig-style-guide.nwe .nwe-campo-input.is-invalido,
+.fluig-style-guide.nwe .nwe-campo-input.is-invalido:hover {
+    border-color: #c4262a;
+}
+
+.fluig-style-guide.nwe .nwe-campo-input.is-invalido:focus {
+    border-color: #c4262a;
+    box-shadow: 0 0 0 3px rgba(196, 38, 42, 0.18);
+}
+
+.fluig-style-guide.nwe .nwe-modal-rodape {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px 24px 24px;
+}
+
 /* ---------- Tablet: botões de filtro descem para uma linha própria ---------- */
 @media (max-width: 991px) {
     .fluig-style-guide.nwe .nwe-filtros {
@@ -433,6 +590,22 @@
     .fluig-style-guide.nwe .nwe-filtros {
         grid-template-columns: minmax(0, 1fr);
         padding: 16px;
+    }
+
+    .fluig-style-guide.nwe .nwe-modal-cabecalho {
+        padding: 20px 20px 4px;
+    }
+
+    .fluig-style-guide.nwe .nwe-modal-corpo {
+        padding: 16px 20px 8px;
+    }
+
+    .fluig-style-guide.nwe .nwe-modal-rodape {
+        padding: 16px 20px 20px;
+    }
+
+    .fluig-style-guide.nwe .nwe-modal-rodape .nwe-btn {
+        flex: 1 1 0;
     }
 
     .fluig-style-guide.nwe .nwe-cabecalho {
@@ -477,7 +650,14 @@
     .fluig-style-guide.nwe .nwe-tabs-indicador,
     .fluig-style-guide.nwe .nwe-campo-caixa i,
     .fluig-style-guide.nwe .nwe-campo-input,
-    .fluig-style-guide.nwe .nwe-btn {
+    .fluig-style-guide.nwe .nwe-btn,
+    .fluig-style-guide.nwe .nwe-modal-fechar {
         transition: none;
+    }
+
+    .fluig-style-guide.nwe .nwe-modal[open],
+    .fluig-style-guide.nwe .nwe-modal[open]::backdrop,
+    .fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row.nwe-linha-nova {
+        animation: none;
     }
 }

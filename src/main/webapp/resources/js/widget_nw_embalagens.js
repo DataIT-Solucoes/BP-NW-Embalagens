@@ -53,6 +53,8 @@ var widget_nw_embalagens = SuperWidget.extend({
         }, function () {
             $('[data-tabela]', self.DOM).html('<p class="nwe-tabela-erro">Não foi possível carregar a tabela. Verifique a conexão com a internet e recarregue a página.</p>');
         });
+
+        this.prepararModalNovo();
     },
 
     //BIND de eventos
@@ -61,7 +63,9 @@ var widget_nw_embalagens = SuperWidget.extend({
             'tab': ['click_selecionarAba', 'keydown_navegarAbas'],
             'buscar': ['click_buscar'],
             'filtro-tipo': ['keydown_teclaFiltro'],
-            'filtro-sigla': ['keydown_teclaFiltro']
+            'filtro-sigla': ['keydown_teclaFiltro'],
+            'novo': ['click_abrirModalNovo'],
+            'fechar-modal': ['click_fecharModalNovo']
         },
         global: {}
     },
@@ -185,6 +189,105 @@ var widget_nw_embalagens = SuperWidget.extend({
         if (event.key !== 'Enter') return;
         event.preventDefault();
         this.buscar();
+    },
+
+    // ---------- Modal "Novo tipo de embalagem" (<dialog> nativo, não o FLUIGC.modal) ----------
+
+    prepararModalNovo() {
+        var self = this;
+        this.$modal = $('[data-modal-novo]', this.DOM);
+        this.$formNovo = this.$modal.find('form');
+
+        //fechar com Esc não passa por fecharModalNovo: o "close" cobre esse caso
+        this.$modal.on('close', function () { self.limparFormNovo(); });
+
+        //clique no fundo escurecido: o alvo é o próprio <dialog> (o conteúdo fica dentro do <form>)
+        this.$modal.on('click', function (event) {
+            if (event.target === self.$modal[0]) self.fecharModalNovo();
+        });
+
+        this.$formNovo.on('submit', function (event) {
+            event.preventDefault();
+            self.salvarNovo();
+        });
+
+        //o erro de um campo some assim que a pessoa volta a digitar nele
+        this.$formNovo.on('input', '.nwe-campo-input', function () {
+            self.marcarErro(this.name, '');
+        });
+    },
+
+    abrirModalNovo(htmlElement, event) {
+        var modal = this.$modal[0];
+        if (!modal || typeof modal.showModal !== 'function' || modal.open) return;
+        //limpa também ao abrir: o evento "close" é assíncrono e o Chrome não o dispara com a aba oculta
+        this.limparFormNovo();
+        modal.showModal();
+    },
+
+    fecharModalNovo(htmlElement, event) {
+        var modal = this.$modal[0];
+        if (!modal || !modal.open) return;
+        modal.close();
+        this.limparFormNovo();
+    },
+
+    limparFormNovo() {
+        this.$formNovo[0].reset();
+        this.marcarErro('descricao', '');
+        this.marcarErro('sigla', '');
+    },
+
+    marcarErro(campo, mensagem) {
+        this.$formNovo.find('[name="' + campo + '"]')
+            .toggleClass('is-invalido', !!mensagem)
+            .attr('aria-invalid', mensagem ? 'true' : 'false');
+        this.$formNovo.find('[data-erro="' + campo + '"]').text(mensagem);
+    },
+
+    salvarNovo() {
+        var self = this;
+        var descricao = $.trim(this.$formNovo.find('[name="descricao"]').val());
+        var sigla = $.trim(this.$formNovo.find('[name="sigla"]').val());
+        var primeiroInvalido = null;
+
+        if (!descricao) {
+            this.marcarErro('descricao', 'Informe a descrição.');
+            primeiroInvalido = primeiroInvalido || 'descricao';
+        }
+        if (!sigla) {
+            this.marcarErro('sigla', 'Informe a sigla.');
+            primeiroInvalido = primeiroInvalido || 'sigla';
+        } else if (sigla.length > 2) {
+            this.marcarErro('sigla', 'A sigla tem no máximo 2 caracteres.');
+            primeiroInvalido = primeiroInvalido || 'sigla';
+        }
+        if (primeiroInvalido) {
+            this.$formNovo.find('[name="' + primeiroInvalido + '"]').trigger('focus');
+            return;
+        }
+
+        //MOCK: só adiciona na tabela da tela. Trocar pela gravação no dataset quando ele for definido.
+        this.fecharModalNovo();
+        if (!this.tabela) return;
+        this.tabela.addRow({ descricao: descricao, sigla: sigla }).then(function (linha) {
+            var ordem = self.tabela.getSorters().map(function (s) { return { column: s.field, dir: s.dir }; });
+            if (ordem.length) self.tabela.setSort(ordem);
+            self.destacarLinha(linha);
+        });
+    },
+
+    //leva até a página da linha nova e pisca em laranja (se ela não estiver escondida pelo filtro)
+    destacarLinha(linha) {
+        var visivel = this.tabela.getRows('active').indexOf(linha) !== -1;
+        if (!visivel) return;
+        linha.pageTo().then(function () {
+            var el = linha.getElement();
+            el.classList.remove('nwe-linha-nova');
+            void el.offsetWidth;
+            el.classList.add('nwe-linha-nova');
+            setTimeout(function () { el.classList.remove('nwe-linha-nova'); }, 2200);
+        });
     },
 
     //minúsculas e sem acento, para a busca não depender disso

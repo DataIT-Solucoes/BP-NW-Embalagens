@@ -37,4 +37,35 @@
         </div>
     </div>
     <div class="nwe-tabela" data-tabela></div>
+
+    <dialog class="nwe-modal" aria-labelledby="nwe-modal-titulo-${instanceId}" data-modal-novo>
+        <form class="nwe-modal-form" novalidate>
+            <div class="nwe-modal-cabecalho">
+                <div>
+                    <h3 class="nwe-modal-titulo" id="nwe-modal-titulo-${instanceId}">Novo tipo de embalagem</h3>
+                    <p class="nwe-modal-subtitulo">Preencha a descrição e a sigla para cadastrar.</p>
+                </div>
+                <button type="button" class="nwe-modal-fechar" aria-label="Fechar" data-fechar-modal><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            </div>
+
+            <div class="nwe-modal-corpo">
+                <div class="nwe-campo">
+                    <label class="nwe-campo-rotulo" for="nwe-novo-descricao-${instanceId}">Descrição</label>
+                    <input type="text" id="nwe-novo-descricao-${instanceId}" name="descricao" class="nwe-campo-input nwe-campo-input-simples" placeholder="Ex.: Caixa" autocomplete="off" required autofocus aria-describedby="nwe-novo-descricao-erro-${instanceId}">
+                    <p class="nwe-campo-erro" id="nwe-novo-descricao-erro-${instanceId}" data-erro="descricao"></p>
+                </div>
+                <div class="nwe-campo">
+                    <label class="nwe-campo-rotulo" for="nwe-novo-sigla-${instanceId}">Sigla</label>
+                    <input type="text" id="nwe-novo-sigla-${instanceId}" name="sigla" class="nwe-campo-input nwe-campo-input-simples nwe-campo-input-sigla" placeholder="Ex.: CX" maxlength="2" autocomplete="off" required aria-describedby="nwe-novo-sigla-dica-${instanceId} nwe-novo-sigla-erro-${instanceId}">
+                    <p class="nwe-campo-dica" id="nwe-novo-sigla-dica-${instanceId}">Até 2 caracteres.</p>
+                    <p class="nwe-campo-erro" id="nwe-novo-sigla-erro-${instanceId}" data-erro="sigla"></p>
+                </div>
+            </div>
+
+            <div class="nwe-modal-rodape">
+                <button type="button" class="nwe-btn nwe-btn-contorno" data-fechar-modal>Cancelar</button>
+                <button type="submit" class="nwe-btn nwe-btn-destaque"><i class="bi bi-check-lg" aria-hidden="true"></i>Salvar</button>
+            </div>
+        </form>
+    </dialog>
 </div>
