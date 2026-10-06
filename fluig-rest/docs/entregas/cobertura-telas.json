@@ -1,0 +1,1310 @@
+{
+  "versao": "2026-09-21",
+  "base": "/dts/datasul-rest/resources/prg/esp/v1/controle-embalagens",
+  "regras": {
+    "minimoCaracteres": 2,
+    "debounceMs": 350,
+    "limiteAutocomplete": 20,
+    "autorizacao": "Dataset obtem WKUser/grupos e estabelecimentos; Widget nao define contexto confiavel"
+  },
+  "operacoes": {
+    "local": {
+      "procedure": "—",
+      "arquivo": "Widget Fluig",
+      "metodo": "LOCAL",
+      "rota": "—",
+      "estado": "Local; sem API",
+      "contrato": "Mapa das telas"
+    },
+    "est": {
+      "procedure": "consultarEstabelecimentos",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "GET",
+      "rota": "/apoios/estabelecimentos",
+      "estado": "Compilado; ET-01I ABL 30/0: autorizacao, filtro e codigo aprovados; REST/Dataset pendentes",
+      "contrato": "Catalogo 21 / ET-01I"
+    },
+    "item": {
+      "procedure": "consultarItens",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "GET",
+      "rota": "/apoios/itens",
+      "estado": "Compilado; ET-01I ABL 30/0: permissao, unidade, limite, repeticao e cursor aprovados; REST/Dataset pendentes",
+      "contrato": "Catalogo 21 / ET-01I; catalogo global, nao saldo por estabelecimento"
+    },
+    "tipos": {
+      "procedure": "consultarTipos",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "GET",
+      "rota": "/tipos",
+      "estado": "REST cadastral verificado; autocomplete integrado pendente",
+      "contrato": "Catalogo 17.1; codigoDe/codigoAte para codigo exato OU descricao; nao existe filtro OR unico"
+    },
+    "tipoCriar": {
+      "procedure": "salvarTipo",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "POST",
+      "rota": "/tipos",
+      "estado": "REST verificado; Fluig integrado pendente",
+      "contrato": "Catalogo 19 / ET-01G"
+    },
+    "tipoEditar": {
+      "procedure": "salvarTipo",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "PATCH",
+      "rota": "/tipos",
+      "estado": "REST verificado; Fluig integrado pendente",
+      "contrato": "Catalogo 19; ALTERAR/INATIVAR; reativar via ALTERAR ativo=true"
+    },
+    "paramBusca": {
+      "procedure": "consultarParametros",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "GET",
+      "rota": "/parametros",
+      "estado": "REST parcial; massa/paginacao pendentes",
+      "contrato": "Catalogo 17.2; estabelDe/Ate,itemDe/Ate,ativo,aposId,limite"
+    },
+    "paramCriar": {
+      "procedure": "salvarParametro",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "POST",
+      "rota": "/parametros",
+      "estado": "Compilado; ET-01F integrado 32/0 aprovado com rollback; guardas com massa/concorrencia/REST/Dataset pendentes",
+      "contrato": "Catalogo 16.1 / DT-068; migracao explicita, ultimo parametro ativo, idempotencia/versao e transacao conjunta"
+    },
+    "paramEditar": {
+      "procedure": "salvarParametro",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "PATCH",
+      "rota": "/parametros",
+      "estado": "Compilado; ET-01F integrado 32/0 aprovado com rollback; guardas com massa/concorrencia/REST/Dataset pendentes",
+      "contrato": "Catalogo 16.1 / DT-068; migracao explicita, ultimo parametro ativo, idempotencia/versao e transacao conjunta"
+    },
+    "etq": {
+      "procedure": "consultarEtiquetas",
+      "arquivo": "fontes/progress/contr-emb-rastreio.p",
+      "metodo": "GET",
+      "rota": "/etiquetas",
+      "estado": "Compilado; ET-02A com massa 17/0, codigo exato/lista/repeticao aprovados; filtros ampliados/REST/Fluig pendentes",
+      "contrato": "Catalogo 10.1; filtros exatos existentes; nao inclui todos os filtros ampliados"
+    },
+    "etqAmpliada": {
+      "procedure": "consultarEtiquetas (ampliacao pendente)",
+      "arquivo": "fontes/progress/contr-emb-rastreio.p",
+      "metodo": "GET",
+      "rota": "/etiquetas",
+      "estado": "Necessidade; novos filtros ainda nao implementados",
+      "contrato": "Mapa telas; contratar deposito/localizacao, validade, familia/grupo e NF antes de payload"
+    },
+    "deposito": {
+      "procedure": "A definir: apoio de depositos",
+      "arquivo": "A definir; modulo cadastral proposto",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Pendente: fonte nativa, visibilidade e assinatura",
+      "contrato": "Dependente de estabelecimento; nao usar tabela/coluna presumida"
+    },
+    "localizacao": {
+      "procedure": "A definir: apoio de localizacoes",
+      "arquivo": "A definir; modulo cadastral proposto",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Pendente: fonte nativa e assinatura",
+      "contrato": "Dependente de estabelecimento/deposito"
+    },
+    "lote": {
+      "procedure": "A definir: apoio de lotes/validades",
+      "arquivo": "A definir; modulo rastreio proposto",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Pendente: contrato, origem e deduplicacao",
+      "contrato": "Dependente de estabelecimento/item; nao apresentar referencias como lotes"
+    },
+    "familia": {
+      "procedure": "consultarFamilias",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "GET",
+      "rota": "/apoios/familias",
+      "estado": "Compilado; ET-01I ABL 30/0: predicado, limite, repeticao e cursor aprovados; REST/Dataset pendentes",
+      "contrato": "Catalogo 24.1; mgcad.familia comprovada; busca OR, teto 20, cursor e permissoes; filtro ampliado de etiquetas continua pendente"
+    },
+    "grupo": {
+      "procedure": "A definir: apoio de grupos de estoque",
+      "arquivo": "A definir; modulo cadastral proposto",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Pendente: fonte nativa e contrato",
+      "contrato": "Grupo do item, distinto de familia e dos grupos de autorizacao Fluig; filtro ampliado pendente"
+    },
+    "histEtq": {
+      "procedure": "consultarMovimentos (proposta)",
+      "arquivo": "fontes/progress/contr-emb-rastreio.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; nao implementada",
+      "contrato": "ET-02; Catalogo/ciclo; situacao,posicao,vinculo,quantidade distintos"
+    },
+    "imprimir": {
+      "procedure": "obterDadosImpressao (GER-05; etiqueta individual)",
+      "arquivo": "fontes/progress/contr-emb-rastreio.p",
+      "metodo": "GET",
+      "rota": "/dados-impressao",
+      "estado": "Compilado; ET-02A com massa 17/0, PRE/origem ERRO recusados e identidade/reimpressao preservadas; eventos ausentes/PROCESSANDO e REST/servico/layout pendentes",
+      "contrato": "Catalogo 24.2; idEtiqueta positivo, EMBALAGEM autorizada, origem CONCLUIDO; sem gerar identidade/movimento/imprimir papel"
+    },
+    "geracao": {
+      "procedure": "consultarGeracao",
+      "arquivo": "fontes/progress/contr-emb-rastreio.p",
+      "metodo": "GET",
+      "rota": "/geracoes",
+      "estado": "Implementada em fonte; compilacao, publicacao e teste pendentes",
+      "contrato": "Catalogo 10.2 / DT-075; detalhe por idEvento, itens/lotes e pagina de EMBALAGEM gerada"
+    },
+    "natureza": {
+      "procedure": "consultarNaturezasOperacao (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; natureza/BO instalada pendente",
+      "contrato": "Catalogo 18; ET-06/07"
+    },
+    "origem": {
+      "procedure": "consultarOrigensDevolucao (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; contratos FT4011/FT4012 pendentes",
+      "contrato": "Catalogo 18; documentos elegiveis, contraparte e saldo disponivel"
+    },
+    "origemItens": {
+      "procedure": "consultarItensOrigem (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; quantidades/unidades/BO pendentes",
+      "contrato": "Catalogo 18; original/devolvida/alocada/disponivel"
+    },
+    "emitente": {
+      "procedure": "A definir: apoio de contrapartes",
+      "arquivo": "A definir; modulo operacao proposto",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Pendente: fonte nativa e contrato",
+      "contrato": "Filtrar elegibilidade por natureza/empresa; nao inferir de cadastro livre"
+    },
+    "selecao": {
+      "procedure": "registrarSelecao / validarRateioOperacao (propostas)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; reserva, concorrencia, atomicidade pendentes",
+      "contrato": "DT-047 / Catalogo 18"
+    },
+    "transferir": {
+      "procedure": "processarTransferenciaSaida (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; efeito fiscal/estoque e inverso pendentes",
+      "contrato": "ET-06; transporte de identidades, nao novas etiquetas"
+    },
+    "devolver": {
+      "procedure": "processarDevolucao (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; BO instalada, origem, rateio e inverso pendentes",
+      "contrato": "ET-07; finalizar no Fluig sem tela Progress intermediaria"
+    },
+    "emprestar": {
+      "procedure": "processarEmprestimo (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; natureza, prazo, documentos e inverso pendentes",
+      "contrato": "ET-07; nao presumir efeito em saldo de terceiros"
+    },
+    "renovar": {
+      "procedure": "processarRenovacao (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; sequencia documental/inverso pendentes",
+      "contrato": "ET-07; preservar saida e entrada confirmadas"
+    },
+    "retomar": {
+      "procedure": "consultarResultadoOperacao (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; resultado duravel e politica de retomada pendentes",
+      "contrato": "ET-06/07; nao repetir comando incerto sem consultar resultado"
+    },
+    "bags": {
+      "procedure": "consultarBags",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "GET",
+      "rota": "/bags",
+      "estado": "Compilado; DT-074 positivo/exato/vazio/autorizacao e duas paginas de Bags aprovados; filtros combinados/REST/Dataset pendentes",
+      "contrato": "Catalogo 22/23.2; somente leitura, teto 20, cursor; idBag em query; sem totais globais"
+    },
+    "bagCriar": {
+      "procedure": "abrirBag (BAG-05; proposta)",
+      "arquivo": "fontes/progress/contr-emb.p (proposto)",
+      "metodo": "POST (proposta)",
+      "rota": "/bags (proposta)",
+      "estado": "Proposta; nao implementada",
+      "contrato": "Catalogo 3.2; handler previsto pi-abrir-bag; sequencia, transicoes e lacre pendentes"
+    },
+    "bagEditar": {
+      "procedure": "alterarBagAberta (BAG-06; proposta)",
+      "arquivo": "fontes/progress/contr-emb.p (proposto)",
+      "metodo": "PATCH (proposta)",
+      "rota": "/bags/{idBag} (proposta)",
+      "estado": "Proposta; nao implementada",
+      "contrato": "Catalogo 3.2; tipo imutavel apos conteudo; versao"
+    },
+    "bagConteudo": {
+      "procedure": "consultarConteudoBag",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "GET",
+      "rota": "/conteudo-bag",
+      "estado": "Compilado; DT-074 Bag com conteudo 16/0, vazia 13/0, repeticao/cursor aprovados; autorizacao cruzada/REST/Dataset pendentes",
+      "contrato": "Catalogo 22/23.2; somente leitura, teto 20, cursor; idBag em query; sem totais globais"
+    },
+    "bagElegiveis": {
+      "procedure": "consultarSaldosElegiveisBag (BAG-09; proposta)",
+      "arquivo": "fontes/progress/contr-emb.p (proposto)",
+      "metodo": "GET (proposta)",
+      "rota": "/bags/{idBag}/saldos-elegiveis (proposta)",
+      "estado": "Proposta; nucleo ET-02 e assinatura pendentes",
+      "contrato": "Catalogo 3.3; mesmo tipo; nunca PRE_SALDO"
+    },
+    "bagIncluir": {
+      "procedure": "incluirEtiquetasBag (BAG-10; proposta)",
+      "arquivo": "fontes/progress/contr-emb.p (proposto)",
+      "metodo": "POST (proposta)",
+      "rota": "/bags/{idBag}/conteudo (proposta)",
+      "estado": "Proposta; eventos/atomicidade/concorrencia pendentes",
+      "contrato": "Catalogo 3.3; criar movimento e atualizar vinculo juntos"
+    },
+    "bagRetirar": {
+      "procedure": "retirarEtiquetasBag (BAG-11; proposta)",
+      "arquivo": "fontes/progress/contr-emb.p (proposto)",
+      "metodo": "POST (proposta)",
+      "rota": "/bags/{idBag}/conteudo/retiradas (proposta)",
+      "estado": "Proposta; nao implementada",
+      "contrato": "Catalogo 3.3; motivo obrigatorio, nao apagar movimento"
+    },
+    "bagEvento": {
+      "procedure": "executarEventoBag (BAG-07; proposta)",
+      "arquivo": "fontes/progress/contr-emb.p (proposto)",
+      "metodo": "POST (proposta)",
+      "rota": "/bags/{idBag}/eventos (proposta)",
+      "estado": "Proposta; transicoes nao liberadas",
+      "contrato": "Catalogo 3.2/8; nao aprovar estados pelo mockup"
+    },
+    "bagHist": {
+      "procedure": "consultarHistoricoBag (BAG-12; proposta)",
+      "arquivo": "fontes/progress/contr-emb.p (proposto)",
+      "metodo": "GET (proposta)",
+      "rota": "/bags/{idBag}/historico (proposta)",
+      "estado": "Proposta; nao implementada",
+      "contrato": "Catalogo 3.4"
+    },
+    "bagLacre": {
+      "procedure": "A definir: troca de lacre",
+      "arquivo": "fontes/progress/contr-emb.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Pendente; TROCAR_LACRE fora do primeiro contrato",
+      "contrato": "Catalogo 3.2/8"
+    },
+    "motorista": {
+      "procedure": "A definir: apoio de motoristas",
+      "arquivo": "A definir; modulo cadastral proposto",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Pendente: origem/cadastro e obrigatoriedade",
+      "contrato": "ET-05; nao inventar tabela nativa"
+    },
+    "descarte": {
+      "procedure": "processarDescarte (proposta)",
+      "arquivo": "fontes/progress/contr-emb-operacao.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; momento comprovado e inverso pendentes",
+      "contrato": "ET-05; nao tornar clique prova de descarte"
+    },
+    "apoioTipos": {
+      "procedure": "consultarTiposApoio",
+      "arquivo": "fontes/progress/contr-emb.p",
+      "metodo": "GET",
+      "rota": "/apoios/tipos",
+      "estado": "Compilado; ET-01I positivos/recusas e DT-074 duas paginas aprovados; REST/Dataset pendentes",
+      "contrato": "Catalogo 23.1; filtro OR codigo/descricao, minimo 2, teto 20, cursor; ativo=true/false/todos"
+    },
+    "bagImprimir": {
+      "procedure": "obterDadosImpressaoBag (necessidade; contrato pendente)",
+      "arquivo": "fontes/progress/contr-emb-rastreio.p (proposto)",
+      "metodo": "A definir",
+      "rota": "Nao contratada",
+      "estado": "Proposta; agregado/IDs/layout/servico pendentes",
+      "contrato": "Impressao da Bag nao coberta pelo recorte GER-05 de uma etiqueta"
+    }
+  },
+  "telas": [
+    {
+      "id": "T01",
+      "nome": "Embalagens",
+      "planner": "2.3.7 / 2.5.1",
+      "controles": [
+        [
+          "P01",
+          "Itens Controlados / filtros",
+          "Estabelecimento",
+          "autocomplete",
+          "est",
+          "codigo → estabelDe=estabelAte"
+        ],
+        [
+          "P02",
+          "Itens Controlados / filtros",
+          "Item",
+          "autocomplete",
+          "item",
+          "codigo → itemDe=itemAte; depende de P01"
+        ],
+        [
+          "P03",
+          "Itens Controlados / filtros",
+          "Tipo de Embalagem",
+          "autocomplete",
+          "apoioTipos",
+          "Um campo; código selecionado enviado como codTipo. Match código OU descrição ocorre no Progress."
+        ],
+        [
+          "P04",
+          "Itens Controlados / filtros",
+          "Situacao",
+          "select",
+          "local",
+          "ativo no GET /parametros"
+        ],
+        [
+          "P05",
+          "Itens Controlados / acoes",
+          "Buscar",
+          "button",
+          "paramBusca",
+          "Faixas exatas, ativo, aposId=0, limite=20"
+        ],
+        [
+          "P06",
+          "Itens Controlados / acoes",
+          "Limpar",
+          "button",
+          "local",
+          "Limpar filtros/selecao/cursor; nenhuma requisicao de cadastro inteiro"
+        ],
+        [
+          "P07",
+          "Itens Controlados / acoes",
+          "Novo Item Controlado",
+          "button",
+          "local",
+          "Abrir modal; sem gravação"
+        ],
+        [
+          "P08",
+          "Itens Controlados / linha",
+          "Editar",
+          "button",
+          "local",
+          "Ação por linha; abrir modal; estabelecimento/item imutáveis; guardar id/versão"
+        ],
+        [
+          "P09",
+          "Itens Controlados / acoes",
+          "Abrir aba Tipos de Embalagem",
+          "tab",
+          "local",
+          "Navegação visual; não cria backend independente"
+        ],
+        [
+          "P10",
+          "Itens Controlados / acoes",
+          "Proxima pagina",
+          "button",
+          "paramBusca",
+          "Mesmos filtros; proximoId; sem contagem global"
+        ],
+        [
+          "P11",
+          "Itens Controlados / modal",
+          "Estabelecimento",
+          "autocomplete",
+          "est",
+          "codEstabel; imutavel na edicao"
+        ],
+        [
+          "P12",
+          "Itens Controlados / modal",
+          "Item",
+          "autocomplete",
+          "item",
+          "item; imutavel na edicao; depende de P11"
+        ],
+        [
+          "P13",
+          "Itens Controlados / modal",
+          "Unidade",
+          "readonly",
+          "item",
+          "un do item selecionado → unidade no salvar; nunca digitada"
+        ],
+        [
+          "P14",
+          "Itens Controlados / modal",
+          "Tipo de Embalagem",
+          "autocomplete",
+          "apoioTipos",
+          "codTipo; somente ativo para nova selecao"
+        ],
+        [
+          "P15",
+          "Itens Controlados / modal",
+          "Capacidade",
+          "number",
+          "local",
+          "capacidade positiva, ate quatro casas; validacao backend"
+        ],
+        [
+          "P16",
+          "Itens Controlados / modal",
+          "Situacao",
+          "select",
+          "local",
+          "ativo; inativacao/reversao integrada pendente"
+        ],
+        [
+          "P17",
+          "Itens Controlados / modal",
+          "Salvar novo",
+          "button",
+          "paramCriar",
+          "Dados funcionais; contexto/versao/idempotencia via Dataset"
+        ],
+        [
+          "P18",
+          "Itens Controlados / modal",
+          "Salvar alteracao",
+          "button",
+          "paramEditar",
+          "acao=ALTERAR; idParam e versao; mesma chave no retry"
+        ],
+        [
+          "P19",
+          "Itens Controlados / linha",
+          "Toggle Ativo/Inativo",
+          "toggle",
+          "paramEditar",
+          "Ação por linha; PATCH já mapeado. Última parametrização ativa pode exigir reversão segura"
+        ],
+        [
+          "P20",
+          "Itens Controlados / linha",
+          "Excluir",
+          "button",
+          "paramEditar",
+          "Ação por linha com confirmação em modal; avaliar vínculos no servidor"
+        ],
+        [
+          "P21",
+          "Itens Controlados / modal",
+          "Cancelar",
+          "button",
+          "local",
+          "Fechar sem gravar; preservar lista"
+        ],
+        [
+          "P22",
+          "Tipos de Embalagem / modal",
+          "Codigo",
+          "text",
+          "local",
+          "Manual, 2–3 caracteres A-Z/0-9; imutavel ao editar"
+        ],
+        [
+          "P23",
+          "Tipos de Embalagem / modal",
+          "Descricao",
+          "text",
+          "local",
+          "Descricao do tipo, regras validarTipo"
+        ],
+        [
+          "P24",
+          "Tipos de Embalagem / modal",
+          "Situacao",
+          "select",
+          "local",
+          "ativo"
+        ],
+        [
+          "P25",
+          "Tipos de Embalagem / filtros",
+          "Buscar tipos",
+          "button",
+          "tipos",
+          "Um campo para código OU descrição, limite=20"
+        ],
+        [
+          "P26",
+          "Tipos de Embalagem / modal",
+          "Novo Tipo",
+          "button",
+          "tipoCriar",
+          "Abre modal; POST somente na confirmação"
+        ],
+        [
+          "P27",
+          "Tipos de Embalagem / modal",
+          "Editar Tipo",
+          "button",
+          "tipoEditar",
+          "Ação por linha; abre modal; ALTERAR,versao"
+        ],
+        [
+          "P28",
+          "Tipos de Embalagem / linha",
+          "Toggle Ativo/Inativo",
+          "toggle",
+          "tipoEditar",
+          "Ação por linha; INATIVAR ou ALTERAR ativo=true; verificar usos"
+        ],
+        [
+          "P30",
+          "Tipos de Embalagem / modal",
+          "Cancelar",
+          "button",
+          "local",
+          "Fechar modal"
+        ]
+      ],
+      "abas": [
+        "Tipos de Embalagem",
+        "Itens Controlados"
+      ]
+    },
+    {
+      "id": "T03",
+      "nome": "Bags",
+      "planner": "2.3.7 / 2.4.1 / 2.5.1",
+      "controles": [
+        [
+          "B01",
+          "Abas Bags / filtros e consulta",
+          "Estabelecimento",
+          "autocomplete",
+          "est",
+          "Um campo visual; código selecionado enviado como codEstabel. Match código OU descrição ocorre no Progress"
+        ],
+        [
+          "B02",
+          "Abas Bags / filtros e consulta",
+          "Tipo de Embalagem",
+          "autocomplete",
+          "apoioTipos",
+          "Um campo visual; código selecionado enviado como codTipo. Match código OU descrição ocorre no Progress"
+        ],
+        [
+          "B03",
+          "Abas Bags / filtros e consulta",
+          "Lacre",
+          "text",
+          "local",
+          "Texto no consultarBags; se incremental exigir contrato/teto20"
+        ],
+        [
+          "B04",
+          "Abas Bags / filtros e consulta",
+          "Situacao",
+          "select",
+          "local",
+          "Estados/transicoes ainda em fechamento; nao aprovar pelo prototipo"
+        ],
+        [
+          "B05",
+          "Abas Bags / filtros e consulta",
+          "Periodo inicial",
+          "date",
+          "local",
+          "Periodo no consultarBags proposto"
+        ],
+        [
+          "B06",
+          "Abas Bags / filtros e consulta",
+          "Periodo final",
+          "date",
+          "local",
+          "Faixa valida no servidor"
+        ],
+        [
+          "B07",
+          "Abas Bags / filtros e consulta",
+          "Buscar",
+          "button",
+          "bags",
+          "Filtros + cursor e limite, assinatura pendente"
+        ],
+        [
+          "B08",
+          "Manutenção / linha e modal",
+          "Nova Bag",
+          "button",
+          "bagCriar",
+          "Abre modal; POST somente depois de confirmar B20"
+        ],
+        [
+          "B09",
+          "Manutenção / linha e modal",
+          "Editar",
+          "button",
+          "bagEditar",
+          "Ação por linha; abre modal; PATCH somente na confirmação"
+        ],
+        [
+          "B10",
+          "Consulta / linha",
+          "Conteudo",
+          "button",
+          "bagConteudo",
+          "Ação por linha; na Consulta é somente leitura; na Manutenção abre o contexto da Bag"
+        ],
+        [
+          "B11",
+          "Consulta / linha",
+          "Historico",
+          "button",
+          "bagHist",
+          "Ação por linha na Consulta de Bags; idBag, limite, cursor"
+        ],
+        [
+          "B12",
+          "Abas Bags / filtros e consulta",
+          "Proxima pagina",
+          "button",
+          "bags",
+          "Cursor da consulta autorizada"
+        ],
+        [
+          "B13",
+          "Abas Bags / filtros e consulta",
+          "Limpar",
+          "button",
+          "local",
+          "Limpar filtros/cursor/selecao"
+        ],
+        [
+          "B14",
+          "Manutenção / modal",
+          "Estabelecimento",
+          "autocomplete",
+          "est",
+          "codEstabel"
+        ],
+        [
+          "B15",
+          "Manutenção / modal",
+          "Tipo de Embalagem",
+          "autocomplete",
+          "apoioTipos",
+          "codTipo ativo; compativel pelo tipo, nao item/capacidade"
+        ],
+        [
+          "B16",
+          "Manutenção / modal",
+          "Lacre",
+          "text",
+          "local",
+          "Formato/unicidade/reutilizacao ainda pendentes"
+        ],
+        [
+          "B17",
+          "Manutenção / modal",
+          "Destino",
+          "autocomplete",
+          "est",
+          "Origem do destino precisa ser confirmada; estab no prototipo e demonstracao, nao contrato definitivo"
+        ],
+        [
+          "B18",
+          "Manutenção / modal",
+          "Motorista",
+          "autocomplete",
+          "motorista",
+          "Origem/obrigatoriedade pendentes"
+        ],
+        [
+          "B19",
+          "Manutenção / modal",
+          "Observacao",
+          "text",
+          "local",
+          "Persistencia/campo definitivo pendente; nao inventar coluna"
+        ],
+        [
+          "B20",
+          "Manutenção / modal",
+          "Confirmar criacao",
+          "button",
+          "bagCriar",
+          "Sequencia do servidor, usuario real, chave idempotente; assinatura pendente"
+        ],
+        [
+          "B21",
+          "Manutenção / modal",
+          "Salvar alteracao",
+          "button",
+          "bagEditar",
+          "idBag,versao,chave; assinatura pendente"
+        ],
+        [
+          "B22",
+          "Manutenção / modal",
+          "Cancelar",
+          "button",
+          "local",
+          "Fechar sem confirmar"
+        ],
+        [
+          "B23",
+          "Conteúdo da Bag / modal",
+          "Buscar etiquetas elegíveis para inclusão",
+          "button",
+          "bagElegiveis",
+          "Etapa Inserir Embalagens; idBag, filtros e página; nunca PRE_SALDO; contrato permanece proposto"
+        ],
+        [
+          "B24",
+          "Conteúdo da Bag / modal",
+          "Inserir selecionadas na Bag",
+          "button",
+          "bagIncluir",
+          "Ação em lote dentro da etapa Inserir Embalagens; IDs/versões; confirmação atômica pendente"
+        ],
+        [
+          "B25",
+          "Conteúdo da Bag / modal",
+          "Remover selecionadas da Bag",
+          "button",
+          "bagRetirar",
+          "Ação em lote sobre conteúdo já vinculado; IDs/versões e motivo; manter histórico"
+        ],
+        [
+          "B26",
+          "Conteúdo da Bag / modal",
+          "Motivo da retirada",
+          "text",
+          "local",
+          "Obrigatorio no comando de retirada"
+        ],
+        [
+          "B27",
+          "Conteúdo da Bag / modal",
+          "Lacrar",
+          "button",
+          "bagEvento",
+          "Evento candidato LACRAR; regra pendente"
+        ],
+        [
+          "B28",
+          "Conteúdo da Bag / modal",
+          "Enviar",
+          "button",
+          "bagEvento",
+          "Evento candidato ENVIAR; efeito confirmado pendente"
+        ],
+        [
+          "B29",
+          "Conteúdo da Bag / modal",
+          "Retornar",
+          "button",
+          "bagEvento",
+          "Evento candidato DEVOLVER; regras pendentes"
+        ],
+        [
+          "B30",
+          "Conteúdo da Bag / modal",
+          "Encerrar / cancelar Bag",
+          "button",
+          "bagEvento",
+          "ENCERRAR/CANCELAR candidatos; restricoes/inverso pendentes"
+        ],
+        [
+          "B31",
+          "Conteúdo da Bag / modal",
+          "Trocar lacre",
+          "button",
+          "bagLacre",
+          "Exibir somente apos contratar regra; fora do primeiro contrato"
+        ],
+        [
+          "B32",
+          "Conteúdo da Bag / modal",
+          "Descartar",
+          "button",
+          "descarte",
+          "Efetivacao/inverso nao liberados"
+        ],
+        [
+          "B33",
+          "Conteúdo da Bag / modal",
+          "Pesquisar dentro desta Bag",
+          "text",
+          "local",
+          "Filtro exclusivamente local no Fluig sobre o conteúdo já carregado; não chama API nem consulta elegibilidade"
+        ],
+        [
+          "B34",
+          "Conteúdo da Bag / modal",
+          "Fechar",
+          "button",
+          "local",
+          "Fechar detalhe"
+        ],
+        [
+          "B35",
+          "Consulta / linha",
+          "Imprimir conteudo",
+          "button",
+          "bagImprimir",
+          "Contrato de impressao de conteudo da Bag ainda precisa ser fechado"
+        ],
+        [
+          "B36",
+          "Conteúdo da Bag / modal",
+          "Inserir embalagens",
+          "button",
+          "local",
+          "Abre etapa visual dentro do modal da Bag; não cria backend independente"
+        ],
+        [
+          "B37",
+          "Inserção na Bag / modal",
+          "Etiqueta para leitura ou digitação",
+          "text",
+          "local",
+          "Entrada direta de um código por vez; validação/vínculo usam o contrato BAG-10 ainda proposto"
+        ],
+        [
+          "B38",
+          "Inserção na Bag / modal",
+          "Inserir etiqueta na Bag",
+          "button",
+          "bagIncluir",
+          "Inclusão direta no contexto da Bag; mesma operação proposta de vínculo, sem nova rota"
+        ],
+        [
+          "B39",
+          "Inserção na Bag / filtros",
+          "Etiqueta inicial",
+          "text",
+          "local",
+          "Critério visual de faixa para a busca BAG-09; assinatura permanece pendente"
+        ],
+        [
+          "B40",
+          "Inserção na Bag / filtros",
+          "Etiqueta final",
+          "text",
+          "local",
+          "Critério visual de faixa para a busca BAG-09; assinatura permanece pendente"
+        ]
+      ],
+      "abas": [
+        "Manutenção de Bags",
+        "Consulta de Bags"
+      ]
+    },
+    {
+      "id": "T02",
+      "nome": "Manutenção de Etiquetas",
+      "planner": "2.3.7 / 2.4.1 / 2.5.1",
+      "controles": [
+        [
+          "E01",
+          "Filtros",
+          "Estabelecimento",
+          "autocomplete",
+          "est",
+          "codigo → codEstabel; um campo visual, com match código OU descrição executado no Progress"
+        ],
+        [
+          "E02",
+          "Filtros",
+          "Item",
+          "autocomplete",
+          "item",
+          "codigo → item; depende de E01; um campo visual, com match código OU descrição executado no Progress"
+        ],
+        [
+          "E03",
+          "Filtros",
+          "Etiqueta",
+          "text",
+          "local",
+          "codEtiqueta exato no GET /etiquetas; busca incremental ainda nao contratada"
+        ],
+        [
+          "E04",
+          "Filtros",
+          "Deposito",
+          "autocomplete",
+          "deposito",
+          "depende de E01; apoio e filtro ET-02A ampliado pendentes"
+        ],
+        [
+          "E05",
+          "Filtros",
+          "Localizacao",
+          "autocomplete",
+          "localizacao",
+          "depende de E01/E04; filtro ampliado pendente"
+        ],
+        [
+          "E06",
+          "Filtros",
+          "Lote",
+          "autocomplete",
+          "lote",
+          "depende de E01/E02; selecionar lote; GET /etiquetas usa igualdade"
+        ],
+        [
+          "E07",
+          "Filtros",
+          "Validade inicial",
+          "date",
+          "local",
+          "Filtro ampliado ET-02A pendente"
+        ],
+        [
+          "E08",
+          "Filtros",
+          "Validade final",
+          "date",
+          "local",
+          "Faixa inclusiva; filtro ampliado pendente"
+        ],
+        [
+          "E09",
+          "Filtros",
+          "Familia",
+          "autocomplete",
+          "familia",
+          "Filtro ampliado ET-02A pendente"
+        ],
+        [
+          "E10",
+          "Filtros",
+          "Grupo",
+          "autocomplete",
+          "grupo",
+          "Fonte/contrato proprio do grupo pendente; nao chamar apoio de familia"
+        ],
+        [
+          "E11",
+          "Filtros",
+          "Situacao",
+          "select",
+          "local",
+          "Valores do ciclo aprovado; situacao exata"
+        ],
+        [
+          "E12",
+          "Filtros",
+          "Custodia",
+          "select",
+          "local",
+          "tipoLocal; distinta da situacao/posicao"
+        ],
+        [
+          "E13",
+          "Filtros",
+          "Bag / lacre",
+          "autocomplete",
+          "bags",
+          "Selecionar idBag; apoio prefixo/paginacao pendente"
+        ],
+        [
+          "E14",
+          "Filtros",
+          "Nota inicial",
+          "text",
+          "local",
+          "Filtro NF ampliado pendente; manter estabelecimento/serie/chave na selecao fiscal"
+        ],
+        [
+          "E15",
+          "Filtros",
+          "Nota final",
+          "text",
+          "local",
+          "Intervalo NF; contrato ainda pendente"
+        ],
+        [
+          "E16",
+          "Filtros",
+          "Notas especificas",
+          "text",
+          "local",
+          "Multiplas NF; nao inferir identidade somente pelo numero"
+        ],
+        [
+          "E17",
+          "Filtros",
+          "Tipo de controle",
+          "select",
+          "local",
+          "EMBALAGEM/PRE_SALDO; PRE sem acoes individuais"
+        ],
+        [
+          "E18",
+          "Ações da consulta",
+          "Buscar",
+          "button",
+          "etq",
+          "Somente filtros contratados; se filtro ampliado preenchido, impedir chamada ate implementacao"
+        ],
+        [
+          "E19",
+          "Ações da consulta",
+          "Limpar",
+          "button",
+          "local",
+          "Limpar filtros dependentes, selecao e cursor"
+        ],
+        [
+          "E20",
+          "Ações da consulta",
+          "Proxima pagina",
+          "button",
+          "etq",
+          "proximoId → aposId; IDs como texto, manter filtros/permissoes"
+        ],
+        [
+          "E21",
+          "Grid / linha ou lote",
+          "Detalhe",
+          "button",
+          "etq",
+          "Consultar etiqueta selecionada; dados atuais existentes, documentos completos pendentes"
+        ],
+        [
+          "E22",
+          "Grid / linha ou lote",
+          "Historico",
+          "button",
+          "histEtq",
+          "ID da etiqueta e cursor"
+        ],
+        [
+          "E23",
+          "Grid / linha ou lote",
+          "Imprimir / reimprimir",
+          "button",
+          "imprimir",
+          "Recorte atual: um idEtiqueta selecionado. Lote de IDs/copias/layout/servico pendentes."
+        ],
+        [
+          "E24",
+          "Grid / linha ou lote",
+          "Transferir / remeter terceiros",
+          "button",
+          "transferir",
+          "Abrir fluxo operacional interno; natureza decide efeito"
+        ],
+        [
+          "E25",
+          "Grid / linha ou lote",
+          "Devolver / retornar terceiros",
+          "button",
+          "devolver",
+          "Origem, linha, etiquetas e quantidades"
+        ],
+        [
+          "E26",
+          "Grid / linha ou lote",
+          "Emprestar",
+          "button",
+          "emprestar",
+          "Origem/natureza/prazo; confirmar efeito instalado"
+        ],
+        [
+          "E27",
+          "Grid / linha ou lote",
+          "Renovar",
+          "button",
+          "renovar",
+          "Contrato/documentos/prazo; sem novo nascimento"
+        ],
+        [
+          "E28",
+          "Grid / linha ou lote",
+          "Retomar operacao",
+          "button",
+          "retomar",
+          "Consultar resultado duravel antes de repetir comando"
+        ],
+        [
+          "E29",
+          "Modal / fluxo guiado",
+          "Estabelecimento destino",
+          "autocomplete",
+          "est",
+          "Permissao de destino conforme operacao; confirmar cobertura fora da lista de origem"
+        ],
+        [
+          "E30",
+          "Modal / fluxo guiado",
+          "Natureza",
+          "autocomplete",
+          "natureza",
+          "Natureza selecionada dirige ramo padrao"
+        ],
+        [
+          "E31",
+          "Modal / fluxo guiado",
+          "Contraparte",
+          "autocomplete",
+          "emitente",
+          "Dependente de natureza/empresa"
+        ],
+        [
+          "E32",
+          "Modal / fluxo guiado",
+          "Documento origem",
+          "autocomplete",
+          "origem",
+          "Exibir somente quando a natureza conduzir aos fluxos FT4011/FT4012; dependente de natureza/estabelecimento/contraparte"
+        ],
+        [
+          "E33",
+          "Modal / fluxo guiado",
+          "Buscar itens da origem",
+          "button",
+          "origemItens",
+          "No ramo FT4011/FT4012, carregar previamente itens e quantidades do documento selecionado; consulta paginada"
+        ],
+        [
+          "E34",
+          "Modal / fluxo guiado",
+          "Quantidade",
+          "number",
+          "local",
+          "Rateio nao excede disponivel; ate quatro casas"
+        ],
+        [
+          "E35",
+          "Modal / fluxo guiado",
+          "Prazo / novo prazo",
+          "date",
+          "local",
+          "Emprestimo/renovacao; validacao servidor"
+        ],
+        [
+          "E36",
+          "Modal / fluxo guiado",
+          "Conferir selecao",
+          "button",
+          "selecao",
+          "Origem, itens, etiquetas, quantidades, versoes; atomicidade"
+        ],
+        [
+          "E37",
+          "Modal / fluxo guiado",
+          "Confirmar operacao",
+          "button",
+          "selecao",
+          "Depois da selecao, chamar ramo E24/E25/E26/E27; contratos ainda pendentes"
+        ],
+        [
+          "E38",
+          "Modal / fluxo guiado",
+          "Cancelar",
+          "button",
+          "local",
+          "Fechar antes de confirmar; cancelar confirmada exige compensacao contratada"
+        ],
+        [
+          "E39",
+          "Filtros",
+          "Tipo de embalagem",
+          "autocomplete",
+          "apoioTipos",
+          "codTipo exato no GET /etiquetas; um campo visual, com match código OU descrição executado no Progress"
+        ]
+      ],
+      "abas": []
+    },
+    {
+      "id": "T04",
+      "nome": "Monitor de Documentos de Recebimento",
+      "planner": "2.3.7 / 2.5.1",
+      "abas": [],
+      "controles": [
+        [
+          "M01",
+          "Tela independente",
+          "Estado informativo",
+          "display",
+          "local",
+          "Mockup separado; filtros, colunas e ações aguardam validação do AED/ANFE e contrato aprovado"
+        ],
+        [
+          "M02",
+          "Detalhe de geração",
+          "Consultar resultado do evento",
+          "button",
+          "geracao",
+          "Ação futura quando o monitor possuir idEvento; não libera a listagem AED/ANFE"
+        ]
+      ]
+    }
+  ],
+  "organizacaoVisual": {
+    "padrao": "Filtros no topo; Buscar/Limpar; Novo abre modal; ações por linha; Ativo/Inativo por toggle; ações em lote com checkbox e comando acima da grid.",
+    "areas": [
+      {
+        "id": "T01",
+        "nome": "Embalagens",
+        "abas": [
+          "Tipos de Embalagem",
+          "Itens Controlados"
+        ]
+      },
+      {
+        "id": "T03",
+        "nome": "Bags",
+        "abas": [
+          "Manutenção de Bags",
+          "Consulta de Bags"
+        ]
+      },
+      {
+        "id": "T02",
+        "nome": "Manutenção de Etiquetas",
+        "abas": []
+      },
+      {
+        "id": "T04",
+        "nome": "Monitor de Documentos de Recebimento",
+        "abas": []
+      }
+    ],
+    "autocomplete": "Estabelecimento, Item e Tipo de Embalagem usam um campo físico por entidade. O Progress faz match por código OU descrição; o Fluig exibe código + descrição.",
+    "bag": "Pesquisar dentro desta Bag filtra localmente somente o conteúdo já carregado. Inserção e remoção permanecem no contexto da Bag.",
+    "limite": "Organização visual; não cria backend, rota, procedure, BO, tabela ou regra de negócio."
+  }
+}

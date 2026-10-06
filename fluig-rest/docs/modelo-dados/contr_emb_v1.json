@@ -1,0 +1,2015 @@
+{
+  "versao": "1.7",
+  "data": "2026-09-09",
+  "status": "estrutura física e schema holder implantados e verificados em TESTE; 10 sequências vinculadas ao Oracle EMS2ESP",
+  "substitui": "1.6 (11 tabelas)",
+  "tabelas": [
+    {
+      "nome": "contr_emb_bag",
+      "finalidade": "Cadastro global de tipos de embalagem, nome já definido pelo responsável técnico.",
+      "modo": "mutavel",
+      "chave_primaria": [
+        "cod-tipo"
+      ],
+      "campos": [
+        {
+          "nome": "cod-tipo",
+          "tipo": "CHARACTER(3)",
+          "obrigatorio": true,
+          "descricao": "Código manual, único e estável do tipo, com 2 ou 3 letras e/ou números; a API remove espaços externos, converte letras para maiúsculas e aceita ^[A-Z0-9]{2,3}$."
+        },
+        {
+          "nome": "desc-embalagem",
+          "tipo": "CHARACTER(100)",
+          "obrigatorio": true,
+          "descricao": "Descrição legível do tipo."
+        },
+        {
+          "nome": "ativo",
+          "tipo": "LOGICAL",
+          "obrigatorio": true,
+          "descricao": "Disponível para novas parametrizações e novas Bags."
+        },
+        {
+          "nome": "dt-inclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da inclusão no servidor."
+        },
+        {
+          "nome": "usuario-inclusao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade validada do autor da inclusão."
+        },
+        {
+          "nome": "dt-alteracao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Última alteração; inicialmente igual à inclusão."
+        },
+        {
+          "nome": "usuario-alteracao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Autor da última alteração; inicialmente igual ao da inclusão."
+        },
+        {
+          "nome": "versao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Inicia em 1; incrementa a cada alteração para controle de concorrência."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "cod-tipo"
+          ]
+        },
+        {
+          "nome": "situacao",
+          "unico": false,
+          "campos": [
+            "ativo",
+            "cod-tipo"
+          ]
+        }
+      ],
+      "regras": [
+        "cod-tipo é informado manualmente, obrigatório, único e estável. Após TRIM e CAPS deve corresponder a ^[A-Z0-9]{2,3}$: 2 ou 3 letras e/ou números, sem espaços, acentos ou sinais.",
+        "PL, PL1, PL2, 001 e 002 são formatos válidos. A escolha semântica é do cliente; Widget e Dataset ajudam na entrada, mas a API valida e confere unicidade.",
+        "O código identifica o tipo e não substitui a capacidade. Um mesmo tipo pode atender embalagens de 10 L e 20 L.",
+        "Capacidade pertence à parametrização do item e ao saldo congelado da etiqueta; não pertence ao cadastro do tipo.",
+        "Inativar impede novos vínculos, sem invalidar parametrizações históricas, etiquetas ou Bags existentes.",
+        "Impedir exclusão quando houver qualquer referência. Um código não pode ser reaproveitado com outro significado."
+      ]
+    },
+    {
+      "nome": "contr_emb_param",
+      "finalidade": "Parametrização dos itens controlados por estabelecimento.",
+      "modo": "mutavel",
+      "chave_primaria": [
+        "id-param"
+      ],
+      "campos": [
+        {
+          "nome": "id-param",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador técnico; também distingue exclusão e recadastro do mesmo par."
+        },
+        {
+          "nome": "cod-estabel",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": true,
+          "descricao": "Estabelecimento responsável pela parametrização."
+        },
+        {
+          "nome": "it-codigo",
+          "tipo": "LIKE item.it-codigo",
+          "obrigatorio": true,
+          "descricao": "Item padrão do Datasul."
+        },
+        {
+          "nome": "cod-tipo",
+          "tipo": "CHARACTER(3)",
+          "obrigatorio": true,
+          "descricao": "Tipo de embalagem.",
+          "relacionamento": {
+            "tabela": "contr_emb_bag",
+            "campo": "cod-tipo"
+          }
+        },
+        {
+          "nome": "capacidade-emb",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": true,
+          "descricao": "Quantidade de produto por embalagem completa; maior que zero."
+        },
+        {
+          "nome": "un",
+          "tipo": "LIKE item.un",
+          "obrigatorio": true,
+          "descricao": "Unidade de estoque em que a capacidade foi definida; validada com o item."
+        },
+        {
+          "nome": "ativo",
+          "tipo": "LOGICAL",
+          "obrigatorio": true,
+          "descricao": "Habilita novas gerações para este par estabelecimento/item."
+        },
+        {
+          "nome": "dt-inclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da inclusão no servidor."
+        },
+        {
+          "nome": "usuario-inclusao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade validada do autor da inclusão."
+        },
+        {
+          "nome": "dt-alteracao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Última alteração; inicialmente igual à inclusão."
+        },
+        {
+          "nome": "usuario-alteracao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Autor da última alteração; inicialmente igual ao da inclusão."
+        },
+        {
+          "nome": "versao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Inicia em 1; incrementa a cada alteração para controle de concorrência."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-param"
+          ]
+        },
+        {
+          "nome": "estab-item",
+          "unico": true,
+          "campos": [
+            "cod-estabel",
+            "it-codigo"
+          ]
+        },
+        {
+          "nome": "estab-sit-item",
+          "unico": false,
+          "campos": [
+            "cod-estabel",
+            "ativo",
+            "it-codigo"
+          ]
+        },
+        {
+          "nome": "tipo",
+          "unico": false,
+          "campos": [
+            "cod-tipo"
+          ]
+        }
+      ],
+      "regras": [
+        "Uma parametrização por estabelecimento e item. Não coexistem capacidades para o mesmo par.",
+        "Capacidade é positiva e expressa na unidade de estoque validada do item. Mudança que represente outro produto exige novo item.",
+        "Tipo precisa existir e estar ativo ao incluir/ativar. Durante geração, tipo inativo é erro explícito de configuração.",
+        "Ativar ou reativar parametrização exige confirmar o item padrão em controle por lote. Inativar ou excluir o último parâmetro ativo do item em todos os estabelecimentos exige confirmar a reversão do item para Serial; enquanto houver outro parâmetro ativo, o item permanece em Lote. A reversão é recusada quando saldo individual, operação ou vínculo específico ainda depender do lote.",
+        "Alterações valem para eventos futuros. O evento/item congela capacidade, tipo, unidade, identidade e versão utilizadas.",
+        "Excluir cadastro é permitido com auditoria; o histórico não mantém FK para o cadastro excluível."
+      ]
+    },
+    {
+      "nome": "contr_emb_evento",
+      "finalidade": "Evento idempotente e fotografia mínima do documento/ação que dispara o controle.",
+      "modo": "mutavel",
+      "chave_primaria": [
+        "id-evento"
+      ],
+      "campos": [
+        {
+          "nome": "id-evento",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador técnico do evento."
+        },
+        {
+          "nome": "origem",
+          "tipo": "CHARACTER(20)",
+          "obrigatorio": true,
+          "descricao": "Origem lógica definida pelo adaptador, sem representar ambiente ou credencial."
+        },
+        {
+          "nome": "chave-evento",
+          "tipo": "CHARACTER(512)",
+          "obrigatorio": true,
+          "descricao": "Identidade estável da ocorrência na origem; repetição conserva esta chave."
+        },
+        {
+          "nome": "hash-chave",
+          "tipo": "CHARACTER(64)",
+          "obrigatorio": true,
+          "descricao": "SHA-256 canônico de origem e chave-evento; índice de idempotência."
+        },
+        {
+          "nome": "hash-conteudo",
+          "tipo": "CHARACTER(64)",
+          "obrigatorio": true,
+          "descricao": "SHA-256 do conteúdo canônico; detecta reutilização indevida da chave."
+        },
+        {
+          "nome": "tipo-evento",
+          "tipo": "CHARACTER(32)",
+          "obrigatorio": true,
+          "descricao": "Ação de negócio controlada; não presume evento de UPC pelo nome."
+        },
+        {
+          "nome": "id-operacao",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Operação associada, quando houver.",
+          "relacionamento": {
+            "tabela": "contr_emb_oper",
+            "campo": "id-operacao"
+          }
+        },
+        {
+          "nome": "id-evento-origem",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Evento antecedente/compensado, quando houver.",
+          "relacionamento": {
+            "tabela": "contr_emb_evento",
+            "campo": "id-evento"
+          }
+        },
+        {
+          "nome": "seq-ciclo",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Ocorrência válida de atualização/desatualização; não é contador de tentativas."
+        },
+        {
+          "nome": "dt-evento",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Instante efetivo do fato, separado da recepção."
+        },
+        {
+          "nome": "versao-contrato",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Versão do conteúdo aceito."
+        },
+        {
+          "nome": "tipo-docto",
+          "tipo": "CHARACTER(12)",
+          "obrigatorio": false,
+          "descricao": "ENTRADA ou SAIDA quando o evento estiver associado a documento."
+        },
+        {
+          "nome": "chave-docto",
+          "tipo": "CHARACTER(512)",
+          "obrigatorio": false,
+          "descricao": "Identidade canônica do documento no contexto confirmado pelo adaptador."
+        },
+        {
+          "nome": "hash-docto",
+          "tipo": "CHARACTER(64)",
+          "obrigatorio": false,
+          "descricao": "SHA-256 da identidade canônica do documento; usado para localizar seus ciclos."
+        },
+        {
+          "nome": "cod-estabel",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": false,
+          "descricao": "Estabelecimento do evento/documento."
+        },
+        {
+          "nome": "cod-emitente",
+          "tipo": "LIKE emitente.cod-emitente",
+          "obrigatorio": false,
+          "descricao": "Participante identificado no Datasul."
+        },
+        {
+          "nome": "cgc-emitente",
+          "tipo": "LIKE emitente.cgc",
+          "obrigatorio": false,
+          "descricao": "Identificação cadastral recebida para conciliação."
+        },
+        {
+          "nome": "serie",
+          "tipo": "LIKE docum-est.serie-docto",
+          "obrigatorio": false,
+          "descricao": "Série confirmada pelo adaptador."
+        },
+        {
+          "nome": "nro-docto",
+          "tipo": "LIKE docum-est.nro-docto",
+          "obrigatorio": false,
+          "descricao": "Número confirmado; isoladamente não é identidade."
+        },
+        {
+          "nome": "chave-acesso",
+          "tipo": "CHARACTER(44)",
+          "obrigatorio": false,
+          "descricao": "Chave eletrônica, quando disponibilizada e validada."
+        },
+        {
+          "nome": "nat-operacao",
+          "tipo": "LIKE natur-oper.nat-operacao",
+          "obrigatorio": false,
+          "descricao": "Natureza real do documento."
+        },
+        {
+          "nome": "dt-emissao",
+          "tipo": "DATE",
+          "obrigatorio": false,
+          "descricao": "Data de emissão."
+        },
+        {
+          "nome": "dados-evento",
+          "tipo": "CHARACTER(4000)",
+          "obrigatorio": true,
+          "descricao": "Envelope mínimo e versionado de negócio; nunca requisição, sessão ou headers completos."
+        },
+        {
+          "nome": "situacao",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "RECEBIDO, PROCESSANDO, CONCLUIDO ou ERRO."
+        },
+        {
+          "nome": "tentativas",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Tentativas de processamento; inicia em zero."
+        },
+        {
+          "nome": "dt-proxima-tent",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": false,
+          "descricao": "Próxima tentativa permitida."
+        },
+        {
+          "nome": "token-execucao",
+          "tipo": "CHARACTER(36)",
+          "obrigatorio": false,
+          "descricao": "Posse interna temporária da execução; não é token de autenticação."
+        },
+        {
+          "nome": "dt-expira-exec",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": false,
+          "descricao": "Validade da posse temporária."
+        },
+        {
+          "nome": "dt-conclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": false,
+          "descricao": "Momento da conclusão confirmada."
+        },
+        {
+          "nome": "resultado",
+          "tipo": "CHARACTER(4000)",
+          "obrigatorio": false,
+          "descricao": "Resultado sanitizado para responder repetições concluídas."
+        },
+        {
+          "nome": "mensagem",
+          "tipo": "CHARACTER(1000)",
+          "obrigatorio": false,
+          "descricao": "Diagnóstico legível e sanitizado."
+        },
+        {
+          "nome": "dt-inclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da inclusão no servidor."
+        },
+        {
+          "nome": "usuario-inclusao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade validada do autor da inclusão."
+        },
+        {
+          "nome": "dt-alteracao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Última alteração; inicialmente igual à inclusão."
+        },
+        {
+          "nome": "usuario-alteracao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Autor da última alteração; inicialmente igual ao da inclusão."
+        },
+        {
+          "nome": "versao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Inicia em 1; incrementa a cada alteração para concorrência otimista."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-evento"
+          ]
+        },
+        {
+          "nome": "idempotencia",
+          "unico": true,
+          "campos": [
+            "hash-chave"
+          ]
+        },
+        {
+          "nome": "processar",
+          "unico": false,
+          "campos": [
+            "situacao",
+            "dt-proxima-tent",
+            "id-evento"
+          ]
+        },
+        {
+          "nome": "documento",
+          "unico": false,
+          "campos": [
+            "hash-docto",
+            "seq-ciclo",
+            "id-evento"
+          ]
+        },
+        {
+          "nome": "operacao",
+          "unico": false,
+          "campos": [
+            "id-operacao",
+            "id-evento"
+          ]
+        }
+      ],
+      "regras": [
+        "Mesma chave e conteúdo devolve o resultado existente; mesma chave com outro conteúdo produz conflito.",
+        "Após busca por hash, comparar a identidade completa; colisão ou ambiguidade bloqueia, nunca funde automaticamente.",
+        "Documento, item e movimento continuam nas tabelas padrão do Datasul. Estes campos são fotografia de rastreabilidade e não uma réplica fiscal.",
+        "Efeitos sobre etiquetas exigem chave-docto/contexto confirmados e item validado. Monitor preliminar pode permanecer somente no sistema de origem até seu contrato ser conhecido.",
+        "Cada contr_emb_evento_item é o agrupamento lógico consolidado do documento por linha, item, lote e validade. O rateio físico é formado pelos movimentos individuais ligados ao id-item-evento.",
+        "Identidade/conteúdo/resultados concluídos são imutáveis; apenas posse, tentativas, situação e diagnóstico técnico mudam durante o processamento.",
+        "Movimentos, projeções, auditoria e conclusão são gravados atomicamente. Entrega externa assíncrona só ganhará outbox se um contrato real exigir."
+      ]
+    },
+    {
+      "nome": "contr_emb_evento_item",
+      "finalidade": "Itens/lotes do evento e memória do cálculo de geração, inclusive resultado zero.",
+      "modo": "mutavel",
+      "chave_primaria": [
+        "id-item-evento"
+      ],
+      "campos": [
+        {
+          "nome": "id-item-evento",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador da ocorrência de item/lote no evento."
+        },
+        {
+          "nome": "id-evento",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Evento correspondente.",
+          "relacionamento": {
+            "tabela": "contr_emb_evento",
+            "campo": "id-evento"
+          }
+        },
+        {
+          "nome": "sequencia",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Sequência da linha confirmada pelo adaptador."
+        },
+        {
+          "nome": "seq-lote",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Ocorrência de lote dentro da linha; inicia em 1."
+        },
+        {
+          "nome": "it-codigo",
+          "tipo": "LIKE item.it-codigo",
+          "obrigatorio": false,
+          "descricao": "Item resolvido no Datasul; obrigatório para processar efeitos."
+        },
+        {
+          "nome": "cod-item-origem",
+          "tipo": "CHARACTER(80)",
+          "obrigatorio": false,
+          "descricao": "Item informado pela origem antes da correspondência."
+        },
+        {
+          "nome": "lote",
+          "tipo": "LIKE saldo-estoq.lote",
+          "obrigatorio": false,
+          "descricao": "Lote efetivo."
+        },
+        {
+          "nome": "dt-vali-lote",
+          "tipo": "LIKE saldo-estoq.dt-vali-lote",
+          "obrigatorio": false,
+          "descricao": "Validade efetiva."
+        },
+        {
+          "nome": "qt-origem",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": false,
+          "descricao": "Quantidade na unidade de origem; precisão excedente exige tratamento explícito."
+        },
+        {
+          "nome": "un-origem",
+          "tipo": "CHARACTER(12)",
+          "obrigatorio": false,
+          "descricao": "Unidade recebida."
+        },
+        {
+          "nome": "fator-conversao",
+          "tipo": "DECIMAL(8 casas)",
+          "obrigatorio": false,
+          "descricao": "Conversão validada para unidade de estoque; 1 somente se equivalência confirmada."
+        },
+        {
+          "nome": "quantidade",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": false,
+          "descricao": "Quantidade normalizada na unidade de estoque."
+        },
+        {
+          "nome": "un",
+          "tipo": "LIKE item.un",
+          "obrigatorio": false,
+          "descricao": "Unidade normalizada."
+        },
+        {
+          "nome": "cod-depos",
+          "tipo": "LIKE saldo-estoq.cod-depos",
+          "obrigatorio": false,
+          "descricao": "Depósito real do item/documento, quando aplicável."
+        },
+        {
+          "nome": "id-param-origem",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Identidade histórica da parametrização usada; não é FK para cadastro excluível."
+        },
+        {
+          "nome": "versao-param",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Versão utilizada."
+        },
+        {
+          "nome": "cod-tipo",
+          "tipo": "CHARACTER(3)",
+          "obrigatorio": false,
+          "descricao": "Tipo de embalagem congelado no cálculo.",
+          "relacionamento": {
+            "tabela": "contr_emb_bag",
+            "campo": "cod-tipo"
+          }
+        },
+        {
+          "nome": "capacidade-emb",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": false,
+          "descricao": "Capacidade positiva utilizada."
+        },
+        {
+          "nome": "qtd-etiquetas",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Quantidade inteira de embalagens completas calculada."
+        },
+        {
+          "nome": "qt-residuo",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": false,
+          "descricao": "Quantidade sem embalagem completa; não gera etiqueta parcial."
+        },
+        {
+          "nome": "situacao-item",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "RECEBIDO, VALIDADO, PROCESSADO, IGNORADO ou ERRO."
+        },
+        {
+          "nome": "mensagem",
+          "tipo": "CHARACTER(1000)",
+          "obrigatorio": false,
+          "descricao": "Resultado funcional do item, sanitizado."
+        },
+        {
+          "nome": "dt-inclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da inclusão no servidor."
+        },
+        {
+          "nome": "usuario-inclusao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade validada do autor da inclusão."
+        },
+        {
+          "nome": "dt-alteracao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Última alteração; inicialmente igual à inclusão."
+        },
+        {
+          "nome": "usuario-alteracao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Autor da última alteração; inicialmente igual ao da inclusão."
+        },
+        {
+          "nome": "versao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Inicia em 1; incrementa a cada alteração para concorrência otimista."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-item-evento"
+          ]
+        },
+        {
+          "nome": "evento-item-lote",
+          "unico": true,
+          "campos": [
+            "id-evento",
+            "sequencia",
+            "seq-lote"
+          ]
+        },
+        {
+          "nome": "item-lote",
+          "unico": false,
+          "campos": [
+            "it-codigo",
+            "lote",
+            "dt-vali-lote"
+          ]
+        },
+        {
+          "nome": "param-historico",
+          "unico": false,
+          "campos": [
+            "id-param-origem",
+            "versao-param"
+          ]
+        }
+      ],
+      "regras": [
+        "A soma dos lotes corresponde à linha validada; não repetir a quantidade total em cada lote.",
+        "Antes de gerar, item, estabelecimento, quantidade, unidade, tipo e capacidade precisam estar validados.",
+        "Quando houver cálculo: quantidade = qtd-etiquetas × capacidade-emb + qt-residuo; 0 <= resíduo < capacidade.",
+        "A ocorrência é o agrupamento lógico fiscal por linha/item/lote/validade. Ela pode representar muitas embalagens; o rateio físico fica nos movimentos individuais ligados por id-item-evento.",
+        "A consolidação nunca atravessa a combinação estabelecimento, item, lote e validade. O mesmo item com lote ou validade diferente gera outra ocorrência de item do evento e outro rateio.",
+        "Cada etiqueta selecionada no rateio deve coincidir exatamente com item, lote e validade da ocorrência e estar disponível no estabelecimento de origem conforme contr_emb_etiqueta.",
+        "Para saída ou entrada física concluída, somar o rateio aplicável e reconciliar com quantidade, considerando unidade, resíduo e a regra confirmada do tipo de evento.",
+        "Quantidade inferior à capacidade registra zero etiquetas e o resíduo; resíduo não é consumido nem acumulado entre notas sem regra aprovada.",
+        "Ao concluir o evento, dados de origem e resultado tornam-se imutáveis. Alteração de documento exige novo evento/ciclo.",
+        "Itens não participantes podem ser IGNORADOS com motivo; erro de configuração em item participante não pode ser ignorado silenciosamente."
+      ]
+    },
+    {
+      "nome": "contr_emb_etiqueta",
+      "finalidade": "Embalagens individualizadas e, durante a transição, saldos agregados anteriores ao controle; o histórico imutável permanece em contr_emb_movto.",
+      "modo": "mutavel_por_movimento",
+      "chave_primaria": [
+        "id-etiqueta"
+      ],
+      "campos": [
+        {
+          "nome": "id-etiqueta",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador global no banco autoritativo, alocado por sequência."
+        },
+        {
+          "nome": "cod-etiqueta",
+          "tipo": "CHARACTER(24)",
+          "obrigatorio": true,
+          "descricao": "Código público único e imutável; representação textual canônica do identificador, sem codificar item, lote ou tipo."
+        },
+        {
+          "nome": "tipo-controle",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "EMBALAGEM para identidade individual ou PRE_SALDO para agregado anterior ao controle."
+        },
+        {
+          "nome": "id-pre-origem",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "PRE do qual a embalagem foi rateada em carga inicial.",
+          "relacionamento": {
+            "tabela": "contr_emb_etiqueta",
+            "campo": "id-etiqueta"
+          }
+        },
+        {
+          "nome": "id-evento-geracao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Evento de criação da identidade.",
+          "relacionamento": {
+            "tabela": "contr_emb_evento",
+            "campo": "id-evento"
+          }
+        },
+        {
+          "nome": "id-item-evento",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Item/cálculo que originou a etiqueta de recebimento.",
+          "relacionamento": {
+            "tabela": "contr_emb_evento_item",
+            "campo": "id-item-evento"
+          }
+        },
+        {
+          "nome": "seq-geracao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Sequência da etiqueta dentro do evento de criação."
+        },
+        {
+          "nome": "it-codigo",
+          "tipo": "LIKE item.it-codigo",
+          "obrigatorio": false,
+          "descricao": "Item da embalagem individual."
+        },
+        {
+          "nome": "cod-tipo",
+          "tipo": "CHARACTER(3)",
+          "obrigatorio": false,
+          "descricao": "Tipo congelado da embalagem individual identificada pela etiqueta.",
+          "relacionamento": {
+            "tabela": "contr_emb_bag",
+            "campo": "cod-tipo"
+          }
+        },
+        {
+          "nome": "lote",
+          "tipo": "LIKE saldo-estoq.lote",
+          "obrigatorio": false,
+          "descricao": "Lote real da embalagem individual."
+        },
+        {
+          "nome": "dt-vali-lote",
+          "tipo": "LIKE saldo-estoq.dt-vali-lote",
+          "obrigatorio": false,
+          "descricao": "Validade real da embalagem individual."
+        },
+        {
+          "nome": "un",
+          "tipo": "LIKE item.un",
+          "obrigatorio": false,
+          "descricao": "Unidade de estoque da embalagem individual."
+        },
+        {
+          "nome": "capacidade-emb",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": false,
+          "descricao": "Capacidade utilizada no nascimento; obrigatória e positiva para a embalagem individual."
+        },
+        {
+          "nome": "qtidade-ini",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": true,
+          "descricao": "Quantidade inicial da embalagem; igual à capacidade na geração normal."
+        },
+        {
+          "nome": "qtidade-atu",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": true,
+          "descricao": "Quantidade física atual controlada na embalagem."
+        },
+        {
+          "nome": "cod-estabel",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": true,
+          "descricao": "Estabelecimento responsável no contexto atual."
+        },
+        {
+          "nome": "cod-depos",
+          "tipo": "LIKE saldo-estoq.cod-depos",
+          "obrigatorio": false,
+          "descricao": "Depósito efetivo, quando aplicável."
+        },
+        {
+          "nome": "cod-localiz",
+          "tipo": "LIKE saldo-estoq.cod-localiz",
+          "obrigatorio": false,
+          "descricao": "Localização padrão, quando aplicável."
+        },
+        {
+          "nome": "tipo-local",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "ESTAB, CAMPO, TERCEIRO ou TRANSITO; contexto físico independente da situação."
+        },
+        {
+          "nome": "cod-emitente-posse",
+          "tipo": "LIKE emitente.cod-emitente",
+          "obrigatorio": false,
+          "descricao": "Participante com posse física, quando aplicável."
+        },
+        {
+          "nome": "origem-local-ext",
+          "tipo": "CHARACTER(20)",
+          "obrigatorio": false,
+          "descricao": "Sistema que identifica a localização externa, quando aplicável."
+        },
+        {
+          "nome": "cod-local-ext",
+          "tipo": "CHARACTER(80)",
+          "obrigatorio": false,
+          "descricao": "Local externo, talhão ou identificador equivalente conforme contrato confirmado."
+        },
+        {
+          "nome": "id-bag",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Ocorrência de Bag à qual a etiqueta está atualmente vinculada.",
+          "relacionamento": {
+            "tabela": "contr_emb_bag_lacre",
+            "campo": "id-bag"
+          }
+        },
+        {
+          "nome": "situacao",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "ATIVA, ENCERRADA, CANCELADA ou DESCARTADA; domínio inicial do controle, não do ERP."
+        },
+        {
+          "nome": "id-movto-ult",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Último movimento aplicado ao estado atual.",
+          "relacionamento": {
+            "tabela": "contr_emb_movto",
+            "campo": "id-movto"
+          }
+        },
+        {
+          "nome": "dt-inclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da inclusão no servidor."
+        },
+        {
+          "nome": "usuario-inclusao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade validada do autor da inclusão."
+        },
+        {
+          "nome": "dt-alteracao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Última alteração; inicialmente igual à inclusão."
+        },
+        {
+          "nome": "usuario-alteracao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Autor da última alteração; inicialmente igual ao da inclusão."
+        },
+        {
+          "nome": "versao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Inicia em 1; incrementa a cada alteração para controle de concorrência."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-etiqueta"
+          ]
+        },
+        {
+          "nome": "codigo",
+          "unico": true,
+          "campos": [
+            "cod-etiqueta"
+          ]
+        },
+        {
+          "nome": "origem",
+          "unico": true,
+          "campos": [
+            "id-evento-geracao",
+            "seq-geracao"
+          ]
+        },
+        {
+          "nome": "geracao",
+          "unico": false,
+          "campos": [
+            "id-item-evento"
+          ]
+        },
+        {
+          "nome": "pre-origem",
+          "unico": false,
+          "campos": [
+            "id-pre-origem",
+            "id-etiqueta"
+          ]
+        },
+        {
+          "nome": "estab-item-lote",
+          "unico": false,
+          "campos": [
+            "cod-estabel",
+            "it-codigo",
+            "lote",
+            "dt-vali-lote"
+          ]
+        },
+        {
+          "nome": "local-situacao",
+          "unico": false,
+          "campos": [
+            "cod-estabel",
+            "tipo-local",
+            "situacao",
+            "id-etiqueta"
+          ]
+        },
+        {
+          "nome": "bag",
+          "unico": false,
+          "campos": [
+            "id-bag"
+          ]
+        },
+        {
+          "nome": "ultimo-movto",
+          "unico": false,
+          "campos": [
+            "id-movto-ult"
+          ]
+        }
+      ],
+      "regras": [
+        "Identidade global alocada por sequência autoritativa; não usar ROWID ou maior código + 1. IDs permanecem INTEGER no ABL e atravessam a fronteira REST como texto decimal; versões e contagens permanecem números inteiros.",
+        "Código público é único, imutável e não codifica referência, item, lote ou tipo. Formato visual pode evoluir sem trocar a identidade.",
+        "Identidade, origem, item, tipo, lote, validade, unidade, capacidade e quantidade inicial são imutáveis após a criação.",
+        "PRE_SALDO usa código técnico único iniciado por PRE-, nunca é impresso como etiqueta e representa uma combinação agregada de estabelecimento, depósito/localização, item, lote e validade existente no corte.",
+        "A carga possui uma única chave-evento canônica por ativação. Antes de gravar, o importador normaliza e rejeita combinações PRE duplicadas no próprio conteúdo; repetição usa a mesma chave e conteúdo sob bloqueio do evento. Não criar outro evento de corte para contornar conflito.",
+        "EMBALAGEM representa uma embalagem física. Quando nascer de inventário/rateio, id-pre-origem mantém a origem e permite recuperar o código PRE; recebimentos normais não possuem esse vínculo.",
+        "id-pre-origem só pode existir em EMBALAGEM e deve apontar diretamente para PRE_SALDO; proibir autorreferência e encadeamento por outra embalagem.",
+        "Um rateio reduz qtidade-atu do PRE pela soma atribuída às embalagens na mesma transação. Rateio total encerra o PRE com quantidade zero; rateio parcial preserva o restante. Não duplicar a quantidade entre PRE e embalagens.",
+        "PRE não participa do fluxo de movimentos específicos e registra apenas que a combinação já existia quando o item passou a ser controlado. Não deduzir quantidade, embalagem ou histórico anterior. Sem inventário, permanece como indicação de saldo sem controle individual; sua conversão exige inventário e rateio explícitos.",
+        "Embalagem de recebimento nasce completa: qtidade-ini = capacidade-emb; na carga inicial inventariada, qtidade-ini recebe a quantidade física apurada, positiva e limitada pela capacidade. PRE não representa capacidade individual. Em todos os casos, qtidade-atu não pode ser negativa.",
+        "Para tipo-controle EMBALAGEM, o estado atual só muda por contr_emb_movto. Sob bloqueio, validar estado anterior, inserir movimento e atualizar estado, id-movto-ult e versão na mesma transação. PRE só pode ser criado pela carga de corte ou reduzido pelo rateio inventariado, sempre sem movimento específico.",
+        "Saldo zero não descarta automaticamente a embalagem. Situação, posse, localização, vínculo com Bag e quantidade são dimensões distintas.",
+        "Esta tabela mantém o estoque individual específico. Sua soma não substitui saldo-estoq; a conciliação considera escopo, unidade, localização/posse, documentos, eventos e resíduos.",
+        "A identidade não é apagada nem reaproveitada. Cancelamento, descarte ou encerramento atualizam o estado por movimento rastreável.",
+        "id-evento-geracao e id-item-evento permitem recuperar as embalagens originadas pelo documento e pela linha/lote consolidados."
+      ]
+    },
+    {
+      "nome": "contr_emb_movto",
+      "finalidade": "Histórico imutável de quantidades, situação e localização de cada etiqueta.",
+      "modo": "imutavel",
+      "chave_primaria": [
+        "id-movto"
+      ],
+      "campos": [
+        {
+          "nome": "id-movto",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador do fato histórico."
+        },
+        {
+          "nome": "id-evento",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Evento responsável pelo movimento.",
+          "relacionamento": {
+            "tabela": "contr_emb_evento",
+            "campo": "id-evento"
+          }
+        },
+        {
+          "nome": "sequencia",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Sequência do movimento no evento."
+        },
+        {
+          "nome": "id-etiqueta",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Embalagem atingida.",
+          "relacionamento": {
+            "tabela": "contr_emb_etiqueta",
+            "campo": "id-etiqueta"
+          }
+        },
+        {
+          "nome": "id-item-evento",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Item/lote do evento associado.",
+          "relacionamento": {
+            "tabela": "contr_emb_evento_item",
+            "campo": "id-item-evento"
+          }
+        },
+        {
+          "nome": "id-item-oper",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Item da operação associado, se houver.",
+          "relacionamento": {
+            "tabela": "contr_emb_oper_item",
+            "campo": "id-item-oper"
+          }
+        },
+        {
+          "nome": "id-movto-ant",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Movimento anterior na cadeia da etiqueta.",
+          "relacionamento": {
+            "tabela": "contr_emb_movto",
+            "campo": "id-movto"
+          }
+        },
+        {
+          "nome": "id-bag-relac",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Bag relacionada em incluir/retirar etiqueta.",
+          "relacionamento": {
+            "tabela": "contr_emb_bag_lacre",
+            "campo": "id-bag"
+          }
+        },
+        {
+          "nome": "id-movto-origem",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Movimento compensado ou antecedente, se houver.",
+          "relacionamento": {
+            "tabela": "contr_emb_movto",
+            "campo": "id-movto"
+          }
+        },
+        {
+          "nome": "tipo-movto",
+          "tipo": "CHARACTER(32)",
+          "obrigatorio": true,
+          "descricao": "Ação de negócio registrada, com mapeamento de evento definido na implementação."
+        },
+        {
+          "nome": "dt-movto",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Instante efetivo do fato."
+        },
+        {
+          "nome": "un",
+          "tipo": "LIKE item.un",
+          "obrigatorio": false,
+          "descricao": "Unidade da quantidade do movimento."
+        },
+        {
+          "nome": "quantidade",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": true,
+          "descricao": "Quantidade física envolvida, não negativa; não significa automaticamente variação de saldo."
+        },
+        {
+          "nome": "qtidade-ant",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": true,
+          "descricao": "Quantidade individual imediatamente antes."
+        },
+        {
+          "nome": "qtidade-atu",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": true,
+          "descricao": "Quantidade individual imediatamente depois."
+        },
+        {
+          "nome": "situacao-ant",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": false,
+          "descricao": "Situação anterior da embalagem; ausente somente no movimento de nascimento."
+        },
+        {
+          "nome": "situacao-atu",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "Situação posterior da etiqueta."
+        },
+        {
+          "nome": "cod-estabel-orig",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": false,
+          "descricao": "Estabelecimento antes do movimento; ausente somente no nascimento."
+        },
+        {
+          "nome": "cod-depos-orig",
+          "tipo": "LIKE saldo-estoq.cod-depos",
+          "obrigatorio": false,
+          "descricao": "Depósito antes."
+        },
+        {
+          "nome": "cod-localiz-orig",
+          "tipo": "LIKE saldo-estoq.cod-localiz",
+          "obrigatorio": false,
+          "descricao": "Localização padrão antes."
+        },
+        {
+          "nome": "tipo-local-orig",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": false,
+          "descricao": "Contexto físico antes; ausente somente no nascimento."
+        },
+        {
+          "nome": "cod-emitente-orig",
+          "tipo": "LIKE emitente.cod-emitente",
+          "obrigatorio": false,
+          "descricao": "Possuidor antes."
+        },
+        {
+          "nome": "origem-local-ext-orig",
+          "tipo": "CHARACTER(20)",
+          "obrigatorio": false,
+          "descricao": "Sistema da localização externa antes."
+        },
+        {
+          "nome": "cod-local-ext-orig",
+          "tipo": "CHARACTER(80)",
+          "obrigatorio": false,
+          "descricao": "Local externo antes."
+        },
+        {
+          "nome": "cod-estabel-dest",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": true,
+          "descricao": "Estabelecimento depois do movimento."
+        },
+        {
+          "nome": "cod-depos-dest",
+          "tipo": "LIKE saldo-estoq.cod-depos",
+          "obrigatorio": false,
+          "descricao": "Depósito depois."
+        },
+        {
+          "nome": "cod-localiz-dest",
+          "tipo": "LIKE saldo-estoq.cod-localiz",
+          "obrigatorio": false,
+          "descricao": "Localização padrão depois."
+        },
+        {
+          "nome": "tipo-local-dest",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "Contexto físico depois."
+        },
+        {
+          "nome": "cod-emitente-dest",
+          "tipo": "LIKE emitente.cod-emitente",
+          "obrigatorio": false,
+          "descricao": "Possuidor depois."
+        },
+        {
+          "nome": "origem-local-ext-dest",
+          "tipo": "CHARACTER(20)",
+          "obrigatorio": false,
+          "descricao": "Sistema da localização externa depois."
+        },
+        {
+          "nome": "cod-local-ext-dest",
+          "tipo": "CHARACTER(80)",
+          "obrigatorio": false,
+          "descricao": "Local externo depois."
+        },
+        {
+          "nome": "origem-movto-erp",
+          "tipo": "CHARACTER(20)",
+          "obrigatorio": false,
+          "descricao": "Origem lógica da identificação do movimento real do ERP."
+        },
+        {
+          "nome": "chave-movto-erp",
+          "tipo": "CHARACTER(512)",
+          "obrigatorio": false,
+          "descricao": "Chave completa do movimento real, segundo adaptador validado; pode ser compartilhada por várias etiquetas."
+        },
+        {
+          "nome": "justificativa",
+          "tipo": "CHARACTER(1000)",
+          "obrigatorio": false,
+          "descricao": "Motivo operacional; obrigatório para correções e compensações."
+        },
+        {
+          "nome": "dt-registro",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da gravação no servidor."
+        },
+        {
+          "nome": "usuario",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade do autor validada pelo serviço; não é credencial."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-movto"
+          ]
+        },
+        {
+          "nome": "evento-seq",
+          "unico": true,
+          "campos": [
+            "id-evento",
+            "sequencia"
+          ]
+        },
+        {
+          "nome": "etiqueta",
+          "unico": false,
+          "campos": [
+            "id-etiqueta",
+            "id-movto"
+          ]
+        },
+        {
+          "nome": "item-evento",
+          "unico": false,
+          "campos": [
+            "id-item-evento",
+            "id-movto"
+          ]
+        },
+        {
+          "nome": "operacao",
+          "unico": false,
+          "campos": [
+            "id-item-oper",
+            "id-movto"
+          ]
+        },
+        {
+          "nome": "compensado",
+          "unico": false,
+          "campos": [
+            "id-movto-origem"
+          ]
+        },
+        {
+          "nome": "bag-relac",
+          "unico": false,
+          "campos": [
+            "id-bag-relac",
+            "id-movto"
+          ]
+        }
+      ],
+      "regras": [
+        "Fato confirmado é imutável; correção cria movimento compensatório ligado ao original.",
+        "No primeiro movimento da embalagem, id-movto-ant, situacao-ant, cod-estabel-orig e tipo-local-orig ficam ausentes e qtidade-ant é zero. Qualquer movimento posterior exige esses dados anteriores e sua coincidência com a projeção corrente.",
+        "contr_emb_movto aceita somente tipo-controle EMBALAGEM. PRE não recebe movimento nem vínculo com Bag. O rateio usa um único evento, atualiza o PRE e cria os primeiros movimentos exclusivamente das embalagens, conservando a igualdade entre a redução do PRE e as quantidades criadas.",
+        "Sob bloqueio, estado anterior precisa coincidir com contr_emb_etiqueta e id-movto-ant com id-movto-ult. Gravar fato e atualizar o saldo na mesma transação.",
+        "Incluir/retirar de Bag usa id-bag-relac. Validar a projeção atual sob bloqueio e impedir tipos incompatíveis.",
+        "Para um documento/evento, id-evento recupera seus efeitos diretos. Para o ciclo completo das embalagens geradas por ele, partir de contr_emb_etiqueta.id-evento-geracao e buscar todos os movimentos por id-etiqueta.",
+        "A quantidade envolvida em transferência pode ser positiva com variação zero. Variação física é qtidade-atu - qtidade-ant.",
+        "Vínculos de Bag não somam quantidade. Mudança de vínculo não cria movimento ERP automaticamente.",
+        "A chave do movimento ERP pode atender várias etiquetas; não é única isoladamente. Compensação parcial não supera o total reversível."
+      ]
+    },
+    {
+      "nome": "contr_emb_bag_lacre",
+      "finalidade": "Ocorrência operacional da Bag, seu tipo, lacre e destino.",
+      "modo": "mutavel",
+      "chave_primaria": [
+        "id-bag"
+      ],
+      "campos": [
+        {
+          "nome": "id-bag",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador da ocorrência operacional; não depende do número do lacre."
+        },
+        {
+          "nome": "cod-tipo",
+          "tipo": "CHARACTER(3)",
+          "obrigatorio": true,
+          "descricao": "Único tipo permitido na Bag.",
+          "relacionamento": {
+            "tabela": "contr_emb_bag",
+            "campo": "cod-tipo"
+          }
+        },
+        {
+          "nome": "cod-estabel",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": true,
+          "descricao": "Estabelecimento responsável pela ocorrência."
+        },
+        {
+          "nome": "cod-depos",
+          "tipo": "LIKE saldo-estoq.cod-depos",
+          "obrigatorio": false,
+          "descricao": "Depósito quando aplicável à operação."
+        },
+        {
+          "nome": "nro-lacre",
+          "tipo": "CHARACTER(40)",
+          "obrigatorio": false,
+          "descricao": "Número do lacre; pode ficar ausente enquanto a Bag estiver aberta."
+        },
+        {
+          "nome": "situacao",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "ABERTA, LACRADA, ENVIADA, DEVOLVIDA, ENCERRADA ou CANCELADA; transições dependem do caso de uso."
+        },
+        {
+          "nome": "dt-lacre",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": false,
+          "descricao": "Momento de lacração."
+        },
+        {
+          "nome": "dt-envio",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": false,
+          "descricao": "Momento de envio."
+        },
+        {
+          "nome": "dt-devolucao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": false,
+          "descricao": "Momento de devolução."
+        },
+        {
+          "nome": "tipo-destino",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": false,
+          "descricao": "ESTAB, TERCEIRO ou LOCAL, conforme destino confirmado."
+        },
+        {
+          "nome": "cod-estabel-dest",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": false,
+          "descricao": "Estabelecimento de destino, quando esse for o tipo."
+        },
+        {
+          "nome": "cod-emitente-dest",
+          "tipo": "LIKE emitente.cod-emitente",
+          "obrigatorio": false,
+          "descricao": "Participante de destino, quando esse for o tipo."
+        },
+        {
+          "nome": "origem-local-dest",
+          "tipo": "CHARACTER(20)",
+          "obrigatorio": false,
+          "descricao": "Sistema responsável pelo local externo de destino."
+        },
+        {
+          "nome": "cod-local-dest",
+          "tipo": "CHARACTER(80)",
+          "obrigatorio": false,
+          "descricao": "Código do local externo de destino."
+        },
+        {
+          "nome": "motorista",
+          "tipo": "CHARACTER(100)",
+          "obrigatorio": false,
+          "descricao": "Identificação operacional do motorista, se necessária."
+        },
+        {
+          "nome": "id-bag-anterior",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Ocorrência antecedente, se houver novo ciclo ou troca de lacre autorizada.",
+          "relacionamento": {
+            "tabela": "contr_emb_bag_lacre",
+            "campo": "id-bag"
+          }
+        },
+        {
+          "nome": "dt-inclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da inclusão no servidor."
+        },
+        {
+          "nome": "usuario-inclusao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade validada do autor da inclusão."
+        },
+        {
+          "nome": "dt-alteracao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Última alteração; inicialmente igual à inclusão."
+        },
+        {
+          "nome": "usuario-alteracao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Autor da última alteração; inicialmente igual ao da inclusão."
+        },
+        {
+          "nome": "versao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Inicia em 1; incrementa a cada alteração para controle de concorrência."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-bag"
+          ]
+        },
+        {
+          "nome": "lacre",
+          "unico": false,
+          "campos": [
+            "nro-lacre",
+            "cod-estabel"
+          ]
+        },
+        {
+          "nome": "estab-situacao",
+          "unico": false,
+          "campos": [
+            "cod-estabel",
+            "situacao",
+            "id-bag"
+          ]
+        },
+        {
+          "nome": "tipo",
+          "unico": false,
+          "campos": [
+            "cod-tipo"
+          ]
+        }
+      ],
+      "regras": [
+        "id-bag representa uma ocorrência operacional; número de lacre não é a chave técnica e pode estar ausente enquanto ABERTA.",
+        "Tipo da Bag é imutável após receber conteúdo. Toda etiqueta incluída precisa ter exatamente o mesmo cod-tipo da Bag.",
+        "A mesma Bag pode conter itens, lotes, validades e capacidades diferentes; essas dimensões não restringem o descarte quando o tipo de embalagem coincide.",
+        "Conteúdo atual é consultado por contr_emb_etiqueta.id-bag; histórico de inclusão/retirada fica nos movimentos ligados à Bag.",
+        "Após lacrar, mudança de conteúdo exige fluxo autorizado. Troca/reutilização de lacre ainda serão definidas; o índice de consulta não implica unicidade.",
+        "Se novo ciclo/troca exigir preservar ocorrência, criar novo id-bag ligado ao anterior. Não sobrescrever o lacre histórico.",
+        "Este registro não presume cadastro patrimonial de sacos reutilizáveis, necessidade não estabelecida."
+      ]
+    },
+    {
+      "nome": "contr_emb_oper",
+      "finalidade": "Cabeçalho das operações de transferência, campo, empréstimo, devolução e demais fluxos previstos.",
+      "modo": "mutavel",
+      "chave_primaria": [
+        "id-operacao"
+      ],
+      "campos": [
+        {
+          "nome": "id-operacao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador da operação."
+        },
+        {
+          "nome": "tipo-operacao",
+          "tipo": "CHARACTER(32)",
+          "obrigatorio": true,
+          "descricao": "Tipo controlado de operação; catálogo inicial descrito nas regras."
+        },
+        {
+          "nome": "cod-estabel-orig",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": true,
+          "descricao": "Estabelecimento responsável/origem, conforme operação."
+        },
+        {
+          "nome": "cod-estabel-dest",
+          "tipo": "LIKE estabelec.cod-estabel",
+          "obrigatorio": false,
+          "descricao": "Estabelecimento de destino, quando aplicável."
+        },
+        {
+          "nome": "cod-emitente",
+          "tipo": "LIKE emitente.cod-emitente",
+          "obrigatorio": false,
+          "descricao": "Contraparte do empréstimo, devolução ou outra operação."
+        },
+        {
+          "nome": "origem-local-ext",
+          "tipo": "CHARACTER(20)",
+          "obrigatorio": false,
+          "descricao": "Sistema do local operacional externo, quando aplicável."
+        },
+        {
+          "nome": "cod-local-ext",
+          "tipo": "CHARACTER(80)",
+          "obrigatorio": false,
+          "descricao": "Código do local externo, quando aplicável."
+        },
+        {
+          "nome": "situacao",
+          "tipo": "CHARACTER(16)",
+          "obrigatorio": true,
+          "descricao": "RASCUNHO, SOLICITADA, EM_EXECUCAO, EXECUTADA ou CANCELADA."
+        },
+        {
+          "nome": "dt-operacao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Data/hora efetiva ou solicitada, conforme estado."
+        },
+        {
+          "nome": "dt-prev-retorno",
+          "tipo": "DATE",
+          "obrigatorio": false,
+          "descricao": "Prazo de retorno quando aplicável; referência atual de empréstimo é 180 dias, marco inicial a confirmar."
+        },
+        {
+          "nome": "id-oper-origem",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Operação antecedente, por exemplo renovação; não substitui baixas por item.",
+          "relacionamento": {
+            "tabela": "contr_emb_oper",
+            "campo": "id-operacao"
+          }
+        },
+        {
+          "nome": "observacao",
+          "tipo": "CHARACTER(1000)",
+          "obrigatorio": false,
+          "descricao": "Contexto operacional necessário, sem credenciais."
+        },
+        {
+          "nome": "dt-inclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da inclusão no servidor."
+        },
+        {
+          "nome": "usuario-inclusao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade validada do autor da inclusão."
+        },
+        {
+          "nome": "dt-alteracao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Última alteração; inicialmente igual à inclusão."
+        },
+        {
+          "nome": "usuario-alteracao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Autor da última alteração; inicialmente igual ao da inclusão."
+        },
+        {
+          "nome": "versao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Inicia em 1; incrementa a cada alteração para controle de concorrência."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-operacao"
+          ]
+        },
+        {
+          "nome": "estab-tipo-sit",
+          "unico": false,
+          "campos": [
+            "cod-estabel-orig",
+            "tipo-operacao",
+            "situacao",
+            "id-operacao"
+          ]
+        },
+        {
+          "nome": "contraparte",
+          "unico": false,
+          "campos": [
+            "cod-emitente",
+            "dt-prev-retorno",
+            "id-operacao"
+          ]
+        },
+        {
+          "nome": "antecedente",
+          "unico": false,
+          "campos": [
+            "id-oper-origem"
+          ]
+        }
+      ],
+      "regras": [
+        "Catálogo inicial cobre os fluxos do escopo; nomes internos não substituem espécies ou naturezas fiscais.",
+        "Operação solicitada não altera estoque. Efeito físico precisa de evento/movimentos confirmados.",
+        "Uma operação pode ter vários eventos/documentos, relacionados por contr_emb_evento.id-operacao; as fotografias documentais ficam nesses eventos.",
+        "EXECUTADA significa ação realizada, não empréstimo integralmente devolvido. Pendências são apuradas nas linhas de baixa e movimentos.",
+        "A tabela concentra cabeçalhos dos fluxos previstos sem implementar motor genérico de processos."
+      ]
+    },
+    {
+      "nome": "contr_emb_oper_item",
+      "finalidade": "Itens e quantidades solicitados/executados em uma operação.",
+      "evolucao_proposta_dt084": "Ainda nao implantada: cada execucao de criacao pelo Fluig produz um documento. Persistir a selecao individual de etiqueta e parcela de quantidade vinculada a operacao e ao documento retornado pela BO. Verificar primeiro se as estruturas existentes bastam antes de propor extensao fisica. Nao usar contr_emb_movto para selecao anterior ao fato de estoque; a v1.7 fisica permanece com dez tabelas, 219 campos e 47 indices.",
+      "modo": "mutavel",
+      "chave_primaria": [
+        "id-item-oper"
+      ],
+      "campos": [
+        {
+          "nome": "id-item-oper",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador do item da operação."
+        },
+        {
+          "nome": "id-operacao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Cabeçalho da operação.",
+          "relacionamento": {
+            "tabela": "contr_emb_oper",
+            "campo": "id-operacao"
+          }
+        },
+        {
+          "nome": "sequencia",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Sequência do item na operação."
+        },
+        {
+          "nome": "it-codigo",
+          "tipo": "LIKE item.it-codigo",
+          "obrigatorio": true,
+          "descricao": "Item envolvido."
+        },
+        {
+          "nome": "un",
+          "tipo": "LIKE item.un",
+          "obrigatorio": true,
+          "descricao": "Unidade da quantidade informada."
+        },
+        {
+          "nome": "quantidade",
+          "tipo": "DECIMAL(4 casas)",
+          "obrigatorio": true,
+          "descricao": "Quantidade de negócio da operação, na unidade do item; não representa automaticamente consumo físico."
+        },
+        {
+          "nome": "lote",
+          "tipo": "LIKE saldo-estoq.lote",
+          "obrigatorio": false,
+          "descricao": "Lote especificado na solicitação, quando necessário."
+        },
+        {
+          "nome": "dt-vali-lote",
+          "tipo": "LIKE saldo-estoq.dt-vali-lote",
+          "obrigatorio": false,
+          "descricao": "Validade especificada, quando necessária."
+        },
+        {
+          "nome": "cod-tipo",
+          "tipo": "CHARACTER(3)",
+          "obrigatorio": false,
+          "descricao": "Tipo de embalagem da linha.",
+          "relacionamento": {
+            "tabela": "contr_emb_bag",
+            "campo": "cod-tipo"
+          }
+        },
+        {
+          "nome": "tipo-item",
+          "tipo": "CHARACTER(12)",
+          "obrigatorio": true,
+          "descricao": "SOLICITACAO ou BAIXA."
+        },
+        {
+          "nome": "id-item-origem",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Linha executada cuja pendência é atendida.",
+          "relacionamento": {
+            "tabela": "contr_emb_oper_item",
+            "campo": "id-item-oper"
+          }
+        },
+        {
+          "nome": "natureza-baixa",
+          "tipo": "CHARACTER(12)",
+          "obrigatorio": false,
+          "descricao": "FISICA ou FISCAL para linha de baixa."
+        },
+        {
+          "nome": "sentido",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "1 para baixar e -1 para compensar baixa anterior."
+        },
+        {
+          "nome": "id-item-compensado",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Linha de baixa compensada quando sentido = -1.",
+          "relacionamento": {
+            "tabela": "contr_emb_oper_item",
+            "campo": "id-item-oper"
+          }
+        },
+        {
+          "nome": "justificativa",
+          "tipo": "CHARACTER(1000)",
+          "obrigatorio": false,
+          "descricao": "Motivo da baixa/compensação."
+        },
+        {
+          "nome": "dt-inclusao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da inclusão no servidor."
+        },
+        {
+          "nome": "usuario-inclusao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade validada do autor da inclusão."
+        },
+        {
+          "nome": "dt-alteracao",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Última alteração; inicialmente igual à inclusão."
+        },
+        {
+          "nome": "usuario-alteracao",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Autor da última alteração; inicialmente igual ao da inclusão."
+        },
+        {
+          "nome": "versao",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Inicia em 1; incrementa a cada alteração para controle de concorrência."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-item-oper"
+          ]
+        },
+        {
+          "nome": "operacao-seq",
+          "unico": true,
+          "campos": [
+            "id-operacao",
+            "sequencia"
+          ]
+        },
+        {
+          "nome": "item",
+          "unico": false,
+          "campos": [
+            "it-codigo",
+            "id-operacao"
+          ]
+        },
+        {
+          "nome": "origem-baixa",
+          "unico": false,
+          "campos": [
+            "id-item-origem",
+            "natureza-baixa",
+            "id-item-oper"
+          ]
+        },
+        {
+          "nome": "compensado",
+          "unico": false,
+          "campos": [
+            "id-item-compensado"
+          ]
+        }
+      ],
+      "regras": [
+        "Solicitação registra quantidade pretendida; execução real fica nos eventos e movimentos ligados à linha.",
+        "Uma BAIXA referencia uma linha de origem. Para ratear uma devolução entre origens, criar linhas separadas na mesma operação.",
+        "Pendência nasce da execução efetivamente confirmada, não da mera solicitação. Um evento fiscal sem efeito confirmado no estoque não cria, por si só, dívida física. Conforme DT-034, movimentos de estoque confirmados devem ser refletidos nas etiquetas vinculadas mesmo em operações simbólicas ou de renovação, preservando cada etapa de entrada e saída.",
+        "Baixas FISICA e FISCAL são apuradas separadamente. Pagamento sem material não reduz quantidade física.",
+        "Linhas de baixa são positivas; compensação usa sentido -1, referencia a linha original e não supera o valor reversível.",
+        "Item, unidade, tipo e contraparte precisam ser compatíveis. Uma linha executada não troca item/unidade; ajustes conservam a trilha.",
+        "O detalhamento por etiqueta fica nos movimentos, evitando uma tabela de baixa e outra de vínculo."
+      ]
+    },
+    {
+      "nome": "contr_emb_audit",
+      "finalidade": "Histórico de alterações cadastrais e operacionais, inclusive exclusões permitidas.",
+      "modo": "imutavel",
+      "chave_primaria": [
+        "id-audit"
+      ],
+      "campos": [
+        {
+          "nome": "id-audit",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Identificador da auditoria."
+        },
+        {
+          "nome": "id-evento",
+          "tipo": "INTEGER",
+          "obrigatorio": false,
+          "descricao": "Evento correlacionado, quando houver.",
+          "relacionamento": {
+            "tabela": "contr_emb_evento",
+            "campo": "id-evento"
+          }
+        },
+        {
+          "nome": "nome-tabela",
+          "tipo": "CHARACTER(32)",
+          "obrigatorio": true,
+          "descricao": "Tabela específica auditada, validada contra lista permitida."
+        },
+        {
+          "nome": "chave-registro",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade estável do registro, mantida mesmo após exclusão."
+        },
+        {
+          "nome": "acao",
+          "tipo": "CHARACTER(12)",
+          "obrigatorio": true,
+          "descricao": "INCLUSAO, ALTERACAO ou EXCLUSAO."
+        },
+        {
+          "nome": "versao-ant",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Versão anterior; zero para inclusão."
+        },
+        {
+          "nome": "versao-atu",
+          "tipo": "INTEGER",
+          "obrigatorio": true,
+          "descricao": "Versão resultante; zero para exclusão."
+        },
+        {
+          "nome": "dados-ant",
+          "tipo": "CHARACTER(4000)",
+          "obrigatorio": false,
+          "descricao": "Valores anteriores somente dos campos auditados que mudaram, em representação compacta; vazio na inclusão."
+        },
+        {
+          "nome": "dados-atu",
+          "tipo": "CHARACTER(4000)",
+          "obrigatorio": false,
+          "descricao": "Valores posteriores somente dos campos auditados que mudaram, em representação compacta; vazio na exclusão."
+        },
+        {
+          "nome": "justificativa",
+          "tipo": "CHARACTER(1000)",
+          "obrigatorio": false,
+          "descricao": "Motivo de exclusão e de alterações críticas; exigência conforme ação."
+        },
+        {
+          "nome": "dt-registro",
+          "tipo": "DATETIME-TZ",
+          "obrigatorio": true,
+          "descricao": "Momento da gravação no servidor."
+        },
+        {
+          "nome": "usuario",
+          "tipo": "CHARACTER(128)",
+          "obrigatorio": true,
+          "descricao": "Identidade do autor validada pelo serviço; não é credencial."
+        }
+      ],
+      "indices": [
+        {
+          "nome": "pk",
+          "unico": true,
+          "campos": [
+            "id-audit"
+          ]
+        },
+        {
+          "nome": "registro",
+          "unico": false,
+          "campos": [
+            "nome-tabela",
+            "chave-registro",
+            "id-audit"
+          ]
+        },
+        {
+          "nome": "evento",
+          "unico": false,
+          "campos": [
+            "id-evento",
+            "id-audit"
+          ]
+        }
+      ],
+      "regras": [
+        "Gravar na mesma transação da mudança; histórico permanece após exclusão permitida.",
+        "Auditar tipos, parametrização, operações, Bags e alterações autorizadas em projeções. Eventos/movimentos já registram fatos próprios.",
+        "Referência nome-tabela/chave-registro é histórica e propositalmente sem FK.",
+        "Imagens incluem somente campos permitidos; nunca sessão, senha, cookie, header, credencial ou requisição completa.",
+        "Não auditar recursivamente a própria auditoria nem tratar tentativa técnica como novo fato de estoque."
+      ]
+    }
+  ]
+}

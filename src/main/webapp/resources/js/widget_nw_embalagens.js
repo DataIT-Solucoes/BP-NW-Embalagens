@@ -2,31 +2,8 @@
 var NWE_TABULATOR_JS = 'https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.4.0/js/tabulator.min.js';
 var nweTabulatorPromise = null;
 
-// DADOS MOCKADOS, só para visualizar a tabela. Trocar pelo dataset quando ele for definido.
-var NWE_DADOS_MOCK = [
-    { descricao: 'Caixa', sigla: 'CX' },
-    { descricao: 'Fardo', sigla: 'FD' },
-    { descricao: 'Saco', sigla: 'SC' },
-    { descricao: 'Pallet', sigla: 'PL' },
-    { descricao: 'Bag', sigla: 'BG' },
-    { descricao: 'Granel', sigla: 'GR' },
-    { descricao: 'Pacote', sigla: 'PC' },
-    { descricao: 'Tambor', sigla: 'TB' },
-    { descricao: 'Bombona', sigla: 'BB' },
-    { descricao: 'Contêiner', sigla: 'CT' },
-    { descricao: 'Engradado', sigla: 'EG' },
-    { descricao: 'Bobina', sigla: 'BO' },
-    { descricao: 'Rolo', sigla: 'RL' },
-    { descricao: 'Unidade', sigla: 'UN' },
-    { descricao: 'Lata', sigla: 'LT' },
-    { descricao: 'Garrafa', sigla: 'GF' },
-    { descricao: 'Barrica', sigla: 'BR' },
-    { descricao: 'Sacola', sigla: 'SL' },
-    { descricao: 'Envelope', sigla: 'EV' },
-    { descricao: 'Display', sigla: 'DP' },
-    { descricao: 'Kit', sigla: 'K' },
-    { descricao: 'Balde', sigla: 'BD' }
-];
+// Dataset que traz TODOS os tipos (ele pagina a API por dentro). Fonte em datasets/dsNwEmbalagensTipos.js
+var NWE_DATASET_TIPOS = 'dsNwEmbalagensTipos';
 
 var widget_nw_embalagens = SuperWidget.extend({
 
@@ -137,7 +114,7 @@ var widget_nw_embalagens = SuperWidget.extend({
     montarTabela() {
         var self = this;
         this.tabela = new Tabulator($('[data-tabela]', this.DOM)[0], {
-            data: NWE_DADOS_MOCK,
+            data: [],
             layout: 'fitColumns',
             responsiveLayout: false,
             pagination: true,
@@ -186,6 +163,46 @@ var widget_nw_embalagens = SuperWidget.extend({
                 }
             ]
         });
+        this.tabela.on('tableBuilt', function () { self.carregarTipos(); });
+    },
+
+    //busca todos os tipos no dataset e preenche a tabela
+    carregarTipos() {
+        var self = this;
+        this.tabela.alert('Carregando tipos de embalagem...');
+
+        $.ajax({
+            url: '/api/public/ecm/dataset/search',
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify({ datasetId: NWE_DATASET_TIPOS, filterFields: [], resultFields: [] })
+        }).then(function (resposta) {
+            //neste Fluig o search devolve { content: [ {coluna: valor}, ... ] }
+            var linhas = (resposta && Array.isArray(resposta.content)) ? resposta.content : [];
+            //em erro o dataset devolve uma única linha com sucesso = "false"
+            var erro = linhas.filter(function (l) { return l.sucesso !== 'true'; })[0];
+            if (erro) {
+                self.mostrarErroCarga(erro.mensagem || 'Não foi possível consultar os tipos de embalagem.', erro.codigoErro);
+                return;
+            }
+            self.tabela.clearAlert();
+            self.tabela.setData(linhas.map(function (l) {
+                return {
+                    descricao: l.descricao,
+                    sigla: l.codTipo,
+                    ativo: l.ativo === 'true',
+                    versao: l.versao
+                };
+            }));
+        }, function (xhr) {
+            self.mostrarErroCarga('Não foi possível consultar os tipos de embalagem (HTTP ' + xhr.status + ').');
+        });
+    },
+
+    mostrarErroCarga(mensagem, codigoErro) {
+        if (window.console) console.error('[widget_nw_embalagens] ' + (codigoErro ? codigoErro + ': ' : '') + mensagem);
+        this.tabela.alert(mensagem + ' Recarregue a página para tentar de novo.', 'error');
     },
 
     montarBotoesAcoes(dados) {
