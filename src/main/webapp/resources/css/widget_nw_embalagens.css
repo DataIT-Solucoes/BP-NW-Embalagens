@@ -275,6 +275,7 @@
 }
 
 .fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled,
+.fluig-style-guide.nwe .nwe-btn[data-carregar-mais]:disabled,
 .fluig-style-guide.nwe .nwe-btn[data-novo]:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -284,7 +285,8 @@
     background-color: var(--nwe-verde);
 }
 
-.fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled {
+.fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled,
+.fluig-style-guide.nwe .nwe-btn[data-carregar-mais]:disabled {
     background-color: #fff;
 }
 
@@ -394,6 +396,25 @@
     color: var(--nwe-tinta);
 }
 
+.fluig-style-guide.nwe .nwe-situacao {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.fluig-style-guide.nwe .nwe-situacao.is-ativo {
+    background-color: var(--nwe-nevoa);
+    color: var(--nwe-verde);
+}
+
+.fluig-style-guide.nwe .nwe-situacao.is-inativo {
+    border: 1px solid var(--nwe-linha);
+    background-color: var(--nwe-marfim);
+    color: var(--nwe-tinta-suave);
+}
+
 .fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-placeholder .tabulator-placeholder-contents {
     padding: 32px 16px;
     font-size: 15px;
@@ -401,7 +422,7 @@
     color: var(--nwe-tinta-suave);
 }
 
-/* rodapé: contador à esquerda, páginas à direita */
+/* rodapé: contador à esquerda, "Carregar mais" à direita (sem paginação local) */
 .fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer {
     border-top: 1px solid var(--nwe-linha);
     background-color: var(--nwe-marfim);
@@ -413,47 +434,29 @@
     padding: 10px 16px;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page-counter {
+.fluig-style-guide.nwe .nwe-rodape {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 36px;
+    text-align: left;
+}
+
+.fluig-style-guide.nwe .nwe-rodape-contador {
     font-size: 13px;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page {
-    min-width: 34px;
-    height: 34px;
-    margin: 0 2px;
-    padding: 0 8px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    background: transparent;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--nwe-tinta);
+.fluig-style-guide.nwe .nwe-btn.nwe-btn-mais {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 13px;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page:not(:disabled):hover {
-    border-color: var(--nwe-linha);
-    background-color: #fff;
-    color: var(--nwe-tinta);
-}
-
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page.active {
-    border-color: var(--nwe-verde);
-    background-color: #fff;
-    color: var(--nwe-tinta);
-}
-
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page:disabled {
-    opacity: 0.35;
-}
-
-/* setas da paginação (Bootstrap Icons): o traço da fonte é fino, o stroke engrossa */
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page i {
-    display: inline-block;
-    font-size: 14px;
-    line-height: 1;
-    vertical-align: -1px;
-    -webkit-text-stroke: 1.2px currentColor;
+.fluig-style-guide.nwe .nwe-btn.nwe-btn-mais[hidden] {
+    display: none;
 }
 
 .fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-alert {
@@ -531,13 +534,14 @@
     box-shadow: 0 0 0 3px rgba(0, 107, 53, 0.28);
 }
 
-.fluig-style-guide.nwe .nwe-acao-editar:hover {
+.fluig-style-guide.nwe .nwe-acao-editar:hover,
+.fluig-style-guide.nwe .nwe-acao-reativar:hover {
     border-color: var(--nwe-verde);
     background-color: #fff;
     color: var(--nwe-tinta);
 }
 
-.fluig-style-guide.nwe .nwe-acao-excluir:hover {
+.fluig-style-guide.nwe .nwe-acao-inativar:hover {
     border-color: rgba(237, 28, 36, 0.35);
     background-color: rgba(237, 28, 36, 0.08);
     color: var(--nwe-vermelho-escuro);
@@ -666,6 +670,13 @@
     max-width: 140px;
 }
 
+.fluig-style-guide.nwe .nwe-campo-input[readonly],
+.fluig-style-guide.nwe .nwe-campo-input[readonly]:hover {
+    border-color: var(--nwe-linha);
+    background-color: var(--nwe-marfim);
+    color: var(--nwe-tinta-suave);
+}
+
 .fluig-style-guide.nwe .nwe-campo-dica {
     margin: 6px 0 0;
     font-size: 13px;
@@ -680,6 +691,25 @@
 }
 
 .fluig-style-guide.nwe .nwe-campo-erro:empty {
+    display: none;
+}
+
+/* recusa ou falha do comando, dentro do modal */
+.fluig-style-guide.nwe .nwe-modal-alerta {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background-color: rgba(237, 28, 36, 0.08);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nwe-vermelho-escuro);
+}
+
+.fluig-style-guide.nwe .nwe-modal-confirmacao .nwe-modal-alerta {
+    margin-top: 14px;
+}
+
+.fluig-style-guide.nwe .nwe-modal-alerta:empty {
     display: none;
 }
 
@@ -700,7 +730,7 @@
     padding: 20px 24px 24px;
 }
 
-/* confirmação de exclusão */
+/* confirmação de inativar/reativar */
 .fluig-style-guide.nwe .nwe-modal.nwe-modal-pequeno {
     width: min(420px, calc(100vw - 32px));
 }
@@ -722,6 +752,11 @@
     color: var(--nwe-vermelho-escuro);
 }
 
+.fluig-style-guide.nwe .nwe-modal.is-reativar .nwe-confirmacao-icone {
+    background-color: var(--nwe-nevoa);
+    color: var(--nwe-verde);
+}
+
 .fluig-style-guide.nwe .nwe-modal-confirmacao .nwe-modal-subtitulo {
     margin-top: 8px;
 }
@@ -738,6 +773,12 @@
 
 .fluig-style-guide.nwe .nwe-btn-perigo:hover {
     background-color: var(--nwe-vermelho-escuro);
+}
+
+/* Salvar / Inativar / Reativar aguardando a resposta: um clique só */
+.fluig-style-guide.nwe .nwe-modal-rodape .nwe-btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
 }
 
 /* ---------- Tablet: botões de filtro descem para uma linha própria ---------- */

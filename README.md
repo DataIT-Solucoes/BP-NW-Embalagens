@@ -1,19 +1,26 @@
 # widget_nw_embalagens — Tipos de Embalagens
 
-Widget WCM do Fluig (Branco Peres) para cadastrar, editar, excluir e consultar tipos de embalagem.
+Widget WCM do Fluig (Branco Peres) para cadastrar, editar, inativar/reativar e consultar tipos de embalagem.
 Publicado no servidor de teste em `/portal/p/1/cadastro_de_embalagens`.
 
-> **Estado atual:** os dados são **mockados** (`NWE_DADOS_MOCK` no JS). Tudo que se cadastra, edita ou exclui
-> fica só na tela e some ao recarregar a página. Ainda não há dataset nem serviço REST definido.
+> **Estado atual (07/10/2026):** a tela usa o Dataset central **`dsNwEmbalagens`** (ações `consultarTipos`,
+> `incluirTipo`, `alterarTipo`) pela função `chamarEmbalagens`. O Dataset **ainda não está publicado** no Fluig
+> de TESTE e os **grupos de acesso ainda não foram definidos** (DT-054): até lá toda chamada volta
+> `AUTORIZACAO_NAO_CONFIGURADA`. O `dsNwEmbalagensTipos` antigo continua publicado e intacto.
 
 ## Arquivos
 
 | Arquivo | Conteúdo |
 |---|---|
-| `src/main/resources/view.ftl` | HTML da tela: cabeçalho, aba, filtros, container da tabela e os dois modais (`<dialog>`) |
-| `src/main/webapp/resources/js/widget_nw_embalagens.js` | SuperWidget com toda a lógica (tabela, filtros, modais) e os dados mockados |
+| `src/main/resources/view.ftl` | HTML da tela: cabeçalho, aba, filtro, container da tabela e os dois modais (`<dialog>`) |
+| `src/main/webapp/resources/js/widget_nw_embalagens.js` | SuperWidget: tabela, busca, "Carregar mais", cadastro/edição, inativar/reativar |
+| `src/main/webapp/resources/js/chamar-embalagens.js` | Transporte do Widget para o `dsNwEmbalagens` (cópia do modelo, sem alteração de conteúdo) |
 | `src/main/webapp/resources/css/widget_nw_embalagens.css` | Estilos e paleta de cores |
-| `src/main/resources/application.info` | Registra o JS e o CSS acima (índices 1 e 2) |
+| `src/main/resources/application.info` | Registra JS (1), CSS (2) e `chamar-embalagens.js` (3) |
+| `datasets/dsNwEmbalagens.js` | Dataset central (24 ações fechadas). Publicar como Dataset customizado **dsNwEmbalagens** |
+| `datasets/dsNwEmbalagensTipos.js` | Dataset antigo de tipos (uma linha por tipo). Não usado pela tela; não alterar |
+| `testes/*.cjs` + `package.json` | Testes locais (`npm test`), sem Fluig/Datasul reais. Não entram no `.war` |
+| `fluig-rest/MODELO_DATASET_UNICO_HUMBERTO_20261006/` | Modelo recebido (referência, mantido como veio) |
 
 ## Dependências externas (CDN)
 
@@ -24,10 +31,34 @@ O Fluig já carrega jQuery 3.6.3, Bootstrap 3.4.1 e o Style Guide. Além disso, 
 | Bootstrap Icons 1.11.3 (jsDelivr) | `<link>` no `view.ftl` | Todos os ícones (`bi bi-*`) |
 | Mulish (Google Fonts) | `<link>` no `view.ftl` | Fonte da tela |
 | Tabulator 6.4.0 — CSS (cdnjs) | `<link>` no `view.ftl` | Tema base da tabela |
-| Tabulator 6.4.0 — JS (cdnjs) | carregado pelo JS em `carregarTabulator()` | Tabela (ordenação, paginação, filtro) |
+| Tabulator 6.4.0 — JS (cdnjs) | carregado pelo JS em `carregarTabulator()` | Tabela (ordenação, linhas) |
 
 Sem acesso à internet: ícones e fonte não aparecem, e no lugar da tabela surge a mensagem
 "Não foi possível carregar a tabela...".
+
+## Como a tela chama o Fluig
+
+```
+Widget ── chamarEmbalagens(acao, parametros)
+        └► POST /api/public/ecm/dataset/search  { datasetId: "dsNwEmbalagens",
+                                                  filterFields: ["acao", acao, "parametros", JSON], limit: "1" }
+           └► dsNwEmbalagens (WKUser/WKCompany, grupos do colleagueGroup, regras por ação)
+              └► serviço DATASUL_REST_HOMOLOG ─► /dts/datasul-rest/.../controle-embalagens/tipos
+```
+
+- O Dataset devolve **uma linha**; `chamarEmbalagens` devolve o envelope da API (`JSON.parse(resultadoJson)`).
+  `sucesso = false` nunca vira lista vazia.
+- `limit: "1"` é do transporte (uma linha de envelope). O limite de negócio é `parametros.limite` (20 na tela).
+- O Widget nunca envia usuário, empresa, grupo, endpoint, método nem estabelecimentos: o Dataset injeta/recusa.
+
+| Ação da tela | Ação do Dataset | Parâmetros enviados |
+|---|---|---|
+| Abrir / Buscar | `consultarTipos` | `descricao` (se houver texto), `limite: 20`; texto de até 3 caracteres também gera uma 2ª consulta `codigoDe = codigoAte = texto`, `limite: 1` (a API não tem filtro "código OU descrição") |
+| Carregar mais | `consultarTipos` | mesmo filtro + `aposCodigo` = `proximoCodigo` da página anterior |
+| Novo → Salvar | `incluirTipo` | `codTipo`, `descricao`, `ativo: true`, `versao: 0`, `chaveIdempotente` |
+| Editar → Salvar | `alterarTipo` | `codTipo`, `descricao`, `ativo` atual, `versao` lida (número), `acao: "ALTERAR"`, `chaveIdempotente` |
+| Inativar | `alterarTipo` | `acao: "INATIVAR"`, `ativo: false`, `versao` lida |
+| Reativar | `alterarTipo` | `acao: "ALTERAR"`, `ativo: true`, `versao` lida |
 
 ## Fluxo da tela
 
@@ -35,14 +66,15 @@ Sem acesso à internet: ícones e fonte não aparecem, e no lugar da tabela surg
 Página abre
   └─ init()
        ├─ posiciona a barrinha da aba (de novo quando a fonte Mulish termina de carregar)
-       ├─ carregarTabulator() ──► montarTabela() com NWE_DADOS_MOCK
-       ├─ prepararModalNovo()     (eventos do modal de cadastro/edição)
-       └─ prepararModalExcluir()  (eventos da confirmação de exclusão)
+       ├─ carregarTabulator() ──► montarTabela() ──► carregarTipos(false): 1ª página
+       ├─ prepararModalNovo()      (eventos do modal de cadastro/edição)
+       └─ prepararModalSituacao()  (eventos da confirmação de inativar/reativar)
 
-Usuário ─┬─ digita filtros + Buscar (ou Enter) ─► buscar() ─► filtra a tabela
+Usuário ─┬─ texto + Buscar (ou Enter) ─► carregarTipos(false) ─► nova consulta no Datasul
+         ├─ Carregar mais ────────────► carregarTipos(true)  ─► próxima página pelo cursor
          ├─ Novo ─────────────► abrirModalNovo() ─┐
-         ├─ lápis da linha ───► abrirModalEditar() ┴► abrirModalCadastro() ─► Salvar ─► salvarNovo()
-         └─ lixeira da linha ─► abrirModalExcluir() ─► Excluir ─► confirmarExclusao()
+         ├─ lápis da linha ───► abrirModalEditar() ┴► abrirModalCadastro() ─► Salvar ─► salvarCadastro()
+         └─ botão de situação ► abrirModalSituacao() ─► Inativar/Reativar ─► confirmarSituacao()
 ```
 
 ### 1. Carregamento
@@ -52,52 +84,51 @@ Usuário ─┬─ digita filtros + Buscar (ou Enter) ─► buscar() ─► fil
 - O script do Tabulator é baixado uma única vez por página (`nweTabulatorPromise`), mesmo com várias instâncias.
 
 ### 2. Tabela
-- Colunas: **Descrição** (ordenável), **Sigla** (ordenável, mostrada como etiqueta) e **Ações** (lápis e lixeira).
-- Começa ordenada por Descrição, crescente, com 10 linhas por página e o contador "Mostrando X–Y de Z".
-- A coluna Ações não ordena; a seta do cabeçalho dela é só visual (CSS `.nwe-col-acoes`), para manter o padrão.
-- Os cliques no lápis e na lixeira chegam por `cellClick` da coluna Ações, que identifica o botão por `data-acao`.
+- Colunas: **Descrição**, **Sigla** (código do tipo, como etiqueta), **Situação** (Ativo/Inativo) e **Ações**.
+- **Uma página por consulta** (20 tipos), na ordem da API (por código). Não há paginação local: o rodapé mostra
+  "Mostrando N tipos · há mais resultados" e o botão **Carregar mais** enquanto a API indicar `temMais`.
+- A ordenação pelo cabeçalho reordena só o que já foi carregado.
+- Erro na consulta aparece sobre a tabela (texto puro) e a tela pede para clicar em Buscar de novo.
+  Uma busca nova cancela a anterior; a resposta antiga é ignorada.
 
-### 3. Filtros
-- Campos **Tipo Embalagem** e **Sigla**. A busca roda no botão **Buscar** ou com **Enter** em qualquer campo.
-- `buscar()` filtra pelas duas colunas ao mesmo tempo (o texto precisa estar contido no valor),
-  ignorando maiúsculas e acentos (`normalizar()`). Com os dois campos vazios, o filtro é removido.
+### 3. Filtro
+- Um campo **Tipo/Sigla Embalagem**. A busca vai ao Datasul (não filtra só a tela): descrição contém o texto e,
+  com até 3 caracteres, também o código exato (que aparece primeiro). Maiúsculas/acentos seguem a regra da API.
 
 ### 4. Cadastro e edição (mesmo modal)
-- **Novo** abre o modal vazio ("Novo tipo de embalagem"). O **lápis** abre o mesmo modal preenchido
-  ("Editar tipo de embalagem", botão "Salvar alterações"). Quem decide o modo é `abrirModalCadastro(linha)`:
-  `linha = null` é cadastro; uma linha do Tabulator é edição (guardada em `linhaEditando`).
-- **Validação** (`salvarNovo()`): Descrição e Sigla obrigatórias; Sigla com no máximo 2 caracteres
-  (o campo também tem `maxlength="2"`). O erro aparece embaixo do campo e some quando a pessoa volta a digitar.
-- **Salvar** fecha o modal e então adiciona a linha (`addRow`) ou atualiza a existente (`update`),
-  reaplica a ordenação atual e leva a tabela até a página da linha, que brilha em amarelo por ~2 s.
-- **Fechar** pelo X, Cancelar, Esc ou clique fora sempre limpa o formulário. A limpeza acontece em três pontos
-  (ao fechar pelos botões, no evento `close` e ao abrir), porque o `close` do `<dialog>` é assíncrono e o Chrome
-  não o dispara com a aba em segundo plano.
+- **Novo** abre o modal vazio; o **lápis** abre preenchido, com a **sigla somente leitura** (o código não muda).
+- Validação na tela: descrição obrigatória; sigla obrigatória com até 2 caracteres no cadastro; na edição a descrição
+  precisa mudar. O resto (duplicidade, versão, permissão) é do Datasul/Dataset.
+- **Salvar** faz **uma** chamada e desabilita o botão até a resposta; o modal não fecha enquanto grava.
+  Sucesso: fecha, aplica na tabela a fotografia devolvida (`codTipo`, `descricao`, `ativo`, `versao`) e destaca a linha.
+  Recusa: `TIPO_JA_EXISTE` aparece na sigla; as demais no alerta do modal.
 
-### 5. Exclusão
-- A **lixeira** abre uma confirmação com o nome e a sigla do item; o foco começa em **Cancelar**.
-- **Excluir** chama `confirmarExclusao()`, que remove a linha da tabela.
+### 5. Inativar / reativar
+- A API de tipos **não exclui**: a lixeira virou **Inativar** (tipos ativos) ou **Reativar** (inativos), com confirmação.
 
-## Onde ligar o backend
+### 6. Chave idempotente e falha incerta
+- Cada intenção (ação + conteúdo) recebe uma `chaveIdempotente` (UUID v4 via `crypto.getRandomValues`, porque o
+  Fluig de teste é HTTP e não tem `crypto.randomUUID`). Clicar de novo com o **mesmo conteúdo reaproveita a chave**;
+  conteúdo diferente gera chave nova; a chave é descartada quando o comando é confirmado.
+- Falha de rede/HTTP/resposta ilegível = **resultado incerto**: a tela **não repete sozinha** e orienta clicar em
+  Buscar para conferir antes de tentar de novo. `repeticao: true` na resposta gera um aviso.
 
-Os pontos estão marcados com `MOCK` no JS:
+## Testes locais
 
-| Ponto | Hoje | Trocar por |
-|---|---|---|
-| `NWE_DADOS_MOCK` / `montarTabela()` | array fixo de 22 itens | consulta ao dataset/REST de tipos de embalagem |
-| `salvarNovo()` | `addRow` / `update` só na tela | gravação no backend; atualizar a tabela só depois da resposta |
-| `confirmarExclusao()` | `delete` só na tela | exclusão no backend |
-
-Ainda **a definir**: dataset/serviço, campos reais (ex.: código/id do registro), se a sigla pode repetir e se
-deve ser gravada em maiúsculas.
+```
+npm test
+```
+Roda `testes/testar-dataset-unico.cjs` (Dataset), `testes/testar-chamar-embalagens.cjs` (transporte) e
+`testes/testar-tela-tipos.cjs` (funções da tela → transporte → Dataset → serviço simulado). Não conectam ao
+Fluig nem ao Datasul; não substituem a homologação no servidor.
 
 ## Visual
 
 - **Paleta oficial Branco Peres** (variáveis no topo do CSS): verde institucional `#006B35` (ação principal,
-  foco, seleção), verde névoa `#E5EDE3` (fundo de seleção), marfim `#F7F5EE` (superfícies), carvão `#20201E`
-  (texto), vermelho `#ED1C24` (só ação destrutiva; erros em `#C4161C` por contraste) e amarelo solar
-  `#FFD200` (brilho da linha nova). Não usar cores fora dela.
-- Modais são `<dialog>` nativos, **não** o `FLUIGC.modal`.
+  foco, seleção, situação Ativo), verde névoa `#E5EDE3` (fundo de seleção), marfim `#F7F5EE` (superfícies),
+  carvão `#20201E` (texto), vermelho `#ED1C24` (só ação destrutiva/inativar; erros em `#C4161C` por contraste) e
+  amarelo solar `#FFD200` (brilho da linha gravada). Não usar cores fora dela.
+- Modais são `<dialog>` nativos, **não** o `FLUIGC.modal`. Avisos rápidos usam `FLUIGC.toast`.
 
 ## Pegadinhas para quem for mexer
 
@@ -105,7 +136,9 @@ deve ser gravada em maiúsculas.
   como `.fluig-style-guide header` e `.fluig-style-guide h2` vencem e desmontam o layout.
 - **Tabulator:** a classe `.tabulator` vai na **própria** div `.nwe-tabela`; por isso os seletores são
   `.nwe-tabela.tabulator` (sem espaço). As setas inativas precisam de `[aria-sort="none"] .tabulator-col-content`
-  no seletor para vencer o tema do Tabulator.
-- **Textos da paginação:** o Tabulator insere os textos de `langs.pagination` como HTML; é assim que as setas
-  viram ícones.
-- **Encoding:** `.js`, `.ftl`, `.css` e `application.info` em UTF-8 sem BOM e CRLF.
+  no seletor para vencer o tema do Tabulator. O rodapé é um `footerElement` próprio (`.nwe-rodape`).
+- **`tabela.alert(texto)` vira HTML** no Tabulator: mensagem vinda da API vai como elemento com `textContent`.
+- **Tipos de dado:** `versao` vai como **número** no corpo de tipos (contrato cadastral vigente, GetInteger no ABL).
+  Não converter códigos em número.
+- **Encoding:** `.js`, `.ftl`, `.css` em UTF-8 sem BOM e CRLF (`application.info` está em LF desde a geração).
+  No Git Bash, `awk` esconde o `\r`; conferir CRLF com `grep -c $'\r'` ou Python.

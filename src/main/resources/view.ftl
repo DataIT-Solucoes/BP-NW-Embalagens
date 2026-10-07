@@ -7,7 +7,7 @@
         <span class="nwe-selo" aria-hidden="true"><span class="nwe-selo-miolo"><i class="bi bi-boxes"></i></span></span>
         <div class="nwe-cabecalho-texto">
             <h2 class="nwe-cabecalho-titulo">Tipos de Embalagens</h2>
-            <p class="nwe-cabecalho-subtitulo">Cadastre, edite, exclua e consulte os tipos de embalagem.</p>
+            <p class="nwe-cabecalho-subtitulo">Cadastre, edite, inative e consulte os tipos de embalagem.</p>
         </div>
         <div class="nwe-cabecalho-acoes">
             <button type="button" class="nwe-btn nwe-btn-destaque" data-novo disabled><i class="bi bi-plus-lg" aria-hidden="true"></i>Novo</button>
@@ -22,7 +22,7 @@
             <label class="nwe-campo-rotulo" for="nwe-filtro-tipo-${instanceId}">Tipo/Sigla Embalagem</label>
             <div class="nwe-campo-caixa">
                 <i class="bi bi-search" aria-hidden="true"></i>
-                <input type="text" id="nwe-filtro-tipo-${instanceId}" class="nwe-campo-input" placeholder="Buscar por tipo de embalagem ou sigla" autocomplete="off" data-filtro-tipo>
+                <input type="text" id="nwe-filtro-tipo-${instanceId}" class="nwe-campo-input" placeholder="Buscar por tipo de embalagem ou sigla" maxlength="100" autocomplete="off" data-filtro-tipo>
             </div>
         </div>
         <div class="nwe-filtros-acoes">
@@ -44,15 +44,16 @@
             <div class="nwe-modal-corpo">
                 <div class="nwe-campo">
                     <label class="nwe-campo-rotulo" for="nwe-novo-descricao-${instanceId}">Descrição</label>
-                    <input type="text" id="nwe-novo-descricao-${instanceId}" name="descricao" class="nwe-campo-input nwe-campo-input-simples" placeholder="Ex.: Caixa" autocomplete="off" required autofocus aria-describedby="nwe-novo-descricao-erro-${instanceId}">
+                    <input type="text" id="nwe-novo-descricao-${instanceId}" name="descricao" class="nwe-campo-input nwe-campo-input-simples" placeholder="Ex.: Caixa" maxlength="100" autocomplete="off" required autofocus aria-describedby="nwe-novo-descricao-erro-${instanceId}">
                     <p class="nwe-campo-erro" id="nwe-novo-descricao-erro-${instanceId}" data-erro="descricao"></p>
                 </div>
                 <div class="nwe-campo">
                     <label class="nwe-campo-rotulo" for="nwe-novo-sigla-${instanceId}">Sigla</label>
                     <input type="text" id="nwe-novo-sigla-${instanceId}" name="sigla" class="nwe-campo-input nwe-campo-input-simples nwe-campo-input-sigla" placeholder="Ex.: CX" maxlength="2" autocomplete="off" required aria-describedby="nwe-novo-sigla-dica-${instanceId} nwe-novo-sigla-erro-${instanceId}">
-                    <p class="nwe-campo-dica" id="nwe-novo-sigla-dica-${instanceId}">Até 2 caracteres.</p>
+                    <p class="nwe-campo-dica" id="nwe-novo-sigla-dica-${instanceId}" data-sigla-dica>Até 2 caracteres.</p>
                     <p class="nwe-campo-erro" id="nwe-novo-sigla-erro-${instanceId}" data-erro="sigla"></p>
                 </div>
+                <p class="nwe-modal-alerta" role="alert" data-modal-alerta></p>
             </div>
 
             <div class="nwe-modal-rodape">
@@ -62,15 +63,16 @@
         </form>
     </dialog>
 
-    <dialog class="nwe-modal nwe-modal-pequeno" role="alertdialog" aria-labelledby="nwe-excluir-titulo-${instanceId}" aria-describedby="nwe-excluir-texto-${instanceId}" data-modal-excluir>
+    <dialog class="nwe-modal nwe-modal-pequeno" role="alertdialog" aria-labelledby="nwe-situacao-titulo-${instanceId}" aria-describedby="nwe-situacao-texto-${instanceId}" data-modal-situacao>
         <div class="nwe-modal-confirmacao">
-            <span class="nwe-confirmacao-icone" aria-hidden="true"><i class="bi bi-trash3"></i></span>
-            <h3 class="nwe-modal-titulo" id="nwe-excluir-titulo-${instanceId}">Excluir tipo de embalagem?</h3>
-            <p class="nwe-modal-subtitulo" id="nwe-excluir-texto-${instanceId}">O tipo <strong data-excluir-item></strong> será removido da lista. Essa ação não pode ser desfeita.</p>
+            <span class="nwe-confirmacao-icone" aria-hidden="true"><i class="bi bi-slash-circle" data-situacao-icone></i></span>
+            <h3 class="nwe-modal-titulo" id="nwe-situacao-titulo-${instanceId}" data-situacao-titulo>Inativar tipo de embalagem?</h3>
+            <p class="nwe-modal-subtitulo" id="nwe-situacao-texto-${instanceId}">O tipo <strong data-situacao-item></strong><span data-situacao-efeito></span></p>
+            <p class="nwe-modal-alerta" role="alert" data-situacao-alerta></p>
         </div>
         <div class="nwe-modal-rodape">
-            <button type="button" class="nwe-btn nwe-btn-contorno" autofocus data-fechar-excluir>Cancelar</button>
-            <button type="button" class="nwe-btn nwe-btn-perigo" data-confirmar-excluir><i class="bi bi-trash3" aria-hidden="true"></i>Excluir</button>
+            <button type="button" class="nwe-btn nwe-btn-contorno" autofocus data-fechar-situacao>Cancelar</button>
+            <button type="button" class="nwe-btn nwe-btn-perigo" data-confirmar-situacao><span data-situacao-botao>Inativar</span></button>
         </div>
     </dialog>
 </div>
