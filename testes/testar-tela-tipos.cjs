@@ -29,7 +29,7 @@ function montar(opcoes = {}) {
         } }) }
     };
     vm.createContext(ds); vm.runInContext(fonteDataset, ds);
-    if (estado.regras) ds.NW_CONFIG.regras = estado.regras;
+    if (Array.isArray(estado.regras)) ds.NW_CONFIG.regras = estado.regras;
 
     // Transporte do Fluig: filterFields [campo, valor, ...] viram constraints do Dataset.
     const web = {
@@ -96,7 +96,7 @@ async function main() {
     });
 
     await caso('consulta: sem grupos configurados volta recusa (nao lista vazia) e nao chama a API', async () => {
-        const h = montar();
+        const h = montar({ regras: [] });
         const r = await h.web.chamarEmbalagens('consultarTipos', h.web.nweConsultasTipos('', '')[0]);
         assert.equal(r.sucesso, false); assert.equal(r.codigoErro, 'AUTORIZACAO_NAO_CONFIGURADA'); assert.ok(!('dados' in r));
         assert.equal(h.chamadasApi.length, 0);

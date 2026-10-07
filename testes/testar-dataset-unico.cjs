@@ -164,9 +164,11 @@ test('resposta com campos sensiveis e profundidade excessiva e recusada',()=>{
     }
 });
 // --- Configuracao TESTE do projeto ---
-test('projeto: regras vazias (DT-054 pendente) e escritas so de tipos',()=>{
+test('projeto: regra TESTE DefaultGroup-1 so com tipos e escritas so de tipos',()=>{
     const ctx={};vm.createContext(ctx);vm.runInContext(source,ctx);
-    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras),[]);
+    assert.equal(ctx.NW_CONFIG.regras.length,1);assert.equal(ctx.NW_CONFIG.regras[0].grupo,'DefaultGroup-1');
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].acoes),['consultarTipos','incluirTipo','alterarTipo']);
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].estabelecimentos),[]);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.escritasHabilitadas),['incluirTipo','alterarTipo']);
     assert.equal(ctx.NW_CONFIG.serviceCode,'DATASUL_REST_HOMOLOG');
 });

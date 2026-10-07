@@ -41,7 +41,7 @@ Próximo índice livre: 4
 - Campos de tipo: `codTipo` (texto, até 3 na API), `descricao`, `ativo` (booleano), `versao` (número), `dtInclusao`,
   `usuarioInclusao`, `dtAlteracao`, `usuarioAlteracao`.
 - Configuração TESTE no Dataset: `escritasHabilitadas: ["incluirTipo", "alterarTipo"]` (aceita `true`/`false`/lista);
-  `regras: []`.
+  `regras`: TESTE com `DefaultGroup-1` → `consultarTipos`, `incluirTipo`, `alterarTipo` (definido pelo usuário em 07/10/2026).
 - `colleagueGroup` no TESTE (API REST, 07/10): filtro `colleagueGroupPK.colleagueId` funciona; colunas voltam como
   `companyId`/`groupId`/`colleagueId`. O Dataset lê o nome PK e, vazio, o curto. Dentro de Dataset publicado: não confirmado.
 
@@ -50,9 +50,8 @@ Próximo índice livre: 4
 - Maiúsculas na sigla: a definir (a tela envia como digitado).
 
 ## Pendências / decisões em aberto
-- **Grupos (DT-054):** códigos reais dos grupos Fluig que consultam/mantêm tipos. Preencher `NW_CONFIG.regras` em
-  `datasets/dsNwEmbalagens.js`, ex.: `{ grupo: <código real>, acoes: ["consultarTipos","incluirTipo","alterarTipo"], estabelecimentos: [] }`.
-  Sem isso tudo é negado (`AUTORIZACAO_NAO_CONFIGURADA`).
+- **Grupos (DT-054):** em TESTE está `DefaultGroup-1` (grupo padrão: na prática libera tipos para todos os usuários
+  da empresa 1). Grupo definitivo por ação ainda a definir antes de produção.
 - Publicar `dsNwEmbalagens` no TESTE e o `.war` do widget (com `chamar-embalagens.js`).
 - No servidor: confirmar `getHttpStatusResult()`, o envio de `params` JSON (booleano/número) no POST/PATCH pelo
   serviço e os nomes de coluna do `colleagueGroup` dentro do Dataset.

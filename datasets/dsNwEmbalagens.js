@@ -16,10 +16,11 @@ var NW_CONFIG = {
     // Configuracao de servidor, NAO recebida do Widget.
     // Cada regra: { grupo: codigoReal, acoes: [nomesExatos], estabelecimentos: [codigosReais] }.
     // Para tipos globais, estabelecimentos pode ser []; nenhuma regra usa wildcard.
-    // PENDENTE (DT-054): os codigos reais dos grupos Fluig e seus estabelecimentos ainda nao foram
-    // definidos no projeto. Enquanto esta lista estiver vazia, TODA acao e negada com
-    // AUTORIZACAO_NAO_CONFIGURADA. Nao preencher com grupo/estabelecimento inventado.
-    regras: []
+    // TESTE (07/10/2026, definido pelo usuario): DefaultGroup-1 libera tipos para o grupo padrao da empresa 1.
+    // Grupo definitivo por acao continua pendente (DT-054); revisar antes de producao.
+    regras: [
+        { grupo: "DefaultGroup-1", acoes: ["consultarTipos", "incluirTipo", "alterarTipo"], estabelecimentos: [] }
+    ]
 };
 
 var NW_COLUNAS = ["acao", "sucesso", "codigoErro", "mensagem", "httpStatus",
