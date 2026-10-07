@@ -141,7 +141,7 @@ DO ON ERROR UNDO, THROW:
         WHERE (pcAposCodigo = "" OR bTipoApoio.cod-tipo > pcAposCodigo)
           AND (plAtivo = ? OR bTipoApoio.ativo = plAtivo)
           AND (bTipoApoio.cod-tipo BEGINS CAPS(pcFiltro)
-               OR INDEX(bTipoApoio.desc-embalagem,pcFiltro) > 0)
+               OR INDEX(CAPS(bTipoApoio.desc-embalagem), CAPS(pcFiltro)) > 0)
         BY bTipoApoio.cod-tipo:
         IF iQuantidade = piLimite THEN DO:
             ASSIGN plTemMais = YES pcProximoCodigo = cUltimo.

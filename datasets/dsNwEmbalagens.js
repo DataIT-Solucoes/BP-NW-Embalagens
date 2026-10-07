@@ -9,7 +9,7 @@ var NW_CONFIG = {
     base: "/dts/datasul-rest/resources/prg/esp/v1/controle-embalagens",
     // TESTE: comandos habilitados um a um, conforme a tela que os usa for integrada.
     // Aceita false, true (todos) ou a lista de acoes. Nao substitui a permissao por grupo em regras.
-    escritasHabilitadas: ["incluirTipo", "alterarTipo"],
+    escritasHabilitadas: ["incluirTipo", "alterarTipo", "incluirParametro", "alterarParametro"],
     timeoutSegundos: "60",
     maxEntrada: 120000,
     maxResposta: 2000000,
@@ -19,7 +19,11 @@ var NW_CONFIG = {
     // TESTE (07/10/2026, definido pelo usuario): DefaultGroup-1 libera tipos para o grupo padrao da empresa 1.
     // Grupo definitivo por acao continua pendente (DT-054); revisar antes de producao.
     regras: [
-        { grupo: "DefaultGroup-1", acoes: ["consultarTipos", "consultarTiposApoio", "incluirTipo", "alterarTipo"], estabelecimentos: [] }
+        { grupo: "DefaultGroup-1", acoes: ["consultarTipos", "consultarTiposApoio", "incluirTipo", "alterarTipo"], estabelecimentos: [] },
+        // TESTE (07/10/2026): tela Itens Controlados (carga da tabela e apoios de estabelecimento e item dos filtros).
+        // Estas acoes exigem lista de estabelecimentos autorizados (lista vazia = SEM_PERMISSAO).
+        // Codigos 10904 e 11301 vistos nas operacoes de TESTE da documentacao; CONFIRMAR a lista real do grupo antes de producao.
+        { grupo: "DefaultGroup-1", acoes: ["consultarParametros", "apoiarEstabelecimentos", "apoiarItens", "incluirParametro", "alterarParametro"], estabelecimentos: ["10904", "11301"] }
     ]
 };
 
@@ -31,12 +35,12 @@ var NW_ACOES = {
     consultarTipos: nwGet("/tipos", false, "codigoDe codigoAte descricao ativo aposCodigo limite", "", "proximoCodigo", "aposCodigo", 100),
     incluirTipo: nwWrite("post", "/tipos", false, "codTipo descricao ativo versao chaveIdempotente", "codTipo descricao ativo chaveIdempotente"),
     alterarTipo: nwWrite("patch", "/tipos", false, "codTipo descricao ativo versao acao chaveIdempotente", "codTipo descricao ativo versao acao chaveIdempotente"),
-    consultarParametros: nwGet("/parametros", true, "estabelDe estabelAte itemDe itemAte ativo aposId limite", "", "proximoId", "aposId", 100),
+    consultarParametros: nwGet("/parametros", true, "estabelDe estabelAte itemDe itemAte codTipo ativo aposId limite", "", "proximoId", "aposId", 100),
     incluirParametro: nwWrite("post", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao loteMigracao validadeMigracao chaveIdempotente", "codEstabel item codTipo capacidade unidade ativo chaveIdempotente"),
     alterarParametro: nwWrite("patch", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao acao loteMigracao validadeMigracao chaveIdempotente", "idParam codEstabel item codTipo capacidade unidade ativo versao acao chaveIdempotente"),
     consultarEtiquetas: nwGet("/etiquetas", true, "codEstabel codEtiqueta item lote codTipo tipoControle tipoLocal situacao idBag aposId limite", "", "proximoId", "aposId", 100),
     apoiarEstabelecimentos: nwGet("/apoios/estabelecimentos", true, "filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
-    apoiarItens: nwGet("/apoios/itens", true, "codEstabel filtro aposCodigo limite", "codEstabel filtro", "proximoCodigo", "aposCodigo", 20),
+    apoiarItens: nwGet("/apoios/itens", true, "codEstabel filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarTipos: nwGet("/apoios/tipos", false, "filtro ativo aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarFamilias: nwGet("/apoios/familias", true, "filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     consultarBags: nwGet("/bags", true, "idBag codEstabel filtroLacre codTipo situacao inicio fim aposId limite", "", "proximoId", "aposId", 20),
@@ -85,9 +89,19 @@ function createDataset(fields, constraints, sortFields) {
         var regra = NW_ACOES[acao];
         escrita = regra.metodo !== "get";
         var parametros = nwParametros(entrada.parametros, regra);
+        // codTipo (consultarParametros): a procedure Progress nao filtra por tipo; o filtro e aplicado aqui, sobre a resposta, e nao vai na query.
+        var codTipoFiltro = "";
+        if (acao === "consultarParametros" && nwTem(parametros, "codTipo")) {
+            codTipoFiltro = parametros.codTipo.replace(/^\s+|\s+$/g, "");
+            if (!/^[A-Za-z0-9_-]{1,10}$/.test(codTipoFiltro)) nwFalhar("PARAMETROS_INVALIDOS", "codTipo invalido.");
+            delete parametros.codTipo;
+        }
         var usuario = nwSessao("WKUser"), empresa = nwSessao("WKCompany");
         if (!usuario || !empresa) nwFalhar("CONTEXTO_INVALIDO", "Nao foi possivel identificar a sessao Fluig.");
         var permitidos = nwAutorizar(usuario, empresa, acao, regra.estabel);
+        // Itens sao catalogo global. Sem selecao na tela, a API recebe contexto autorizado pelo servidor.
+        if (acao === "apoiarItens" && (!nwTem(parametros, "codEstabel") || parametros.codEstabel === ""))
+            parametros.codEstabel = permitidos[0];
         nwConferirEstabelecimentos(parametros, permitidos);
         if (escrita && !nwEscritaHabilitada(acao))
             nwFalhar("ESCRITA_DESABILITADA", "Comandos ainda nao habilitados nesta configuracao do Dataset.");
@@ -124,6 +138,7 @@ function createDataset(fields, constraints, sortFields) {
         try { resultado = JSON.parse(corpo); }
         catch (eJson) { nwFalhar("RESPOSTA_INVALIDA", "A API nao retornou JSON valido."); }
         nwValidarResposta(resultado, regra, parametros);
+        if (codTipoFiltro && resultado.sucesso) nwFiltrarPorTipo(resultado, codTipoFiltro);
         confirmouResultado = true;
         if (!resultado.sucesso) {
             var codigo = /^[A-Z0-9_]{1,100}$/.test(resultado.codigoErro || "") ? resultado.codigoErro : "RECUSA_API";
@@ -209,6 +224,15 @@ function nwParametros(texto, regra) {
         }
     }
     return p;
+}
+
+// Mantem o cursor da pagina original (a proxima pagina continua de onde a API parou); so as linhas e o total mudam.
+function nwFiltrarPorTipo(r, codTipo) {
+    var mantidas = [];
+    for (var i = 0; nwArray(r.dados) && i < r.dados.length; i++)
+        if (nwObjeto(r.dados[i]) && nwTexto(r.dados[i].codTipo).replace(/^\s+|\s+$/g, "") === codTipo) mantidas.push(r.dados[i]);
+    r.dados = mantidas;
+    r.total = mantidas.length;
 }
 
 function nwSelecao(lista) {
