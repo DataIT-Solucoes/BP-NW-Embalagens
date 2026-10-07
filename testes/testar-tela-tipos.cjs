@@ -71,11 +71,11 @@ function montarInterruptor(h, tipo) {
         prop(k, v) { estadoBotao[k] = v; return this; },
         attr(k, v) { estadoBotao[k] = v; return this; }
     };
-    const tela = Object.assign({}, h.web.widget_nw_embalagens, {
+    const tela = Object.assign({}, h.web.cadastroEmbalagens, {
         salvando: false, intencoes: {},
         avisar: (mensagem, nivel) => avisos.push({ mensagem, nivel }),
         aplicarFotografia(resultado) {
-            Object.assign(tipo, h.web.nweLinhaTipo(resultado));
+            Object.assign(tipo, h.web.normalizarTipoEmbalagem(resultado));
             return Promise.resolve();
         }
     });
@@ -115,7 +115,7 @@ function montarConsultaTabela(h, codigo = '') {
         setData(linhas) { dados.linhas = linhas; dados.gravacoes++; return Promise.resolve(); },
         setPage(pagina) { dados.pagina = pagina; return Promise.resolve(); }
     };
-    const instancia = Object.assign({}, h.web.widget_nw_embalagens, {
+    const instancia = Object.assign({}, h.web.cadastroEmbalagens, {
         tabela, consultaSeq: 0, consultasAbertas: [], instanceId: 99,
         tipoSelecionado: codigo ? { codigo, rotulo: filtro.valor } : null,
         avisar: (mensagem, nivel) => avisos.push({ mensagem, nivel })
@@ -137,7 +137,7 @@ async function main() {
             text(valor) { dados.textos[nome] = valor; }
         });
         const botao = { prop() { return this; }, attr() { return this; } };
-        const tela = Object.assign({}, h.web.widget_nw_embalagens, {
+        const tela = Object.assign({}, h.web.cadastroEmbalagens, {
             salvando: false, intencoes: {},
             linhaEditando: tipo ? { getData: () => tipo, delete() { dados.removidas++; dados.linhas = dados.linhas.filter(l => l.codTipo !== tipo.codTipo); return Promise.resolve(); } } : null,
             $formNovo: { find: seletor => seletor === '[type="submit"]' ? botao : campo(seletor.includes('sigla') ? 'sigla' : 'descricao'), trigger() {} },
@@ -222,7 +222,7 @@ async function main() {
     await caso('consulta: selecao busca somente o codigo exato, em uma chamada', async () => {
         const h = montar({ regras: REGRA_TIPOS });
         h.estado.respostas.push(pagina([{ codTipo: 'CX', descricao: 'CAIXA', ativo: false, versao: 5 }]));
-        const consultas = h.web.nweConsultasTipos('CX', '');
+        const consultas = h.web.montarConsultasTipos('CX', '');
         assert.equal(consultas.length, 1);
         const r = await h.web.chamarEmbalagens('consultarTipos', consultas[0]);
         const q = query(h.chamadasApi[0]);
@@ -234,7 +234,7 @@ async function main() {
     await caso('consulta: campo vazio usa cursor sem filtro por codigo ou descricao', async () => {
         const h = montar({ regras: REGRA_TIPOS });
         h.estado.respostas.push(pagina([{ codTipo: 'Z9R', descricao: 'CAIXA TESTE', ativo: true, versao: 4 }]));
-        const consultas = h.web.nweConsultasTipos('', 'CX');
+        const consultas = h.web.montarConsultasTipos('', 'CX');
         const r = await h.web.chamarEmbalagens('consultarTipos', consultas[0]);
         const q = query(h.chamadasApi[0]);
         assert.equal(q.get('aposCodigo'), 'CX'); assert.equal(q.get('limite'), '20');
@@ -244,17 +244,17 @@ async function main() {
 
     await caso('consulta: sem grupos configurados volta recusa (nao lista vazia) e nao chama a API', async () => {
         const h = montar({ regras: [] });
-        const r = await h.web.chamarEmbalagens('consultarTipos', h.web.nweConsultasTipos('', '')[0]);
+        const r = await h.web.chamarEmbalagens('consultarTipos', h.web.montarConsultasTipos('', '')[0]);
         assert.equal(r.sucesso, false); assert.equal(r.codigoErro, 'AUTORIZACAO_NAO_CONFIGURADA'); assert.ok(!('dados' in r));
         assert.equal(h.chamadasApi.length, 0);
-        assert.match(h.web.nweMensagem(r, ''), /grupos e permissões/);
+        assert.match(h.web.obterMensagemResultado(r, ''), /grupos e permissões/);
     });
 
     await caso('inclusao: POST com versao 0 numerica, ativo booleano, usuario da sessao e chave UUID', async () => {
         const h = montar({ regras: REGRA_TIPOS });
         h.estado.respostas.push(fotografia({ codTipo: 'CX', descricao: 'CAIXA', ativo: true, versao: 1 }));
         const tela = { intencoes: {} };
-        const saida = await h.web.widget_nw_embalagens.executarComando.call(tela, 'incluirTipo', h.web.nweParametrosInclusao('CX', 'CAIXA'));
+        const saida = await h.web.cadastroEmbalagens.executarComando.call(tela, 'incluirTipo', h.web.montarParametrosInclusao('CX', 'CAIXA'));
         assert.equal(saida.ok, true); assert.equal(saida.resultado.versao, 1);
         const req = h.chamadasApi[0];
         assert.equal(req.method, 'post'); assert.match(req.endpoint, /\/controle-embalagens\/tipos$/);
@@ -269,17 +269,17 @@ async function main() {
         const tela = { intencoes: {} };
         const tipo = { codTipo: 'CX', descricao: 'CAIXA', ativo: true, versao: 3 };
         h.estado.falharInvoke = true;
-        let s = await h.web.widget_nw_embalagens.executarComando.call(tela, 'alterarTipo', h.web.nweParametrosAlteracao(tipo, 'CAIXA NOVA'));
+        let s = await h.web.cadastroEmbalagens.executarComando.call(tela, 'alterarTipo', h.web.montarParametrosAlteracao(tipo, 'CAIXA NOVA'));
         assert.equal(s.ok, false); assert.equal(s.incerto, true); assert.equal(h.chamadasApi.length, 1);
         assert.match(s.mensagem, /mesma chave/);
         const chave1 = h.chamadasApi[0].params.chaveIdempotente;
         h.estado.falharInvoke = false;
         h.estado.respostas.push(fotografia({ codTipo: 'CX', descricao: 'CAIXA NOVA', ativo: true, versao: 4 }, { repeticao: true }));
-        s = await h.web.widget_nw_embalagens.executarComando.call(tela, 'alterarTipo', h.web.nweParametrosAlteracao(tipo, 'CAIXA NOVA'));
+        s = await h.web.cadastroEmbalagens.executarComando.call(tela, 'alterarTipo', h.web.montarParametrosAlteracao(tipo, 'CAIXA NOVA'));
         assert.equal(h.chamadasApi.length, 2); assert.equal(h.chamadasApi[1].params.chaveIdempotente, chave1);
         assert.equal(s.ok, true); assert.equal(s.resultado.repeticao, true);
         h.estado.respostas.push(fotografia({ codTipo: 'CX', descricao: 'CAIXA OUTRA', ativo: true, versao: 5 }));
-        await h.web.widget_nw_embalagens.executarComando.call(tela, 'alterarTipo', h.web.nweParametrosAlteracao(tipo, 'CAIXA OUTRA'));
+        await h.web.cadastroEmbalagens.executarComando.call(tela, 'alterarTipo', h.web.montarParametrosAlteracao(tipo, 'CAIXA OUTRA'));
         assert.notEqual(h.chamadasApi[2].params.chaveIdempotente, chave1);
         assert.equal(h.chamadasApi[2].method, 'patch'); assert.equal(h.chamadasApi[2].params.acao, 'ALTERAR'); assert.equal(h.chamadasApi[2].params.versao, 3);
     });
@@ -288,7 +288,7 @@ async function main() {
         const h = montar({ regras: REGRA_TIPOS });
         h.estado.falharRede = true;
         const tela = { intencoes: {} };
-        const s = await h.web.widget_nw_embalagens.executarComando.call(tela, 'incluirTipo', h.web.nweParametrosInclusao('CX', 'CAIXA'));
+        const s = await h.web.cadastroEmbalagens.executarComando.call(tela, 'incluirTipo', h.web.montarParametrosInclusao('CX', 'CAIXA'));
         assert.equal(s.ok, false); assert.equal(s.incerto, true); assert.equal(h.chamadasApi.length, 0);
         assert.equal(Object.keys(tela.intencoes).length, 1);
     });
@@ -298,9 +298,9 @@ async function main() {
         const tela = { intencoes: {} };
         h.estado.respostas.push({ sucesso: false, repeticao: false, codigoErro: 'TIPO_JA_EXISTE', mensagem: 'Tipo ja cadastrado.' },
             { sucesso: false, repeticao: false, codigoErro: 'CONFLITO_VERSAO', mensagem: 'Versao divergente.' });
-        let s = await h.web.widget_nw_embalagens.executarComando.call(tela, 'incluirTipo', h.web.nweParametrosInclusao('CX', 'CAIXA'));
+        let s = await h.web.cadastroEmbalagens.executarComando.call(tela, 'incluirTipo', h.web.montarParametrosInclusao('CX', 'CAIXA'));
         assert.equal(s.ok, false); assert.equal(s.incerto, false); assert.equal(s.codigoErro, 'TIPO_JA_EXISTE'); assert.match(s.mensagem, /sigla/);
-        s = await h.web.widget_nw_embalagens.executarComando.call(tela, 'alterarTipo', h.web.nweParametrosAlteracao({ codTipo: 'CX', descricao: 'A', ativo: true, versao: 1 }, 'B'));
+        s = await h.web.cadastroEmbalagens.executarComando.call(tela, 'alterarTipo', h.web.montarParametrosAlteracao({ codTipo: 'CX', descricao: 'A', ativo: true, versao: 1 }, 'B'));
         assert.equal(s.incerto, false); assert.match(s.mensagem, /outra pessoa/);
     });
 
@@ -309,17 +309,17 @@ async function main() {
         const tela = { intencoes: {} };
         h.estado.respostas.push(fotografia({ codTipo: 'PL', descricao: 'PLASTICO', ativo: false, versao: 3 }),
             fotografia({ codTipo: 'PL', descricao: 'PLASTICO', ativo: true, versao: 4 }));
-        let s = await h.web.widget_nw_embalagens.executarComando.call(tela, 'alterarTipo', h.web.nweParametrosSituacao({ codTipo: 'PL', descricao: 'PLASTICO', ativo: true, versao: 2 }));
+        let s = await h.web.cadastroEmbalagens.executarComando.call(tela, 'alterarTipo', h.web.montarParametrosSituacao({ codTipo: 'PL', descricao: 'PLASTICO', ativo: true, versao: 2 }));
         assert.equal(s.ok, true); assert.equal(h.chamadasApi[0].params.acao, 'INATIVAR'); assert.equal(h.chamadasApi[0].params.ativo, false);
-        s = await h.web.widget_nw_embalagens.executarComando.call(tela, 'alterarTipo', h.web.nweParametrosSituacao({ codTipo: 'PL', descricao: 'PLASTICO', ativo: false, versao: 3 }));
+        s = await h.web.cadastroEmbalagens.executarComando.call(tela, 'alterarTipo', h.web.montarParametrosSituacao({ codTipo: 'PL', descricao: 'PLASTICO', ativo: false, versao: 3 }));
         assert.equal(h.chamadasApi[1].params.acao, 'ALTERAR'); assert.equal(h.chamadasApi[1].params.ativo, true); assert.equal(h.chamadasApi[1].params.versao, 3);
-        assert.equal(h.web.nweLinhaTipo(s.resultado).versao, 4);
+        assert.equal(h.web.normalizarTipoEmbalagem(s.resultado).versao, 4);
     });
 
     await caso('grupo so com consulta nao grava tipo; widget nao envia usuario/grupo/endpoint', async () => {
         const h = montar({ regras: [{ grupo: 'grupo-tipos', acoes: ['consultarTipos'], estabelecimentos: [] }] });
         const tela = { intencoes: {} };
-        const s = await h.web.widget_nw_embalagens.executarComando.call(tela, 'incluirTipo', h.web.nweParametrosInclusao('CX', 'CAIXA'));
+        const s = await h.web.cadastroEmbalagens.executarComando.call(tela, 'incluirTipo', h.web.montarParametrosInclusao('CX', 'CAIXA'));
         assert.equal(s.codigoErro, 'SEM_PERMISSAO'); assert.equal(s.incerto, false); assert.equal(h.chamadasApi.length, 0);
         const enviados = JSON.parse(h.transportes[0].filterFields[3]);
         assert.deepEqual(Object.keys(enviados).sort(), ['ativo', 'chaveIdempotente', 'codTipo', 'descricao', 'versao']);
@@ -462,7 +462,7 @@ async function main() {
     await caso('paginacao: atualizar situacao preserva pagina atual mesmo com ordenacao', async () => {
         const h = montar({ regras: REGRA_TIPOS });
         let paginaAtual = 2, reformatou = false, atualizado;
-        const tela = Object.assign({}, h.web.widget_nw_embalagens, {
+        const tela = Object.assign({}, h.web.cadastroEmbalagens, {
             tabela: {
                 getPage: () => paginaAtual,
                 getPageMax: () => 3,
@@ -485,7 +485,7 @@ async function main() {
         const s = montarInterruptor(h, { codTipo: 'CX', descricao, ativo: false, versao: 3 });
         const toasts = [];
         h.web.FLUIGC = h.web.window.FLUIGC = { toast: opcoes => toasts.push(opcoes) };
-        s.tela.avisar = h.web.widget_nw_embalagens.avisar;
+        s.tela.avisar = h.web.cadastroEmbalagens.avisar;
         h.estado.respostas.push(fotografia({ codTipo: 'CX', descricao, ativo: true, versao: 4 }));
         await s.tela.alterarSituacao(s.linha, s.botao);
         assert.equal(toasts.length, 1); assert.equal(toasts[0].type, 'success');

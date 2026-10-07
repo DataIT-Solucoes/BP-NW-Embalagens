@@ -1,30 +1,30 @@
 /*
  * widget_nw_embalagens
- * Todos os seletores começam com ".fluig-style-guide.nwe": sem isso as regras do Style Guide
+ * Todos os seletores começam com ".fluig-style-guide.cadastro-embalagens": sem isso as regras do Style Guide
  * (ex.: ".fluig-style-guide header", ".fluig-style-guide h2") têm especificidade maior e vencem.
  */
 
 /* Paleta Branco Peres (6 cores oficiais + tons derivados para hover, bordas e texto secundário) */
-.fluig-style-guide.nwe {
-    --nwe-verde: #006B35;               /* Verde institucional: ação principal, foco, seleção */
-    --nwe-verde-escuro: #00552A;        /* hover do verde */
-    --nwe-amarelo: #FFD200;             /* Amarelo solar */
-    --nwe-vermelho: #ED1C24;            /* Vermelho da marca: ação destrutiva */
-    --nwe-vermelho-escuro: #C4161C;     /* texto de erro e hover (o vermelho puro tem contraste baixo em letra pequena) */
-    --nwe-tinta: #20201E;               /* Carvão: texto e ícones */
-    --nwe-tinta-suave: #5E5D57;         /* texto secundário (derivado do carvão) */
-    --nwe-marfim: #F7F5EE;              /* Marfim: superfícies (filtros, cabeçalho/rodapé da tabela) */
-    --nwe-nevoa: #E5EDE3;               /* Verde névoa: fundo de seleção e hover */
-    --nwe-linha: #E3E1D8;               /* bordas (derivado do marfim) */
-    --nwe-borda-campo: #D3D1C7;         /* borda dos campos */
+.fluig-style-guide.cadastro-embalagens {
+    --embalagens-cor-principal: #006B35;               /* Verde institucional: ação principal, foco, seleção */
+    --embalagens-cor-principal-hover: #00552A;        /* hover do verde */
+    --embalagens-cor-destaque: #FFD200;             /* Amarelo solar */
+    --embalagens-cor-exclusao: #ED1C24;            /* Vermelho da marca: ação destrutiva */
+    --embalagens-cor-erro: #C4161C;     /* texto de erro e hover (o vermelho puro tem contraste baixo em letra pequena) */
+    --embalagens-cor-texto: #20201E;               /* Carvão: texto e ícones */
+    --embalagens-cor-texto-secundario: #5E5D57;         /* texto secundário (derivado do carvão) */
+    --embalagens-fundo-superficie: #F7F5EE;              /* Marfim: superfícies (filtros, cabeçalho/rodapé da tabela) */
+    --embalagens-fundo-hover: #E5EDE3;               /* Verde névoa: fundo de seleção e hover */
+    --embalagens-cor-borda: #E3E1D8;               /* bordas (derivado do marfim) */
+    --embalagens-cor-borda-campo: #D3D1C7;         /* borda dos campos */
 
     padding: 28px;
     font-family: "Mulish", "Open Sans", Helvetica, Arial, sans-serif;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
 /* ---------- Cabeçalho ---------- */
-.fluig-style-guide.nwe .nwe-cabecalho {
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho {
     display: flex;
     align-items: center;
     gap: 18px;
@@ -32,69 +32,69 @@
 }
 
 /* Selo redondo: anel verde (mesma cor do indicador da aba) e centro transparente */
-.fluig-style-guide.nwe .nwe-selo {
+.fluig-style-guide.cadastro-embalagens .embalagens-selo {
     flex: 0 0 auto;
     display: inline-flex;
     box-sizing: border-box;
     width: 56px;
     height: 56px;
-    border: 3px solid var(--nwe-verde);
+    border: 3px solid var(--embalagens-cor-principal);
     border-radius: 50%;
 }
 
-.fluig-style-guide.nwe .nwe-selo-miolo {
+.fluig-style-guide.cadastro-embalagens .embalagens-selo-miolo {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
     background-color: transparent;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
     font-size: 24px;
 }
 
-.fluig-style-guide.nwe .nwe-cabecalho-texto {
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-texto {
     flex: 1 1 auto;
     min-width: 0;
 }
 
-.fluig-style-guide.nwe .nwe-cabecalho-acoes {
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-acoes {
     flex: 0 0 auto;
     margin-left: auto;
 }
 
-.fluig-style-guide.nwe .nwe-cabecalho-titulo {
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-titulo {
     margin: 0;
     font-family: inherit;
     font-size: 26px;
     font-weight: 800;
     line-height: 1.15;
     letter-spacing: -0.01em;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-cabecalho-subtitulo {
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-subtitulo {
     margin: 6px 0 0;
     font-size: 15px;
     line-height: 1.5;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
 }
 
 /* ---------- Abas ---------- */
-.fluig-style-guide.nwe .nwe-tabs {
+.fluig-style-guide.cadastro-embalagens .embalagens-abas {
     position: relative;
     display: flex;
     gap: 4px;
-    border-bottom: 1px solid var(--nwe-linha);
+    border-bottom: 1px solid var(--embalagens-cor-borda);
     overflow-x: auto;
     scrollbar-width: none;
 }
 
-.fluig-style-guide.nwe .nwe-tabs::-webkit-scrollbar {
+.fluig-style-guide.cadastro-embalagens .embalagens-abas::-webkit-scrollbar {
     display: none;
 }
 
-.fluig-style-guide.nwe .nwe-tab {
+.fluig-style-guide.cadastro-embalagens .embalagens-aba {
     appearance: none;
     background: transparent;
     border: 0;
@@ -103,157 +103,157 @@
     font: inherit;
     font-size: 14px;
     font-weight: 600;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
     cursor: pointer;
     white-space: nowrap;
     transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-tab:hover {
-    color: var(--nwe-tinta);
+.fluig-style-guide.cadastro-embalagens .embalagens-aba:hover {
+    color: var(--embalagens-cor-texto);
     background-color: rgba(32, 32, 30, 0.05);
 }
 
-.fluig-style-guide.nwe .nwe-tab i {
+.fluig-style-guide.cadastro-embalagens .embalagens-aba i {
     margin-right: 8px;
     vertical-align: -1px;
 }
 
-.fluig-style-guide.nwe .nwe-tab.is-active {
-    color: var(--nwe-tinta);
+.fluig-style-guide.cadastro-embalagens .embalagens-aba.is-active {
+    color: var(--embalagens-cor-texto);
     font-weight: 700;
-    background-color: var(--nwe-nevoa);
+    background-color: var(--embalagens-fundo-hover);
 }
 
-.fluig-style-guide.nwe .nwe-tab:focus-visible {
-    outline: 2px solid var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-aba:focus-visible {
+    outline: 2px solid var(--embalagens-cor-principal);
     outline-offset: -2px;
 }
 
-.fluig-style-guide.nwe .nwe-tabs-indicador {
+.fluig-style-guide.cadastro-embalagens .embalagens-indicador-aba {
     position: absolute;
     bottom: -1px;
     left: 0;
     height: 3px;
     width: 0;
     border-radius: 3px 3px 0 0;
-    background: var(--nwe-verde);
+    background: var(--embalagens-cor-principal);
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
 }
 
 /* ---------- Filtros ---------- */
-.fluig-style-guide.nwe .nwe-filtros {
+.fluig-style-guide.cadastro-embalagens .embalagens-filtros {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
     gap: 16px 20px;
     margin: 24px 0 28px;
     padding: 20px;
-    border: 1px solid var(--nwe-linha);
+    border: 1px solid var(--embalagens-cor-borda);
     border-radius: 14px;
-    background-color: var(--nwe-marfim);
+    background-color: var(--embalagens-fundo-superficie);
 }
 
-.fluig-style-guide.nwe .nwe-campo-rotulo {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-rotulo {
     display: block;
     margin: 0 0 6px;
     font-size: 13px;
     font-weight: 700;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-campo-caixa {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa {
     position: relative;
 }
 
-.fluig-style-guide.nwe .nwe-campo-caixa i {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa i {
     position: absolute;
     top: 50%;
     left: 14px;
     transform: translateY(-50%);
     font-size: 15px;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
     pointer-events: none;
     transition: color 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-campo-input {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada {
     display: block;
     box-sizing: border-box;
     width: 100%;
     height: 44px;
     margin: 0;
     padding: 0 14px 0 40px;
-    border: 1px solid var(--nwe-borda-campo);
+    border: 1px solid var(--embalagens-cor-borda-campo);
     border-radius: 10px;
     background-color: #fff;
     box-shadow: none;
     font-family: inherit;
     font-size: 15px;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-campo-input::placeholder {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada::placeholder {
     color: #8E8C84;
     opacity: 1;
 }
 
-.fluig-style-guide.nwe .nwe-campo-input:hover {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada:hover {
     border-color: #B5B3A9;
 }
 
-.fluig-style-guide.nwe .nwe-campo-input:focus {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada:focus {
     outline: none;
-    border-color: var(--nwe-verde);
+    border-color: var(--embalagens-cor-principal);
     box-shadow: 0 0 0 3px rgba(0, 107, 53, 0.18);
 }
 
-.fluig-style-guide.nwe .nwe-campo-caixa:focus-within i {
-    color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa:focus-within i {
+    color: var(--embalagens-cor-principal);
 }
 
 /* Autocomplete Fluig: mantém a largura do campo e a paleta do widget. */
-.fluig-style-guide.nwe .nwe-campo-caixa .fluig-typeahead,
-.fluig-style-guide.nwe .nwe-campo-caixa .twitter-typeahead {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .fluig-typeahead,
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .twitter-typeahead {
     width: 100%;
     border-radius: 10px;
     background-color: #fff;
 }
 
-.fluig-style-guide.nwe .nwe-campo-caixa > i {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa > i {
     z-index: 2;
 }
 
-.fluig-style-guide.nwe .nwe-campo-caixa .tt-menu,
-.fluig-style-guide.nwe .nwe-campo-caixa .tt-dropdown-menu {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .tt-menu,
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .tt-dropdown-menu {
     box-sizing: border-box;
     width: 100%;
     margin-top: 6px;
     padding: 4px 0;
-    border: 1px solid var(--nwe-linha);
+    border: 1px solid var(--embalagens-cor-borda);
     border-radius: 10px;
     background-color: #fff;
     box-shadow: 0 8px 24px rgba(32, 32, 30, 0.12);
 }
 
-.fluig-style-guide.nwe .nwe-campo-caixa .tt-suggestion {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .tt-suggestion {
     padding: 10px 14px;
     font-family: inherit;
     font-size: 14px;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
     cursor: pointer;
     white-space: normal;
 }
 
-.fluig-style-guide.nwe .nwe-campo-caixa .tt-suggestion:hover,
-.fluig-style-guide.nwe .nwe-campo-caixa .tt-suggestion.tt-cursor {
-    background-color: var(--nwe-nevoa);
-    color: var(--nwe-tinta);
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .tt-suggestion:hover,
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .tt-suggestion.tt-cursor {
+    background-color: var(--embalagens-fundo-hover);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-filtros-acoes {
+.fluig-style-guide.cadastro-embalagens .embalagens-filtros-acoes {
     display: flex;
     align-self: start;
     margin-top: 25px;
@@ -261,7 +261,7 @@
 }
 
 /* ---------- Botões ---------- */
-.fluig-style-guide.nwe .nwe-btn {
+.fluig-style-guide.cadastro-embalagens .embalagens-botao {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -281,116 +281,116 @@
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-btn i {
+.fluig-style-guide.cadastro-embalagens .embalagens-botao i {
     font-size: 15px;
 }
 
-.fluig-style-guide.nwe .nwe-btn:focus-visible {
+.fluig-style-guide.cadastro-embalagens .embalagens-botao:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 107, 53, 0.28);
 }
 
-.fluig-style-guide.nwe .nwe-btn:active {
+.fluig-style-guide.cadastro-embalagens .embalagens-botao:active {
     transform: translateY(1px);
 }
 
 /* Novo / Buscar / Salvar: ação principal (verde institucional, texto branco) */
-.fluig-style-guide.nwe .nwe-btn-destaque {
-    background-color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-botao-destaque {
+    background-color: var(--embalagens-cor-principal);
     color: #fff;
 }
 
-.fluig-style-guide.nwe .nwe-btn-destaque i {
+.fluig-style-guide.cadastro-embalagens .embalagens-botao-destaque i {
     color: inherit;
 }
 
-.fluig-style-guide.nwe .nwe-btn-destaque:hover {
-    background-color: var(--nwe-verde-escuro);
+.fluig-style-guide.cadastro-embalagens .embalagens-botao-destaque:hover {
+    background-color: var(--embalagens-cor-principal-hover);
 }
 
 /* Cancelar: contorno verde, ganha fundo verde névoa no hover */
-.fluig-style-guide.nwe .nwe-btn-contorno {
-    border-color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-botao-contorno {
+    border-color: var(--embalagens-cor-principal);
     background-color: #fff;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-btn-contorno:hover {
-    background-color: var(--nwe-nevoa);
+.fluig-style-guide.cadastro-embalagens .embalagens-botao-contorno:hover {
+    background-color: var(--embalagens-fundo-hover);
 }
 
-.fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled,
-.fluig-style-guide.nwe .nwe-btn[data-novo]:disabled {
+.fluig-style-guide.cadastro-embalagens .embalagens-botao[data-buscar]:disabled,
+.fluig-style-guide.cadastro-embalagens .embalagens-botao[data-novo]:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.fluig-style-guide.nwe .nwe-btn[data-novo]:disabled,
-.fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled {
-    background-color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-botao[data-novo]:disabled,
+.fluig-style-guide.cadastro-embalagens .embalagens-botao[data-buscar]:disabled {
+    background-color: var(--embalagens-cor-principal);
 }
 
 /* ---------- Tabela (Tabulator, tema "simple" sobrescrito com a paleta da tela) ---------- */
-.fluig-style-guide.nwe .nwe-tabela.tabulator {
-    border: 1px solid var(--nwe-linha);
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator {
+    border: 1px solid var(--embalagens-cor-borda);
     border-radius: 14px;
     overflow: hidden;
     background-color: #fff;
     font-family: inherit;
     font-size: 15px;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header {
-    border-bottom: 1px solid var(--nwe-linha);
-    background-color: var(--nwe-marfim);
-    color: var(--nwe-tinta-suave);
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header {
+    border-bottom: 1px solid var(--embalagens-cor-borda);
+    background-color: var(--embalagens-fundo-superficie);
+    color: var(--embalagens-cor-texto-secundario);
     font-weight: 700;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col {
     border-right: 0;
     background-color: transparent;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
     padding: 14px 20px;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col .tabulator-col-title {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col .tabulator-col-title {
     font-size: 13px;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col.tabulator-sortable:hover {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col.tabulator-sortable:hover {
     background-color: rgba(32, 32, 30, 0.04);
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
 /* seta de ordenação: cinza quente quando inativa, verde na coluna ordenada.
    [aria-sort="none"] + .tabulator-col-content: precisa vencer a regra do tema do Tabulator */
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col[aria-sort="none"] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col[aria-sort="none"] .tabulator-col-content .tabulator-col-sorter .tabulator-arrow {
     border-bottom-color: #C4C2B8;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col[aria-sort="ascending"] .tabulator-col-sorter .tabulator-arrow {
-    border-bottom-color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col[aria-sort="ascending"] .tabulator-col-sorter .tabulator-arrow {
+    border-bottom-color: var(--embalagens-cor-principal);
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col[aria-sort="descending"] .tabulator-col-sorter .tabulator-arrow {
-    border-top-color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col[aria-sort="descending"] .tabulator-col-sorter .tabulator-arrow {
+    border-top-color: var(--embalagens-cor-principal);
 }
 
 /* Ações não ordena, mas mostra uma seta igual à das outras colunas (mesmo tamanho, cor e posição) */
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col.nwe-col-acoes {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col.embalagens-coluna-acoes {
     position: relative;
     cursor: default;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col.nwe-col-acoes .tabulator-col-title {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col.embalagens-coluna-acoes .tabulator-col-title {
     padding-right: 25px;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-header .tabulator-col.nwe-col-acoes::after {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-header .tabulator-col.embalagens-coluna-acoes::after {
     content: "";
     position: absolute;
     top: 50%;
@@ -404,39 +404,39 @@
     pointer-events: none;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-row {
     border-bottom: 1px solid #EEECE4;
     background-color: #fff;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row:hover {
-    background-color: var(--nwe-nevoa);
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-row:hover {
+    background-color: var(--embalagens-fundo-hover);
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row .tabulator-cell {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-row .tabulator-cell {
     padding: 14px 20px;
     border-right: 0;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row .tabulator-cell:first-child {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-row .tabulator-cell:first-child {
     font-weight: 600;
 }
 
-.fluig-style-guide.nwe .nwe-sigla {
+.fluig-style-guide.cadastro-embalagens .embalagens-sigla {
     display: inline-block;
     min-width: 40px;
     padding: 3px 10px;
-    border: 1px solid var(--nwe-linha);
+    border: 1px solid var(--embalagens-cor-borda);
     border-radius: 999px;
-    background-color: var(--nwe-marfim);
+    background-color: var(--embalagens-fundo-superficie);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-align: center;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-situacao {
+.fluig-style-guide.cadastro-embalagens .embalagens-situacao {
     display: inline-block;
     padding: 3px 10px;
     border-radius: 999px;
@@ -444,41 +444,41 @@
     font-weight: 700;
 }
 
-.fluig-style-guide.nwe .nwe-situacao.is-ativo {
-    background-color: var(--nwe-nevoa);
-    color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-situacao.is-ativo {
+    background-color: var(--embalagens-fundo-hover);
+    color: var(--embalagens-cor-principal);
 }
 
-.fluig-style-guide.nwe .nwe-situacao.is-inativo {
+.fluig-style-guide.cadastro-embalagens .embalagens-situacao.is-inativo {
     border: 1px solid rgba(237, 28, 36, 0.25);
     background-color: rgba(237, 28, 36, 0.08);
-    color: var(--nwe-vermelho-escuro);
+    color: var(--embalagens-cor-erro);
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-placeholder .tabulator-placeholder-contents {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-placeholder .tabulator-placeholder-contents {
     padding: 32px 16px;
     font-size: 15px;
     font-weight: 400;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
 }
 
 /* rodapé: contador à esquerda, páginas à direita */
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer {
-    border-top: 1px solid var(--nwe-linha);
-    background-color: var(--nwe-marfim);
-    color: var(--nwe-tinta-suave);
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-footer {
+    border-top: 1px solid var(--embalagens-cor-borda);
+    background-color: var(--embalagens-fundo-superficie);
+    color: var(--embalagens-cor-texto-secundario);
     font-weight: 400;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-footer-contents {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-footer .tabulator-footer-contents {
     padding: 10px 16px;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page-counter {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-footer .tabulator-page-counter {
     font-size: 13px;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-footer .tabulator-page {
     min-width: 34px;
     height: 34px;
     margin: 0 2px;
@@ -489,27 +489,27 @@
     font-family: inherit;
     font-size: 14px;
     font-weight: 600;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page:not(:disabled):hover {
-    border-color: var(--nwe-linha);
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-footer .tabulator-page:not(:disabled):hover {
+    border-color: var(--embalagens-cor-borda);
     background-color: #fff;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page.active {
-    border-color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-footer .tabulator-page.active {
+    border-color: var(--embalagens-cor-principal);
     background-color: #fff;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page:disabled {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-footer .tabulator-page:disabled {
     opacity: 0.35;
 }
 
 /* setas da paginação (Bootstrap Icons): o traço da fonte é fino, o stroke engrossa */
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page i {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-footer .tabulator-page i {
     display: inline-block;
     font-size: 14px;
     line-height: 1;
@@ -517,11 +517,11 @@
     -webkit-text-stroke: 1.2px currentColor;
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-alert {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-alert {
     background: rgba(227, 225, 216, 0.55);
 }
 
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-alert .tabulator-alert-msg.tabulator-alert-state-msg {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela.tabulator .tabulator-alert .tabulator-alert-msg.tabulator-alert-state-msg {
     background: transparent;
     border: 0;
     border-radius: 0;
@@ -529,15 +529,15 @@
     box-shadow: none;
 }
 
-.fluig-style-guide.nwe .nwe-carregando {
+.fluig-style-guide.cadastro-embalagens .embalagens-carregando {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.fluig-style-guide.nwe .loader {
+.fluig-style-guide.cadastro-embalagens .loader {
     --color-1: #fff;
-    --color-2: var(--nwe-verde);
+    --color-2: var(--embalagens-cor-principal);
     --size: 1px;
 
     width: calc(48 * var(--size));
@@ -547,38 +547,38 @@
     border-radius: 50%;
     display: inline-block;
     box-sizing: border-box;
-    animation: nwe-loader-rotation 1s linear infinite;
+    animation: embalagens-carregador-girar 1s linear infinite;
 }
 
-@keyframes nwe-loader-rotation {
+@keyframes embalagens-carregador-girar {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-.fluig-style-guide.nwe .nwe-tabela-erro {
+.fluig-style-guide.cadastro-embalagens .embalagens-tabela-erro {
     margin: 0;
     padding: 24px;
-    border: 1px solid var(--nwe-linha);
+    border: 1px solid var(--embalagens-cor-borda);
     border-radius: 14px;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
 }
 
 /* coluna Ações: editar, interruptor e excluir */
-.fluig-style-guide.nwe .nwe-acoes {
+.fluig-style-guide.cadastro-embalagens .embalagens-acoes {
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
 
-.fluig-style-guide.nwe .nwe-acoes-divisor {
+.fluig-style-guide.cadastro-embalagens .embalagens-acoes-divisor {
     flex: 0 0 auto;
     width: 1px;
     height: 20px;
     margin: 0 4px;
-    background-color: var(--nwe-linha);
+    background-color: var(--embalagens-cor-borda);
 }
 
-.fluig-style-guide.nwe .nwe-acao {
+.fluig-style-guide.cadastro-embalagens .embalagens-acao {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -591,12 +591,12 @@
     background: transparent;
     font-size: 15px;
     line-height: 1;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-interruptor {
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor {
     appearance: none;
     position: relative;
     flex: 0 0 auto;
@@ -607,16 +607,16 @@
     padding: 0;
     border: 0;
     border-radius: 999px;
-    background-color: var(--nwe-borda-campo);
+    background-color: var(--embalagens-cor-borda-campo);
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-interruptor[aria-checked="true"] {
-    background-color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor[aria-checked="true"] {
+    background-color: var(--embalagens-cor-principal);
 }
 
-.fluig-style-guide.nwe .nwe-interruptor-bolinha {
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor-bolinha {
     position: absolute;
     top: 3px;
     left: 3px;
@@ -628,30 +628,30 @@
     transition: transform 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-interruptor[aria-checked="true"] .nwe-interruptor-bolinha {
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor[aria-checked="true"] .embalagens-interruptor-bolinha {
     transform: translateX(16px);
 }
 
-.fluig-style-guide.nwe .nwe-acao:focus-visible,
-.fluig-style-guide.nwe .nwe-interruptor:focus-visible {
+.fluig-style-guide.cadastro-embalagens .embalagens-acao:focus-visible,
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 107, 53, 0.28);
 }
 
-.fluig-style-guide.nwe .nwe-acao-editar:hover {
-    border-color: var(--nwe-verde);
+.fluig-style-guide.cadastro-embalagens .embalagens-acao-editar:hover {
+    border-color: var(--embalagens-cor-principal);
     background-color: #fff;
-    color: var(--nwe-verde);
+    color: var(--embalagens-cor-principal);
 }
 
-.fluig-style-guide.nwe .nwe-acao-excluir:hover {
+.fluig-style-guide.cadastro-embalagens .embalagens-acao-excluir:hover {
     border-color: rgba(237, 28, 36, 0.35);
     background-color: rgba(237, 28, 36, 0.08);
-    color: var(--nwe-vermelho-escuro);
+    color: var(--embalagens-cor-erro);
 }
 
 /* ---------- Modal "Novo tipo de embalagem" (<dialog> nativo) ---------- */
-.fluig-style-guide.nwe .nwe-modal {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal {
     box-sizing: border-box;
     width: min(480px, calc(100vw - 32px));
     max-width: none;
@@ -663,40 +663,40 @@
     background-color: #fff;
     box-shadow: 0 24px 64px rgba(32, 32, 30, 0.22);
     font-family: inherit;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
     overflow: auto;
 }
 
-.fluig-style-guide.nwe .nwe-modal[open] {
-    animation: nwe-modal-entrar 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+.fluig-style-guide.cadastro-embalagens .embalagens-modal[open] {
+    animation: embalagens-modal-entrar 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* ::backdrop não herda variáveis CSS em todos os navegadores: cores escritas direto */
-.fluig-style-guide.nwe .nwe-modal::backdrop {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal::backdrop {
     background-color: rgba(32, 32, 30, 0.48);
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
 }
 
-.fluig-style-guide.nwe .nwe-modal[open]::backdrop {
-    animation: nwe-fundo-entrar 0.22s ease-out;
+.fluig-style-guide.cadastro-embalagens .embalagens-modal[open]::backdrop {
+    animation: embalagens-fundo-entrar 0.22s ease-out;
 }
 
-@keyframes nwe-modal-entrar {
+@keyframes embalagens-modal-entrar {
     from { opacity: 0; transform: translateY(10px) scale(0.98); }
     to { opacity: 1; transform: none; }
 }
 
-@keyframes nwe-fundo-entrar {
+@keyframes embalagens-fundo-entrar {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-.fluig-style-guide.nwe .nwe-modal-form {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-formulario {
     margin: 0;
 }
 
-.fluig-style-guide.nwe .nwe-modal-cabecalho {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-cabecalho {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -704,23 +704,23 @@
     padding: 24px 24px 4px;
 }
 
-.fluig-style-guide.nwe .nwe-modal-titulo {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-titulo {
     margin: 0;
     font-family: inherit;
     font-size: 20px;
     font-weight: 800;
     line-height: 1.25;
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-modal-subtitulo {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-subtitulo {
     margin: 4px 0 0;
     font-size: 14px;
     line-height: 1.5;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
 }
 
-.fluig-style-guide.nwe .nwe-modal-fechar {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-fechar {
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
@@ -733,116 +733,116 @@
     border-radius: 10px;
     background: transparent;
     font-size: 16px;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-modal-fechar:hover {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-fechar:hover {
     background-color: rgba(32, 32, 30, 0.05);
-    color: var(--nwe-tinta);
+    color: var(--embalagens-cor-texto);
 }
 
-.fluig-style-guide.nwe .nwe-modal-fechar:focus-visible {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-fechar:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 107, 53, 0.28);
 }
 
-.fluig-style-guide.nwe .nwe-modal-corpo {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-corpo {
     display: grid;
     gap: 18px;
     padding: 20px 24px 8px;
 }
 
 /* campo sem ícone dentro */
-.fluig-style-guide.nwe .nwe-campo-input.nwe-campo-input-simples {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada.embalagens-campo-entrada-simples {
     padding: 0 14px;
 }
 
-.fluig-style-guide.nwe .nwe-campo-input.nwe-campo-input-sigla {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada.embalagens-campo-entrada-sigla {
     max-width: 140px;
 }
 
-.fluig-style-guide.nwe .nwe-campo-input[readonly],
-.fluig-style-guide.nwe .nwe-campo-input[readonly]:hover {
-    border-color: var(--nwe-linha);
-    background-color: var(--nwe-marfim);
-    color: var(--nwe-tinta-suave);
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada[readonly],
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada[readonly]:hover {
+    border-color: var(--embalagens-cor-borda);
+    background-color: var(--embalagens-fundo-superficie);
+    color: var(--embalagens-cor-texto-secundario);
 }
 
-.fluig-style-guide.nwe .nwe-campo-dica {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-dica {
     margin: 6px 0 0;
     font-size: 13px;
-    color: var(--nwe-tinta-suave);
+    color: var(--embalagens-cor-texto-secundario);
 }
 
-.fluig-style-guide.nwe .nwe-campo-erro {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-erro {
     margin: 6px 0 0;
     font-size: 13px;
     font-weight: 600;
-    color: var(--nwe-vermelho-escuro);
+    color: var(--embalagens-cor-erro);
 }
 
-.fluig-style-guide.nwe .nwe-campo-erro:empty {
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-erro:empty {
     display: none;
 }
 
 /* recusa ou falha do comando, dentro do modal */
-.fluig-style-guide.nwe .nwe-modal-alerta {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-alerta {
     margin: 0;
     padding: 10px 12px;
     border-radius: 10px;
     background-color: rgba(237, 28, 36, 0.08);
     font-size: 13px;
     font-weight: 600;
-    color: var(--nwe-vermelho-escuro);
+    color: var(--embalagens-cor-erro);
 }
 
-.fluig-style-guide.nwe .nwe-modal-alerta:empty {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-alerta:empty {
     display: none;
 }
 
-.fluig-style-guide.nwe .nwe-campo-input.is-invalido,
-.fluig-style-guide.nwe .nwe-campo-input.is-invalido:hover {
-    border-color: var(--nwe-vermelho-escuro);
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada.is-invalido,
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada.is-invalido:hover {
+    border-color: var(--embalagens-cor-erro);
 }
 
-.fluig-style-guide.nwe .nwe-campo-input.is-invalido:focus {
-    border-color: var(--nwe-vermelho-escuro);
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada.is-invalido:focus {
+    border-color: var(--embalagens-cor-erro);
     box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.18);
 }
 
-.fluig-style-guide.nwe .nwe-modal-rodape {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-rodape {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
     padding: 20px 24px 24px;
 }
 
-.fluig-style-guide.nwe .nwe-btn-perigo {
-    background-color: var(--nwe-vermelho);
+.fluig-style-guide.cadastro-embalagens .embalagens-botao-perigo {
+    background-color: var(--embalagens-cor-exclusao);
     color: #fff;
 }
 
-.fluig-style-guide.nwe .nwe-btn-perigo:hover {
-    background-color: var(--nwe-vermelho-escuro);
+.fluig-style-guide.cadastro-embalagens .embalagens-botao-perigo:hover {
+    background-color: var(--embalagens-cor-erro);
 }
 
 /* Gravação aguardando a resposta: um clique só */
-.fluig-style-guide.nwe .nwe-modal-rodape .nwe-btn:disabled,
-.fluig-style-guide.nwe .nwe-acao:disabled,
-.fluig-style-guide.nwe .nwe-interruptor:disabled {
+.fluig-style-guide.cadastro-embalagens .embalagens-modal-rodape .embalagens-botao:disabled,
+.fluig-style-guide.cadastro-embalagens .embalagens-acao:disabled,
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor:disabled {
     opacity: 0.6;
     cursor: progress;
 }
 
 /* ---------- Tablet: botões de filtro descem para uma linha própria ---------- */
 @media (max-width: 991px) {
-    .fluig-style-guide.nwe .nwe-filtros {
+    .fluig-style-guide.cadastro-embalagens .embalagens-filtros {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .fluig-style-guide.nwe .nwe-filtros-acoes {
+    .fluig-style-guide.cadastro-embalagens .embalagens-filtros-acoes {
         grid-column: 1 / -1;
         justify-content: flex-end;
         margin-top: 0;
@@ -851,83 +851,83 @@
 
 /* ---------- Celular ---------- */
 @media (max-width: 767px) {
-    .fluig-style-guide.nwe {
+    .fluig-style-guide.cadastro-embalagens {
         padding: 20px 16px;
     }
 
-    .fluig-style-guide.nwe .nwe-filtros {
+    .fluig-style-guide.cadastro-embalagens .embalagens-filtros {
         grid-template-columns: minmax(0, 1fr);
         padding: 16px;
     }
 
-    .fluig-style-guide.nwe .nwe-modal-cabecalho {
+    .fluig-style-guide.cadastro-embalagens .embalagens-modal-cabecalho {
         padding: 20px 20px 4px;
     }
 
-    .fluig-style-guide.nwe .nwe-modal-corpo {
+    .fluig-style-guide.cadastro-embalagens .embalagens-modal-corpo {
         padding: 16px 20px 8px;
     }
 
-    .fluig-style-guide.nwe .nwe-modal-rodape {
+    .fluig-style-guide.cadastro-embalagens .embalagens-modal-rodape {
         padding: 16px 20px 20px;
     }
 
-    .fluig-style-guide.nwe .nwe-modal-rodape .nwe-btn {
+    .fluig-style-guide.cadastro-embalagens .embalagens-modal-rodape .embalagens-botao {
         flex: 1 1 0;
     }
 
-    .fluig-style-guide.nwe .nwe-cabecalho {
+    .fluig-style-guide.cadastro-embalagens .embalagens-cabecalho {
         flex-wrap: wrap;
     }
 
-    .fluig-style-guide.nwe .nwe-cabecalho-acoes {
+    .fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-acoes {
         flex: 1 1 100%;
     }
 
-    .fluig-style-guide.nwe .nwe-cabecalho-acoes .nwe-btn,
-    .fluig-style-guide.nwe .nwe-filtros-acoes .nwe-btn {
+    .fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-acoes .embalagens-botao,
+    .fluig-style-guide.cadastro-embalagens .embalagens-filtros-acoes .embalagens-botao {
         flex: 1 1 0;
         width: 100%;
     }
 
-    .fluig-style-guide.nwe .nwe-cabecalho {
+    .fluig-style-guide.cadastro-embalagens .embalagens-cabecalho {
         gap: 14px;
         padding-bottom: 18px;
     }
 
-    .fluig-style-guide.nwe .nwe-selo {
+    .fluig-style-guide.cadastro-embalagens .embalagens-selo {
         width: 46px;
         height: 46px;
     }
 
-    .fluig-style-guide.nwe .nwe-selo-miolo {
+    .fluig-style-guide.cadastro-embalagens .embalagens-selo-miolo {
         font-size: 18px;
     }
 
-    .fluig-style-guide.nwe .nwe-cabecalho-titulo {
+    .fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-titulo {
         font-size: 21px;
     }
 
-    .fluig-style-guide.nwe .nwe-cabecalho-subtitulo {
+    .fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-subtitulo {
         font-size: 14px;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fluig-style-guide.nwe .nwe-tab,
-    .fluig-style-guide.nwe .nwe-tabs-indicador,
-    .fluig-style-guide.nwe .nwe-campo-caixa i,
-    .fluig-style-guide.nwe .nwe-campo-input,
-    .fluig-style-guide.nwe .nwe-btn,
-    .fluig-style-guide.nwe .nwe-modal-fechar,
-    .fluig-style-guide.nwe .nwe-acao,
-    .fluig-style-guide.nwe .nwe-interruptor,
-    .fluig-style-guide.nwe .nwe-interruptor-bolinha {
+    .fluig-style-guide.cadastro-embalagens .embalagens-aba,
+    .fluig-style-guide.cadastro-embalagens .embalagens-indicador-aba,
+    .fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa i,
+    .fluig-style-guide.cadastro-embalagens .embalagens-campo-entrada,
+    .fluig-style-guide.cadastro-embalagens .embalagens-botao,
+    .fluig-style-guide.cadastro-embalagens .embalagens-modal-fechar,
+    .fluig-style-guide.cadastro-embalagens .embalagens-acao,
+    .fluig-style-guide.cadastro-embalagens .embalagens-interruptor,
+    .fluig-style-guide.cadastro-embalagens .embalagens-interruptor-bolinha {
         transition: none;
     }
 
-    .fluig-style-guide.nwe .nwe-modal[open],
-    .fluig-style-guide.nwe .nwe-modal[open]::backdrop {
+    .fluig-style-guide.cadastro-embalagens .embalagens-modal[open],
+    .fluig-style-guide.cadastro-embalagens .embalagens-modal[open]::backdrop {
         animation: none;
     }
 }
