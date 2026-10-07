@@ -3,9 +3,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
-// Copia do teste do modelo (fluig-rest/MODELO_DATASET_UNICO_HUMBERTO_20261006) apontando para o fonte do projeto.
+// Confere o contrato REST esperado, sem depender da copia de referencia nao versionada.
 const root = path.resolve(__dirname, '..');
-const modelo = path.join(root, 'fluig-rest/MODELO_DATASET_UNICO_HUMBERTO_20261006');
 const source = fs.readFileSync(path.join(root, 'datasets/dsNwEmbalagens.js'), 'utf8');
 let total = 0;
 const test = (name, fn) => { fn(); total++; console.log('OK ' + name); };
@@ -46,12 +45,34 @@ function setup(result = page(), status = '200') {
     };
     return {context,state,calls,logs,run};
 }
-test('24 acoes coincidem com metodo/rota do adaptador ABL',()=>{
+test('acoes cobrem o contrato REST e preservam alias apoiarTipos',()=>{
     const h=setup();
-    const abl=fs.readFileSync(path.join(modelo,'fontes/progress/esp/api/v1/controle-embalagens.p'),'utf8');
-    const native=[...abl.matchAll(/\{utp\/ut-api-action\.i\s+\S+\s+(GET|POST|PATCH)\s+(\/\S+?)~\*/g)].map(m=>m[1].toLowerCase()+' '+m[2]).sort();
-    assert.equal(Object.keys(h.context.NW_ACOES).length,24);
-    assert.deepEqual(Object.values(h.context.NW_ACOES).map(a=>a.metodo+' '+a.rota).sort(),native);
+    // Contrato recebido para o Dataset central: 24 rotas, mais o alias de apoio.
+    const native = [
+        'get /tipos', 'post /tipos', 'patch /tipos',
+        'get /parametros', 'post /parametros', 'patch /parametros',
+        'get /etiquetas', 'get /apoios/estabelecimentos', 'get /apoios/itens',
+        'get /apoios/tipos', 'get /apoios/familias', 'get /bags',
+        'get /conteudo-bag', 'get /dados-impressao', 'get /geracoes',
+        'get /operacoes/natureza', 'get /operacoes/embalagens-origem',
+        'get /operacoes', 'get /operacoes/resultado', 'get /operacoes/itens',
+        'get /operacoes/eventos', 'post /operacoes/transferencias',
+        'post /operacoes/remessas', 'post /operacoes/devolucoes'
+    ].sort();
+    assert.equal(Object.keys(h.context.NW_ACOES).length,25);
+    assert.deepEqual(JSON.parse(JSON.stringify(h.context.NW_ACOES.consultarTiposApoio)), JSON.parse(JSON.stringify(h.context.NW_ACOES.apoiarTipos)));
+    assert.deepEqual(Object.entries(h.context.NW_ACOES).filter(([nome]) => nome !== 'apoiarTipos').map(([, a])=>a.metodo+' '+a.rota).sort(),native);
+});
+test('apoio de tipos: alias autorizado usa GET e aceita todos somente em apoios/tipos',()=>{
+    const h=setup(page([{codigo:'CX',descricao:'CAIXA',ativo:false,versao:3}],false,'',true));
+    const r=h.run('consultarTiposApoio',{filtro:'ca',ativo:'todos',limite:20});
+    assert.equal(r.result.sucesso,true); assert.equal(h.calls.length,1);
+    assert.equal(h.calls[0].method,'get');
+    assert.match(h.calls[0].endpoint,/\/apoios\/tipos\?/);
+    assert.match(h.calls[0].endpoint,/ativo=todos/); assert.match(h.calls[0].endpoint,/filtro=ca/);
+    assert.equal(r.result.dados[0].codigo,'CX');
+    assert.equal(h.run('consultarTipos',{ativo:'todos'}).result.codigoErro,'PARAMETROS_INVALIDOS');
+    assert.equal(h.calls.length,1);
 });
 test('constraints escalares sem final aceitas, faixas e repeticoes recusadas',()=>{
     const h=setup(page([],false,'',true));
@@ -167,7 +188,7 @@ test('resposta com campos sensiveis e profundidade excessiva e recusada',()=>{
 test('projeto: regra TESTE DefaultGroup-1 so com tipos e escritas so de tipos',()=>{
     const ctx={};vm.createContext(ctx);vm.runInContext(source,ctx);
     assert.equal(ctx.NW_CONFIG.regras.length,1);assert.equal(ctx.NW_CONFIG.regras[0].grupo,'DefaultGroup-1');
-    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].acoes),['consultarTipos','incluirTipo','alterarTipo']);
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].acoes),['consultarTipos','consultarTiposApoio','incluirTipo','alterarTipo']);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].estabelecimentos),[]);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.escritasHabilitadas),['incluirTipo','alterarTipo']);
     assert.equal(ctx.NW_CONFIG.serviceCode,'DATASUL_REST_HOMOLOG');
@@ -193,5 +214,13 @@ test('projeto: colleagueGroup com colunas curtas (como na API REST do TESTE) aut
     assert.equal(h.run('consultarTipos').result.sucesso,true);assert.equal(h.calls.length,1);
     h.context.NW_CONFIG.regras=[{grupo:'grupo-admin',acoes:['consultarTipos'],estabelecimentos:[]}];
     assert.equal(h.run('consultarTipos').result.codigoErro,'SEM_PERMISSAO');assert.equal(h.calls.length,1);
+});
+test('projeto: constraint sqlLimit do Fluig e ignorada; outra desconhecida e recusada com o nome',()=>{
+    const h=setup(page([],false,'',true));
+    const c=(name,value)=>({getFieldName:()=>name,getInitialValue:()=>value,getFinalValue:()=>value});
+    let ds=h.context.createDataset(null,[c('acao','consultarTipos'),c('parametros','{}'),c('sqlLimit','1')],null);
+    assert.equal(ds.values[0][1],'true');assert.equal(h.calls.length,1);assert.doesNotMatch(h.calls[0].endpoint,/sqlLimit/);
+    ds=h.context.createDataset(null,[c('acao','consultarTipos'),c('parametros','{}'),c('outraCoisa','x')],null);
+    assert.equal(ds.values[0][1],'false');assert.match(ds.values[0][3],/outraCoisa/);assert.equal(h.calls.length,1);
 });
 console.log('DATASET_UNICO|CENARIOS='+total+'|FALHAS=0|FLUIG_REAL=nao');

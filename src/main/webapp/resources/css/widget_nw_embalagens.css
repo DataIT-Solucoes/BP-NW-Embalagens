@@ -8,7 +8,7 @@
 .fluig-style-guide.nwe {
     --nwe-verde: #006B35;               /* Verde institucional: ação principal, foco, seleção */
     --nwe-verde-escuro: #00552A;        /* hover do verde */
-    --nwe-amarelo: #FFD200;             /* Amarelo solar: destaque pontual (linha nova/editada) */
+    --nwe-amarelo: #FFD200;             /* Amarelo solar */
     --nwe-vermelho: #ED1C24;            /* Vermelho da marca: ação destrutiva */
     --nwe-vermelho-escuro: #C4161C;     /* texto de erro e hover (o vermelho puro tem contraste baixo em letra pequena) */
     --nwe-tinta: #20201E;               /* Carvão: texto e ícones */
@@ -214,8 +214,49 @@
     color: var(--nwe-verde);
 }
 
+/* Autocomplete Fluig: mantém a largura do campo e a paleta do widget. */
+.fluig-style-guide.nwe .nwe-campo-caixa .fluig-typeahead,
+.fluig-style-guide.nwe .nwe-campo-caixa .twitter-typeahead {
+    width: 100%;
+    border-radius: 10px;
+    background-color: #fff;
+}
+
+.fluig-style-guide.nwe .nwe-campo-caixa > i {
+    z-index: 2;
+}
+
+.fluig-style-guide.nwe .nwe-campo-caixa .tt-menu,
+.fluig-style-guide.nwe .nwe-campo-caixa .tt-dropdown-menu {
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 6px;
+    padding: 4px 0;
+    border: 1px solid var(--nwe-linha);
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 8px 24px rgba(32, 32, 30, 0.12);
+}
+
+.fluig-style-guide.nwe .nwe-campo-caixa .tt-suggestion {
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--nwe-tinta);
+    cursor: pointer;
+    white-space: normal;
+}
+
+.fluig-style-guide.nwe .nwe-campo-caixa .tt-suggestion:hover,
+.fluig-style-guide.nwe .nwe-campo-caixa .tt-suggestion.tt-cursor {
+    background-color: var(--nwe-nevoa);
+    color: var(--nwe-tinta);
+}
+
 .fluig-style-guide.nwe .nwe-filtros-acoes {
     display: flex;
+    align-self: start;
+    margin-top: 25px;
     gap: 10px;
 }
 
@@ -253,17 +294,21 @@
     transform: translateY(1px);
 }
 
-/* Novo / Salvar: ação principal (verde institucional, texto branco) */
+/* Novo / Buscar / Salvar: ação principal (verde institucional, texto branco) */
 .fluig-style-guide.nwe .nwe-btn-destaque {
     background-color: var(--nwe-verde);
     color: #fff;
+}
+
+.fluig-style-guide.nwe .nwe-btn-destaque i {
+    color: inherit;
 }
 
 .fluig-style-guide.nwe .nwe-btn-destaque:hover {
     background-color: var(--nwe-verde-escuro);
 }
 
-/* Buscar / Cancelar: contorno verde, ganha fundo verde névoa no hover */
+/* Cancelar: contorno verde, ganha fundo verde névoa no hover */
 .fluig-style-guide.nwe .nwe-btn-contorno {
     border-color: var(--nwe-verde);
     background-color: #fff;
@@ -275,19 +320,14 @@
 }
 
 .fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled,
-.fluig-style-guide.nwe .nwe-btn[data-carregar-mais]:disabled,
 .fluig-style-guide.nwe .nwe-btn[data-novo]:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.fluig-style-guide.nwe .nwe-btn[data-novo]:disabled {
+.fluig-style-guide.nwe .nwe-btn[data-novo]:disabled,
+.fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled {
     background-color: var(--nwe-verde);
-}
-
-.fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled,
-.fluig-style-guide.nwe .nwe-btn[data-carregar-mais]:disabled {
-    background-color: #fff;
 }
 
 /* ---------- Tabela (Tabulator, tema "simple" sobrescrito com a paleta da tela) ---------- */
@@ -410,9 +450,9 @@
 }
 
 .fluig-style-guide.nwe .nwe-situacao.is-inativo {
-    border: 1px solid var(--nwe-linha);
-    background-color: var(--nwe-marfim);
-    color: var(--nwe-tinta-suave);
+    border: 1px solid rgba(237, 28, 36, 0.25);
+    background-color: rgba(237, 28, 36, 0.08);
+    color: var(--nwe-vermelho-escuro);
 }
 
 .fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-placeholder .tabulator-placeholder-contents {
@@ -422,7 +462,7 @@
     color: var(--nwe-tinta-suave);
 }
 
-/* rodapé: contador à esquerda, "Carregar mais" à direita (sem paginação local) */
+/* rodapé: contador à esquerda, páginas à direita */
 .fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer {
     border-top: 1px solid var(--nwe-linha);
     background-color: var(--nwe-marfim);
@@ -434,29 +474,47 @@
     padding: 10px 16px;
 }
 
-.fluig-style-guide.nwe .nwe-rodape {
-    display: flex;
-    flex: 1 1 auto;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    min-height: 36px;
-    text-align: left;
-}
-
-.fluig-style-guide.nwe .nwe-rodape-contador {
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page-counter {
     font-size: 13px;
 }
 
-.fluig-style-guide.nwe .nwe-btn.nwe-btn-mais {
-    height: 36px;
-    padding: 0 14px;
-    font-size: 13px;
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page {
+    min-width: 34px;
+    height: 34px;
+    margin: 0 2px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--nwe-tinta);
 }
 
-.fluig-style-guide.nwe .nwe-btn.nwe-btn-mais[hidden] {
-    display: none;
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page:not(:disabled):hover {
+    border-color: var(--nwe-linha);
+    background-color: #fff;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page.active {
+    border-color: var(--nwe-verde);
+    background-color: #fff;
+    color: var(--nwe-tinta);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page:disabled {
+    opacity: 0.35;
+}
+
+/* setas da paginação (Bootstrap Icons): o traço da fonte é fino, o stroke engrossa */
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-footer .tabulator-page i {
+    display: inline-block;
+    font-size: 14px;
+    line-height: 1;
+    vertical-align: -1px;
+    -webkit-text-stroke: 1.2px currentColor;
 }
 
 .fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-alert {
@@ -505,10 +563,19 @@
     color: var(--nwe-tinta-suave);
 }
 
-/* coluna Ações: botões só com ícone */
+/* coluna Ações: editar, interruptor e excluir */
 .fluig-style-guide.nwe .nwe-acoes {
     display: inline-flex;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
+}
+
+.fluig-style-guide.nwe .nwe-acoes-divisor {
+    flex: 0 0 auto;
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background-color: var(--nwe-linha);
 }
 
 .fluig-style-guide.nwe .nwe-acao {
@@ -529,32 +596,58 @@
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.fluig-style-guide.nwe .nwe-acao:focus-visible {
+.fluig-style-guide.nwe .nwe-interruptor {
+    appearance: none;
+    position: relative;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: 40px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background-color: var(--nwe-borda-campo);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.fluig-style-guide.nwe .nwe-interruptor[aria-checked="true"] {
+    background-color: var(--nwe-verde);
+}
+
+.fluig-style-guide.nwe .nwe-interruptor-bolinha {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(32, 32, 30, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.fluig-style-guide.nwe .nwe-interruptor[aria-checked="true"] .nwe-interruptor-bolinha {
+    transform: translateX(16px);
+}
+
+.fluig-style-guide.nwe .nwe-acao:focus-visible,
+.fluig-style-guide.nwe .nwe-interruptor:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 107, 53, 0.28);
 }
 
-.fluig-style-guide.nwe .nwe-acao-editar:hover,
-.fluig-style-guide.nwe .nwe-acao-reativar:hover {
+.fluig-style-guide.nwe .nwe-acao-editar:hover {
     border-color: var(--nwe-verde);
     background-color: #fff;
-    color: var(--nwe-tinta);
+    color: var(--nwe-verde);
 }
 
-.fluig-style-guide.nwe .nwe-acao-inativar:hover {
+.fluig-style-guide.nwe .nwe-acao-excluir:hover {
     border-color: rgba(237, 28, 36, 0.35);
     background-color: rgba(237, 28, 36, 0.08);
     color: var(--nwe-vermelho-escuro);
-}
-
-/* linha recém-cadastrada ou editada brilha em amarelo solar */
-.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row.nwe-linha-nova {
-    animation: nwe-linha-nova 2.2s ease-out;
-}
-
-@keyframes nwe-linha-nova {
-    0%, 35% { background-color: rgba(255, 210, 0, 0.32); }
-    100% { background-color: #fff; }
 }
 
 /* ---------- Modal "Novo tipo de embalagem" (<dialog> nativo) ---------- */
@@ -705,10 +798,6 @@
     color: var(--nwe-vermelho-escuro);
 }
 
-.fluig-style-guide.nwe .nwe-modal-confirmacao .nwe-modal-alerta {
-    margin-top: 14px;
-}
-
 .fluig-style-guide.nwe .nwe-modal-alerta:empty {
     display: none;
 }
@@ -730,42 +819,6 @@
     padding: 20px 24px 24px;
 }
 
-/* confirmação de inativar/reativar */
-.fluig-style-guide.nwe .nwe-modal.nwe-modal-pequeno {
-    width: min(420px, calc(100vw - 32px));
-}
-
-.fluig-style-guide.nwe .nwe-modal-confirmacao {
-    padding: 28px 24px 0;
-}
-
-.fluig-style-guide.nwe .nwe-confirmacao-icone {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 16px;
-    border-radius: 50%;
-    background-color: rgba(237, 28, 36, 0.1);
-    font-size: 20px;
-    color: var(--nwe-vermelho-escuro);
-}
-
-.fluig-style-guide.nwe .nwe-modal.is-reativar .nwe-confirmacao-icone {
-    background-color: var(--nwe-nevoa);
-    color: var(--nwe-verde);
-}
-
-.fluig-style-guide.nwe .nwe-modal-confirmacao .nwe-modal-subtitulo {
-    margin-top: 8px;
-}
-
-.fluig-style-guide.nwe .nwe-modal-confirmacao strong {
-    font-weight: 700;
-    color: var(--nwe-tinta);
-}
-
 .fluig-style-guide.nwe .nwe-btn-perigo {
     background-color: var(--nwe-vermelho);
     color: #fff;
@@ -775,8 +828,10 @@
     background-color: var(--nwe-vermelho-escuro);
 }
 
-/* Salvar / Inativar / Reativar aguardando a resposta: um clique só */
-.fluig-style-guide.nwe .nwe-modal-rodape .nwe-btn:disabled {
+/* Gravação aguardando a resposta: um clique só */
+.fluig-style-guide.nwe .nwe-modal-rodape .nwe-btn:disabled,
+.fluig-style-guide.nwe .nwe-acao:disabled,
+.fluig-style-guide.nwe .nwe-interruptor:disabled {
     opacity: 0.6;
     cursor: progress;
 }
@@ -790,6 +845,7 @@
     .fluig-style-guide.nwe .nwe-filtros-acoes {
         grid-column: 1 / -1;
         justify-content: flex-end;
+        margin-top: 0;
     }
 }
 
@@ -864,13 +920,14 @@
     .fluig-style-guide.nwe .nwe-campo-input,
     .fluig-style-guide.nwe .nwe-btn,
     .fluig-style-guide.nwe .nwe-modal-fechar,
-    .fluig-style-guide.nwe .nwe-acao {
+    .fluig-style-guide.nwe .nwe-acao,
+    .fluig-style-guide.nwe .nwe-interruptor,
+    .fluig-style-guide.nwe .nwe-interruptor-bolinha {
         transition: none;
     }
 
     .fluig-style-guide.nwe .nwe-modal[open],
-    .fluig-style-guide.nwe .nwe-modal[open]::backdrop,
-    .fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-row.nwe-linha-nova {
+    .fluig-style-guide.nwe .nwe-modal[open]::backdrop {
         animation: none;
     }
 }

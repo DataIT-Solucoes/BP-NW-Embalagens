@@ -19,17 +19,19 @@
     </div>
     <div class="nwe-filtros" role="search" aria-label="Filtros">
         <div class="nwe-campo">
-            <label class="nwe-campo-rotulo" for="nwe-filtro-tipo-${instanceId}">Tipo/Sigla Embalagem</label>
+            <label class="nwe-campo-rotulo" for="nwe-filtro-tipo-${instanceId}">Tipo de Embalagem</label>
             <div class="nwe-campo-caixa">
                 <i class="bi bi-search" aria-hidden="true"></i>
-                <input type="text" id="nwe-filtro-tipo-${instanceId}" class="nwe-campo-input" placeholder="Buscar por tipo de embalagem ou sigla" maxlength="100" autocomplete="off" data-filtro-tipo>
+                <input type="text" id="nwe-filtro-tipo-${instanceId}" class="form-control nwe-campo-input" placeholder="Digite a sigla ou descrição" maxlength="100" autocomplete="off" aria-describedby="nwe-filtro-tipo-dica-${instanceId}" data-filtro-tipo>
             </div>
+            <p class="nwe-campo-dica" id="nwe-filtro-tipo-dica-${instanceId}">Digite ao menos 2 caracteres e selecione um tipo. Deixe vazio para buscar todos.</p>
         </div>
         <div class="nwe-filtros-acoes">
-            <button type="button" class="nwe-btn nwe-btn-contorno" data-buscar disabled><i class="bi bi-search" aria-hidden="true"></i>Buscar</button>
+            <button type="button" class="nwe-btn nwe-btn-destaque" data-buscar disabled><i class="bi bi-search" aria-hidden="true"></i>Buscar</button>
         </div>
     </div>
     <div class="nwe-tabela" data-tabela></div>
+    <script type="text/template" class="nwe-tipo-sugestao-${instanceId}"><span>{{rotulo}}</span></script>
 
     <dialog class="nwe-modal" aria-labelledby="nwe-modal-titulo-${instanceId}" data-modal-novo>
         <form class="nwe-modal-form" novalidate>
@@ -49,8 +51,8 @@
                 </div>
                 <div class="nwe-campo">
                     <label class="nwe-campo-rotulo" for="nwe-novo-sigla-${instanceId}">Sigla</label>
-                    <input type="text" id="nwe-novo-sigla-${instanceId}" name="sigla" class="nwe-campo-input nwe-campo-input-simples nwe-campo-input-sigla" placeholder="Ex.: CX" maxlength="2" autocomplete="off" required aria-describedby="nwe-novo-sigla-dica-${instanceId} nwe-novo-sigla-erro-${instanceId}">
-                    <p class="nwe-campo-dica" id="nwe-novo-sigla-dica-${instanceId}" data-sigla-dica>Até 2 caracteres.</p>
+                    <input type="text" id="nwe-novo-sigla-${instanceId}" name="sigla" class="nwe-campo-input nwe-campo-input-simples nwe-campo-input-sigla" placeholder="Ex.: CX" maxlength="3" autocomplete="off" required aria-describedby="nwe-novo-sigla-dica-${instanceId} nwe-novo-sigla-erro-${instanceId}">
+                    <p class="nwe-campo-dica" id="nwe-novo-sigla-dica-${instanceId}" data-sigla-dica>Até 3 caracteres.</p>
                     <p class="nwe-campo-erro" id="nwe-novo-sigla-erro-${instanceId}" data-erro="sigla"></p>
                 </div>
                 <p class="nwe-modal-alerta" role="alert" data-modal-alerta></p>
@@ -63,16 +65,23 @@
         </form>
     </dialog>
 
-    <dialog class="nwe-modal nwe-modal-pequeno" role="alertdialog" aria-labelledby="nwe-situacao-titulo-${instanceId}" aria-describedby="nwe-situacao-texto-${instanceId}" data-modal-situacao>
-        <div class="nwe-modal-confirmacao">
-            <span class="nwe-confirmacao-icone" aria-hidden="true"><i class="bi bi-slash-circle" data-situacao-icone></i></span>
-            <h3 class="nwe-modal-titulo" id="nwe-situacao-titulo-${instanceId}" data-situacao-titulo>Inativar tipo de embalagem?</h3>
-            <p class="nwe-modal-subtitulo" id="nwe-situacao-texto-${instanceId}">O tipo <strong data-situacao-item></strong><span data-situacao-efeito></span></p>
-            <p class="nwe-modal-alerta" role="alert" data-situacao-alerta></p>
-        </div>
-        <div class="nwe-modal-rodape">
-            <button type="button" class="nwe-btn nwe-btn-contorno" autofocus data-fechar-situacao>Cancelar</button>
-            <button type="button" class="nwe-btn nwe-btn-perigo" data-confirmar-situacao><span data-situacao-botao>Inativar</span></button>
-        </div>
+    <dialog class="nwe-modal" role="alertdialog" aria-labelledby="nwe-excluir-titulo-${instanceId}" aria-describedby="nwe-excluir-texto-${instanceId}" data-modal-excluir>
+        <form class="nwe-modal-form" novalidate>
+            <div class="nwe-modal-cabecalho">
+                <div>
+                    <h3 class="nwe-modal-titulo" id="nwe-excluir-titulo-${instanceId}">Excluir tipo de embalagem</h3>
+                    <p class="nwe-modal-subtitulo">Esta ação não pode ser desfeita.</p>
+                </div>
+                <button type="button" class="nwe-modal-fechar" aria-label="Fechar" data-fechar-excluir><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            </div>
+            <div class="nwe-modal-corpo">
+                <p class="nwe-modal-subtitulo" id="nwe-excluir-texto-${instanceId}">Deseja excluir <strong data-excluir-item></strong>?</p>
+                <p class="nwe-modal-alerta" role="alert" data-excluir-alerta></p>
+            </div>
+            <div class="nwe-modal-rodape">
+                <button type="button" class="nwe-btn nwe-btn-contorno" autofocus data-fechar-excluir>Cancelar</button>
+                <button type="submit" class="nwe-btn nwe-btn-perigo" data-confirmar-excluir><i class="bi bi-trash" aria-hidden="true"></i><span>Excluir</span></button>
+            </div>
+        </form>
     </dialog>
 </div>

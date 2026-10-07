@@ -16,4 +16,3 @@ edit.file=edit.ftl
 locale.file.base.name=widget_nw_embalagens
 application.resource.js.1=/resources/js/widget_nw_embalagens.js
 application.resource.css.2=/resources/css/widget_nw_embalagens.css
-application.resource.js.3=/resources/js/chamar-embalagens.js

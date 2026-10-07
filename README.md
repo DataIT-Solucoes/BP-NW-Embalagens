@@ -119,7 +119,8 @@ Usuário ─┬─ texto + Buscar (ou Enter) ─► carregarTipos(false) ─► 
 npm test
 ```
 Roda `testes/testar-dataset-unico.cjs` (Dataset), `testes/testar-chamar-embalagens.cjs` (transporte) e
-`testes/testar-tela-tipos.cjs` (funções da tela → transporte → Dataset → serviço simulado). Não conectam ao
+`testes/testar-tela-tipos.cjs` (funções da tela → transporte → Dataset → serviço simulado), com um jQuery mínimo
+simulado (`testes/jquery-falso.cjs`), porque o Node não tem DOM. Não conectam ao
 Fluig nem ao Datasul; não substituem a homologação no servidor.
 
 ## Visual
@@ -131,6 +132,12 @@ Fluig nem ao Datasul; não substituem a homologação no servidor.
 - Modais são `<dialog>` nativos, **não** o `FLUIGC.modal`. Avisos rápidos usam `FLUIGC.toast`.
 
 ## Pegadinhas para quem for mexer
+
+- **jQuery 3.6.3 (o do Fluig), não JS puro:** DOM, eventos e requisições são feitos com jQuery (`$.ajax`, `$('<tag>', {...})`,
+  `.text()`, `.attr()`, `$.when`, `$.Deferred`). Ficam nativos só o que o jQuery não cobre: `showModal()`/`close()` do
+  `<dialog>`, `document.fonts`, `crypto.getRandomValues` e as promises que o próprio Tabulator devolve. Nada de `fetch`,
+  `async/await` ou `document.createElement`. `$.trim`/`$.isArray` estão obsoletos no 3.5+: usar `.trim()`/`Array.isArray`.
+- **`chamarEmbalagens` devolve promise jQuery** com `.abort()` (uma busca nova cancela a anterior).
 
 - **Especificidade:** todo seletor do CSS começa com `.fluig-style-guide.nwe`. Sem isso, regras do Style Guide
   como `.fluig-style-guide header` e `.fluig-style-guide h2` vencem e desmontam o layout.

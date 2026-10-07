@@ -19,7 +19,7 @@ var NW_CONFIG = {
     // TESTE (07/10/2026, definido pelo usuario): DefaultGroup-1 libera tipos para o grupo padrao da empresa 1.
     // Grupo definitivo por acao continua pendente (DT-054); revisar antes de producao.
     regras: [
-        { grupo: "DefaultGroup-1", acoes: ["consultarTipos", "incluirTipo", "alterarTipo"], estabelecimentos: [] }
+        { grupo: "DefaultGroup-1", acoes: ["consultarTipos", "consultarTiposApoio", "incluirTipo", "alterarTipo"], estabelecimentos: [] }
     ]
 };
 
@@ -53,6 +53,9 @@ var NW_ACOES = {
     criarRemessa: nwWrite("post", "/operacoes/remessas", true, "codEstabel codEstabelDestino emitenteDestino natureza serie valorItem chaveIdempotente selecao", "codEstabel natureza serie valorItem chaveIdempotente selecao"),
     criarDevolucao: nwWrite("post", "/operacoes/devolucoes", true, "codEstabel natureza serie emitenteOrigem serieOrigem numeroOrigem naturezaOrigem chaveIdempotente selecao", "codEstabel natureza serie emitenteOrigem serieOrigem numeroOrigem naturezaOrigem chaveIdempotente selecao")
 };
+
+// Nome da consulta de apoio usado pelo autocomplete; preserva a acao apoiarTipos.
+NW_ACOES.consultarTiposApoio = NW_ACOES.apoiarTipos;
 
 function nwGet(rota, estabel, campos, obrigatorios, cursor, entradaCursor, teto) {
     return { metodo: "get", rota: rota, estabel: estabel, campos: campos.split(" "),
@@ -141,13 +144,16 @@ function createDataset(fields, constraints, sortFields) {
     return ds;
 }
 
+// Constraints que o proprio Fluig acrescenta na chamada (nao vem do Widget e nao sao repassadas a API).
+var NW_CONSTRAINTS_FLUIG = ["sqlLimit"];
+
 function nwEntrada(constraints) {
     var entrada = {}, nomes = ["acao", "parametros"];
-    if (constraints && constraints.length > 2) nwFalhar("ENTRADA_INVALIDA", "Use somente acao e parametros.");
     for (var i = 0; constraints && i < constraints.length; i++) {
         var c = constraints[i], nome = nwTexto(c.getFieldName());
+        if (nwIndice(NW_CONSTRAINTS_FLUIG, nome) >= 0) continue;
         if (nwIndice(nomes, nome) < 0 || nwTem(entrada, nome))
-            nwFalhar("ENTRADA_INVALIDA", "Constraint desconhecida ou repetida.");
+            nwFalhar("ENTRADA_INVALIDA", "Constraint desconhecida ou repetida: " + nome.replace(/[^A-Za-z0-9_.-]/g, "").substring(0, 40) + ".");
         var valor = nwTexto(c.getInitialValue());
         var valorFinal = c.getFinalValue ? nwTexto(c.getFinalValue()) : "";
         // filterFields pode chegar sem valor final; isso e constraint escalar.
@@ -175,7 +181,7 @@ function nwParametros(texto, regra) {
             if (nome === "limite") {
                 if (!/^[1-9][0-9]*$/.test(String(v)) || Number(v) > regra.teto) nwFalhar("LIMITE_INVALIDO", "Limite fora da faixa desta consulta.");
             } else if (nome === "ativo") {
-                if (v !== true && v !== false && v !== "true" && v !== "false") nwFalhar("PARAMETROS_INVALIDOS", "ativo deve ser true ou false.");
+                if (v !== true && v !== false && v !== "true" && v !== "false" && !(regra.rota === "/apoios/tipos" && v === "todos")) nwFalhar("PARAMETROS_INVALIDOS", "ativo deve ser true ou false; todos somente no apoio de tipos.");
             } else if (typeof v !== "string") nwFalhar("PARAMETROS_INVALIDOS", "Filtros e IDs devem ser texto; limite pode ser numero.");
         } else {
             if (nwIndice(["idParam", "versao"], nome) >= 0) {
