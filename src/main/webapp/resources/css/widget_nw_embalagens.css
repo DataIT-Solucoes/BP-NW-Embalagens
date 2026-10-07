@@ -145,7 +145,7 @@
 /* ---------- Filtros ---------- */
 .fluig-style-guide.nwe .nwe-filtros {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
     gap: 16px 20px;
     margin: 24px 0 28px;
@@ -272,6 +272,20 @@
 
 .fluig-style-guide.nwe .nwe-btn-contorno:hover {
     background-color: var(--nwe-nevoa);
+}
+
+.fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled,
+.fluig-style-guide.nwe .nwe-btn[data-novo]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.fluig-style-guide.nwe .nwe-btn[data-novo]:disabled {
+    background-color: var(--nwe-verde);
+}
+
+.fluig-style-guide.nwe .nwe-btn[data-buscar]:disabled {
+    background-color: #fff;
 }
 
 /* ---------- Tabela (Tabulator, tema "simple" sobrescrito com a paleta da tela) ---------- */
@@ -440,6 +454,44 @@
     line-height: 1;
     vertical-align: -1px;
     -webkit-text-stroke: 1.2px currentColor;
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-alert {
+    background: rgba(227, 225, 216, 0.55);
+}
+
+.fluig-style-guide.nwe .nwe-tabela.tabulator .tabulator-alert .tabulator-alert-msg.tabulator-alert-state-msg {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+.fluig-style-guide.nwe .nwe-carregando {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fluig-style-guide.nwe .loader {
+    --color-1: #fff;
+    --color-2: var(--nwe-verde);
+    --size: 1px;
+
+    width: calc(48 * var(--size));
+    height: calc(48 * var(--size));
+    border: calc(5 * var(--size)) solid var(--color-1);
+    border-bottom-color: var(--color-2);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: nwe-loader-rotation 1s linear infinite;
+}
+
+@keyframes nwe-loader-rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .fluig-style-guide.nwe .nwe-tabela-erro {
@@ -691,7 +743,7 @@
 /* ---------- Tablet: botões de filtro descem para uma linha própria ---------- */
 @media (max-width: 991px) {
     .fluig-style-guide.nwe .nwe-filtros {
-        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .fluig-style-guide.nwe .nwe-filtros-acoes {

@@ -10,7 +10,7 @@
             <p class="nwe-cabecalho-subtitulo">Cadastre, edite, exclua e consulte os tipos de embalagem.</p>
         </div>
         <div class="nwe-cabecalho-acoes">
-            <button type="button" class="nwe-btn nwe-btn-destaque" data-novo><i class="bi bi-plus-lg" aria-hidden="true"></i>Novo</button>
+            <button type="button" class="nwe-btn nwe-btn-destaque" data-novo disabled><i class="bi bi-plus-lg" aria-hidden="true"></i>Novo</button>
         </div>
     </div>
     <div class="nwe-tabs" role="tablist" aria-label="Seções">
@@ -19,21 +19,14 @@
     </div>
     <div class="nwe-filtros" role="search" aria-label="Filtros">
         <div class="nwe-campo">
-            <label class="nwe-campo-rotulo" for="nwe-filtro-tipo-${instanceId}">Tipo Embalagem</label>
+            <label class="nwe-campo-rotulo" for="nwe-filtro-tipo-${instanceId}">Tipo/Sigla Embalagem</label>
             <div class="nwe-campo-caixa">
                 <i class="bi bi-search" aria-hidden="true"></i>
-                <input type="text" id="nwe-filtro-tipo-${instanceId}" class="nwe-campo-input" placeholder="Buscar por tipo de embalagem" autocomplete="off" data-filtro-tipo>
-            </div>
-        </div>
-        <div class="nwe-campo nwe-campo-curto">
-            <label class="nwe-campo-rotulo" for="nwe-filtro-sigla-${instanceId}">Sigla</label>
-            <div class="nwe-campo-caixa">
-                <i class="bi bi-hash" aria-hidden="true"></i>
-                <input type="text" id="nwe-filtro-sigla-${instanceId}" class="nwe-campo-input" placeholder="Buscar por sigla" autocomplete="off" data-filtro-sigla>
+                <input type="text" id="nwe-filtro-tipo-${instanceId}" class="nwe-campo-input" placeholder="Buscar por tipo de embalagem ou sigla" autocomplete="off" data-filtro-tipo>
             </div>
         </div>
         <div class="nwe-filtros-acoes">
-            <button type="button" class="nwe-btn nwe-btn-contorno" data-buscar><i class="bi bi-search" aria-hidden="true"></i>Buscar</button>
+            <button type="button" class="nwe-btn nwe-btn-contorno" data-buscar disabled><i class="bi bi-search" aria-hidden="true"></i>Buscar</button>
         </div>
     </div>
     <div class="nwe-tabela" data-tabela></div>

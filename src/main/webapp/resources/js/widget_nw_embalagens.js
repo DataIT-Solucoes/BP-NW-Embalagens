@@ -13,6 +13,8 @@ var widget_nw_embalagens = SuperWidget.extend({
     //instância do Tabulator
     tabela: null,
 
+    carregandoTipos: true,
+
     //linha do Tabulator em edição (null = modal em modo "novo") e linha aguardando confirmação de exclusão
     linhaEditando: null,
     linhaExcluindo: null,
@@ -20,6 +22,7 @@ var widget_nw_embalagens = SuperWidget.extend({
     //método iniciado quando a widget é carregada
     init() {
         var self = this;
+        this.definirCarregamentoTipos(true);
         this.$tabs = $('.nwe-tabs', this.DOM);
         this.moverIndicador();
         $(window).on('resize.nwe' + this.instanceId, function () { self.moverIndicador(); });
@@ -33,6 +36,7 @@ var widget_nw_embalagens = SuperWidget.extend({
             self.montarTabela();
         }, function () {
             $('[data-tabela]', self.DOM).html('<p class="nwe-tabela-erro">Não foi possível carregar a tabela. Verifique a conexão com a internet e recarregue a página.</p>');
+            self.definirCarregamentoTipos(false);
         });
 
         this.prepararModalNovo();
@@ -45,7 +49,6 @@ var widget_nw_embalagens = SuperWidget.extend({
             'tab': ['click_selecionarAba', 'keydown_navegarAbas'],
             'buscar': ['click_buscar'],
             'filtro-tipo': ['keydown_teclaFiltro'],
-            'filtro-sigla': ['keydown_teclaFiltro'],
             'novo': ['click_abrirModalNovo'],
             'fechar-modal': ['click_fecharModalNovo'],
             'fechar-excluir': ['click_fecharModalExcluir'],
@@ -166,10 +169,16 @@ var widget_nw_embalagens = SuperWidget.extend({
         this.tabela.on('tableBuilt', function () { self.carregarTipos(); });
     },
 
+    definirCarregamentoTipos(carregando) {
+        this.carregandoTipos = carregando;
+        $('[data-buscar], [data-novo]', this.DOM).prop('disabled', carregando);
+    },
+
     //busca todos os tipos no dataset e preenche a tabela
     carregarTipos() {
         var self = this;
-        this.tabela.alert('Carregando tipos de embalagem...');
+        this.definirCarregamentoTipos(true);
+        this.tabela.alert('<div class="nwe-carregando" role="status" aria-label="Carregando tipos de embalagem"><span class="loader" aria-hidden="true"></span></div>');
 
         $.ajax({
             url: '/api/public/ecm/dataset/search',
@@ -186,15 +195,19 @@ var widget_nw_embalagens = SuperWidget.extend({
                 self.mostrarErroCarga(erro.mensagem || 'Não foi possível consultar os tipos de embalagem.', erro.codigoErro);
                 return;
             }
-            self.tabela.clearAlert();
-            self.tabela.setData(linhas.map(function (l) {
+            return self.tabela.setData(linhas.map(function (l) {
                 return {
                     descricao: l.descricao,
                     sigla: l.codTipo,
                     ativo: l.ativo === 'true',
                     versao: l.versao
                 };
-            }));
+            })).then(function () {
+                self.tabela.clearAlert();
+                self.definirCarregamentoTipos(false);
+            }, function () {
+                self.mostrarErroCarga('Não foi possível preencher a tabela de tipos de embalagem.');
+            });
         }, function (xhr) {
             self.mostrarErroCarga('Não foi possível consultar os tipos de embalagem (HTTP ' + xhr.status + ').');
         });
@@ -203,6 +216,7 @@ var widget_nw_embalagens = SuperWidget.extend({
     mostrarErroCarga(mensagem, codigoErro) {
         if (window.console) console.error('[widget_nw_embalagens] ' + (codigoErro ? codigoErro + ': ' : '') + mensagem);
         this.tabela.alert(mensagem + ' Recarregue a página para tentar de novo.', 'error');
+        this.definirCarregamentoTipos(false);
     },
 
     montarBotoesAcoes(dados) {
@@ -225,22 +239,21 @@ var widget_nw_embalagens = SuperWidget.extend({
     },
 
     buscar(htmlElement, event) {
-        if (!this.tabela) return;
-        var tipo = this.normalizar($('[data-filtro-tipo]', this.DOM).val());
-        var sigla = this.normalizar($('[data-filtro-sigla]', this.DOM).val());
+        if (!this.tabela || this.carregandoTipos) return;
+        var termo = this.normalizar($('[data-filtro-tipo]', this.DOM).val());
         var self = this;
 
-        if (!tipo && !sigla) {
+        if (!termo) {
             this.tabela.clearFilter();
             return;
         }
         this.tabela.setFilter(function (linha) {
-            return self.normalizar(linha.descricao).indexOf(tipo) !== -1
-                && self.normalizar(linha.sigla).indexOf(sigla) !== -1;
+            return self.normalizar(linha.descricao).indexOf(termo) !== -1
+                || self.normalizar(linha.sigla).indexOf(termo) !== -1;
         });
     },
 
-    //Enter nos campos de filtro dispara a busca
+    //Enter no campo de filtro dispara a busca
     teclaFiltro(htmlElement, event) {
         if (event.key !== 'Enter') return;
         event.preventDefault();
@@ -277,6 +290,7 @@ var widget_nw_embalagens = SuperWidget.extend({
     },
 
     abrirModalNovo(htmlElement, event) {
+        if (this.carregandoTipos) return;
         this.abrirModalCadastro(null);
     },
 
