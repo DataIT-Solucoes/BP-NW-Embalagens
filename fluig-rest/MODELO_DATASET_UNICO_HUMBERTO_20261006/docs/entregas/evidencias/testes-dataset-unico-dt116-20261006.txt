@@ -1,0 +1,23 @@
+OK 24 acoes coincidem com metodo/rota do adaptador ABL
+OK constraints escalares sem final aceitas, faixas e repeticoes recusadas
+OK tipos consulta uma pagina, preserva cursor, usuario e servico funcionais
+OK vazio valido conserva uma linha de sucesso com dados vazios
+OK sem politica, contexto ou grupo correspondente nega sem chamar REST
+OK identidade, lista de permitidos e endpoint do cliente sao recusados
+OK permissoes de outra acao nao ampliam os estabelecimentos desta
+OK apoios limitados a20 e filtro de pelo menos dois caracteres
+OK IDs e zeros documentais chegam intactos a query
+OK geracoes preserva geracao/itens/etiquetas em vez de presumir dados
+OK natureza preserva classificacao na colecao dados sem exigir limite
+OK temMais sem cursor, cursor repetido/regressivo e total divergente recusados
+OK HTTP falho, status ausente, JSON invalido e corpo vazio nao viram sucesso
+OK erro de negocio preserva codigo sem vazar detalhes sensiveis
+OK escritas desabilitadas por configuracao, sem tocar Dataset tipos existente
+OK POST tipo, PATCH tipo e parametros usam corpo JSON e preservam versao numerica
+OK comando preserva chave/IDs, devolve WT e repeticao sem retry
+OK timeout apos comando nao repete e nao expoe excecao
+OK destino nao autorizado, selecao duplicada/numerica e campos extras negam antes do POST
+OK resultado de devolucao exige origem completa e conserva a chave
+OK resposta com campos sensiveis e profundidade excessiva e recusada
+DATASET_UNICO|CENARIOS=21|FALHAS=0|FLUIG_REAL=nao
+WIDGET_DATASET_UNICO|CENARIOS=7|FALHAS=0|FLUIG_REAL=nao

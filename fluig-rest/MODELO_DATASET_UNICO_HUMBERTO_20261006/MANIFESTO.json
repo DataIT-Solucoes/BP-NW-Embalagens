@@ -1,0 +1,70 @@
+[
+  {
+    "arquivo": "fontes/fluig/datasets/dsNwEmbalagens.js",
+    "sha256": "e4c0ba825d339548deb4f7eea783e80f85e71ee1fa4ece957fba0f94c3d0c5a4"
+  },
+  {
+    "arquivo": "fontes/fluig/componentes/chamar-embalagens.js",
+    "sha256": "28e7f368a5245fc389bdf3dfce2e8018ef731c8b8d9aa75d836e5cd08b2bb102"
+  },
+  {
+    "arquivo": "testes/fluig/testar-dataset-unico.cjs",
+    "sha256": "7cc8341e613ed7a5222017a774e133ec1e8f91b1d5d7fa66c8b8dcd732db5244"
+  },
+  {
+    "arquivo": "testes/fluig/testar-chamar-embalagens.cjs",
+    "sha256": "e8deca41e2124d2c432cf1804e079094b23688c72df21c7c934cf105356a21e9"
+  },
+  {
+    "arquivo": "fontes/progress/esp/api/v1/controle-embalagens.p",
+    "sha256": "259581254afb498eb1d0d3bafa7b0bb260f7294ec0bc5cadea7d1573af44aeab"
+  },
+  {
+    "arquivo": "fontes/progress/includes/contr-emb-api-operacoes.i",
+    "sha256": "c9044616f1b9c8368314f0de9757555c531d6f986727202b9488fe8c548a3230"
+  },
+  {
+    "arquivo": "docs/entregas/DATASET_UNICO_FLUIG_20261006.md",
+    "sha256": "1f75c42f5d637a874fc442f46bb6f9a2c961fd66df5a731a8935bac1548e3815"
+  },
+  {
+    "arquivo": "docs/entregas/evidencias/testes-dataset-unico-dt116-20261006.txt",
+    "sha256": "1dcd20b0902aac5e634a30c30ef2c6a8a0ac2e353d58ad5e698c81c9fea0b372"
+  },
+  {
+    "arquivo": "docs/entregas/REST_FLUXOS_ABL_20261006.md",
+    "sha256": "ff0d1ef3599deb6301a4f3f7ebe1ac14bb0e5915ce8d93e9745ec66f3033a834"
+  },
+  {
+    "arquivo": "docs/entregas/ET-01G_API_REST_CADASTROS.md",
+    "sha256": "78176a1b8d5cccf2ddcc7f6047e14fa3858cfba17b35f04fedf5e6818a224287"
+  },
+  {
+    "arquivo": "docs/entregas/MATRIZ_APIS_REST.md",
+    "sha256": "5513fac4f1b362830fbde38d03e96ac6d6d37ddca273cadbea406cf0f5269f0f"
+  },
+  {
+    "arquivo": "docs/00_BASELINE_REST_FLUIG_DATASUL_v1.0.docx",
+    "sha256": "ecd5dbcdfd3ab6e615b5f70f255cb975c7105f8b6b376c0d9e47604c5fd76266"
+  },
+  {
+    "arquivo": "referencias/fluig/dsNwEmbalagensTipos-recebido-20261006.js",
+    "sha256": "d928c96e6bec706c3368410a5251f2a9bbeb9e4fae8feea157bd1e654383bd8a"
+  },
+  {
+    "arquivo": "ACOES_DATASET.json",
+    "sha256": "51375746dd9ac37999820bc92ff1341132cfd79448ae522e526c428a24d0c40c"
+  },
+  {
+    "arquivo": "package.json",
+    "sha256": "6a9fede5a3d77e16a3895cf6a0a00543f0213dd105bf8f8650ffd76451d4d4b6"
+  },
+  {
+    "arquivo": "README.md",
+    "sha256": "090c15be72eb21af00a094dbd2586aea97ec5f498214ac8ff3f262df2bef8c2f"
+  },
+  {
+    "arquivo": "PROMPT_PARA_WORK.md",
+    "sha256": "8aff3a15f5a718683354a6bcba454bf9c6dcc040a68a2141afbb87e70d6fe10d"
+  }
+]

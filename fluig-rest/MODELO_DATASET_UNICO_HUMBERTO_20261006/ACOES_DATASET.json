@@ -1,0 +1,533 @@
+{
+  "dataset": "dsNwEmbalagens",
+  "base": "/dts/datasul-rest/resources/prg/esp/v1/controle-embalagens",
+  "servicoTeste": "DATASUL_REST_HOMOLOG",
+  "acoes": [
+    {
+      "acao": "consultarTipos",
+      "metodo": "GET",
+      "rota": "/tipos",
+      "exigeEstabelecimentos": false,
+      "camposPermitidos": [
+        "codigoDe",
+        "codigoAte",
+        "descricao",
+        "ativo",
+        "aposCodigo",
+        "limite"
+      ],
+      "obrigatorios": [],
+      "cursorSaida": "proximoCodigo",
+      "cursorEntrada": "aposCodigo",
+      "limiteMaximo": 100
+    },
+    {
+      "acao": "incluirTipo",
+      "metodo": "POST",
+      "rota": "/tipos",
+      "exigeEstabelecimentos": false,
+      "camposPermitidos": [
+        "codTipo",
+        "descricao",
+        "ativo",
+        "versao",
+        "chaveIdempotente"
+      ],
+      "obrigatorios": [
+        "codTipo",
+        "descricao",
+        "ativo",
+        "chaveIdempotente"
+      ],
+      "cursorSaida": "",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "alterarTipo",
+      "metodo": "PATCH",
+      "rota": "/tipos",
+      "exigeEstabelecimentos": false,
+      "camposPermitidos": [
+        "codTipo",
+        "descricao",
+        "ativo",
+        "versao",
+        "acao",
+        "chaveIdempotente"
+      ],
+      "obrigatorios": [
+        "codTipo",
+        "descricao",
+        "ativo",
+        "versao",
+        "acao",
+        "chaveIdempotente"
+      ],
+      "cursorSaida": "",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "consultarParametros",
+      "metodo": "GET",
+      "rota": "/parametros",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "estabelDe",
+        "estabelAte",
+        "itemDe",
+        "itemAte",
+        "ativo",
+        "aposId",
+        "limite"
+      ],
+      "obrigatorios": [],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposId",
+      "limiteMaximo": 100
+    },
+    {
+      "acao": "incluirParametro",
+      "metodo": "POST",
+      "rota": "/parametros",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "idParam",
+        "codEstabel",
+        "item",
+        "codTipo",
+        "capacidade",
+        "unidade",
+        "ativo",
+        "versao",
+        "loteMigracao",
+        "validadeMigracao",
+        "chaveIdempotente"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "item",
+        "codTipo",
+        "capacidade",
+        "unidade",
+        "ativo",
+        "chaveIdempotente"
+      ],
+      "cursorSaida": "",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "alterarParametro",
+      "metodo": "PATCH",
+      "rota": "/parametros",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "idParam",
+        "codEstabel",
+        "item",
+        "codTipo",
+        "capacidade",
+        "unidade",
+        "ativo",
+        "versao",
+        "acao",
+        "loteMigracao",
+        "validadeMigracao",
+        "chaveIdempotente"
+      ],
+      "obrigatorios": [
+        "idParam",
+        "codEstabel",
+        "item",
+        "codTipo",
+        "capacidade",
+        "unidade",
+        "ativo",
+        "versao",
+        "acao",
+        "chaveIdempotente"
+      ],
+      "cursorSaida": "",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "consultarEtiquetas",
+      "metodo": "GET",
+      "rota": "/etiquetas",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "codEtiqueta",
+        "item",
+        "lote",
+        "codTipo",
+        "tipoControle",
+        "tipoLocal",
+        "situacao",
+        "idBag",
+        "aposId",
+        "limite"
+      ],
+      "obrigatorios": [],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposId",
+      "limiteMaximo": 100
+    },
+    {
+      "acao": "apoiarEstabelecimentos",
+      "metodo": "GET",
+      "rota": "/apoios/estabelecimentos",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "filtro",
+        "aposCodigo",
+        "limite"
+      ],
+      "obrigatorios": [
+        "filtro"
+      ],
+      "cursorSaida": "proximoCodigo",
+      "cursorEntrada": "aposCodigo",
+      "limiteMaximo": 20
+    },
+    {
+      "acao": "apoiarItens",
+      "metodo": "GET",
+      "rota": "/apoios/itens",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "filtro",
+        "aposCodigo",
+        "limite"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "filtro"
+      ],
+      "cursorSaida": "proximoCodigo",
+      "cursorEntrada": "aposCodigo",
+      "limiteMaximo": 20
+    },
+    {
+      "acao": "apoiarTipos",
+      "metodo": "GET",
+      "rota": "/apoios/tipos",
+      "exigeEstabelecimentos": false,
+      "camposPermitidos": [
+        "filtro",
+        "ativo",
+        "aposCodigo",
+        "limite"
+      ],
+      "obrigatorios": [
+        "filtro"
+      ],
+      "cursorSaida": "proximoCodigo",
+      "cursorEntrada": "aposCodigo",
+      "limiteMaximo": 20
+    },
+    {
+      "acao": "apoiarFamilias",
+      "metodo": "GET",
+      "rota": "/apoios/familias",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "filtro",
+        "aposCodigo",
+        "limite"
+      ],
+      "obrigatorios": [
+        "filtro"
+      ],
+      "cursorSaida": "proximoCodigo",
+      "cursorEntrada": "aposCodigo",
+      "limiteMaximo": 20
+    },
+    {
+      "acao": "consultarBags",
+      "metodo": "GET",
+      "rota": "/bags",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "idBag",
+        "codEstabel",
+        "filtroLacre",
+        "codTipo",
+        "situacao",
+        "inicio",
+        "fim",
+        "aposId",
+        "limite"
+      ],
+      "obrigatorios": [],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposId",
+      "limiteMaximo": 20
+    },
+    {
+      "acao": "consultarConteudoBag",
+      "metodo": "GET",
+      "rota": "/conteudo-bag",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "idBag",
+        "aposId",
+        "limite"
+      ],
+      "obrigatorios": [
+        "idBag"
+      ],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposId",
+      "limiteMaximo": 20
+    },
+    {
+      "acao": "obterDadosImpressao",
+      "metodo": "GET",
+      "rota": "/dados-impressao",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "idEtiqueta"
+      ],
+      "obrigatorios": [
+        "idEtiqueta"
+      ],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "consultarGeracao",
+      "metodo": "GET",
+      "rota": "/geracoes",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "idEvento",
+        "aposId",
+        "limite"
+      ],
+      "obrigatorios": [
+        "idEvento"
+      ],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposId",
+      "limiteMaximo": 100
+    },
+    {
+      "acao": "classificarNatureza",
+      "metodo": "GET",
+      "rota": "/operacoes/natureza",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "natureza"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "natureza"
+      ],
+      "cursorSaida": "",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "consultarEmbalagensOrigem",
+      "metodo": "GET",
+      "rota": "/operacoes/embalagens-origem",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "natureza",
+        "emitenteOrigem",
+        "serieOrigem",
+        "numeroOrigem",
+        "naturezaOrigem",
+        "aposIdEtiqueta",
+        "limite"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "natureza",
+        "emitenteOrigem",
+        "serieOrigem",
+        "numeroOrigem",
+        "naturezaOrigem"
+      ],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposIdEtiqueta",
+      "limiteMaximo": 100
+    },
+    {
+      "acao": "consultarOperacoes",
+      "metodo": "GET",
+      "rota": "/operacoes",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "idOperacao",
+        "wt",
+        "situacao",
+        "tipoOperacao",
+        "aposId",
+        "limite"
+      ],
+      "obrigatorios": [
+        "codEstabel"
+      ],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposId",
+      "limiteMaximo": 100
+    },
+    {
+      "acao": "consultarResultadoOperacao",
+      "metodo": "GET",
+      "rota": "/operacoes/resultado",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "chaveIdempotente",
+        "ramo",
+        "emitenteOrigem",
+        "serieOrigem",
+        "numeroOrigem",
+        "naturezaOrigem"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "chaveIdempotente",
+        "ramo"
+      ],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "consultarItensOperacao",
+      "metodo": "GET",
+      "rota": "/operacoes/itens",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "idOperacao",
+        "aposId",
+        "limite"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "idOperacao"
+      ],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposId",
+      "limiteMaximo": 100
+    },
+    {
+      "acao": "consultarEventosOperacao",
+      "metodo": "GET",
+      "rota": "/operacoes/eventos",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "idOperacao",
+        "aposId",
+        "limite"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "idOperacao"
+      ],
+      "cursorSaida": "proximoId",
+      "cursorEntrada": "aposId",
+      "limiteMaximo": 100
+    },
+    {
+      "acao": "criarTransferencia",
+      "metodo": "POST",
+      "rota": "/operacoes/transferencias",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "codEstabelDestino",
+        "emitenteDestino",
+        "natureza",
+        "serie",
+        "valorItem",
+        "chaveIdempotente",
+        "selecao"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "codEstabelDestino",
+        "natureza",
+        "serie",
+        "valorItem",
+        "chaveIdempotente",
+        "selecao"
+      ],
+      "cursorSaida": "",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "criarRemessa",
+      "metodo": "POST",
+      "rota": "/operacoes/remessas",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "codEstabelDestino",
+        "emitenteDestino",
+        "natureza",
+        "serie",
+        "valorItem",
+        "chaveIdempotente",
+        "selecao"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "natureza",
+        "serie",
+        "valorItem",
+        "chaveIdempotente",
+        "selecao"
+      ],
+      "cursorSaida": "",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    },
+    {
+      "acao": "criarDevolucao",
+      "metodo": "POST",
+      "rota": "/operacoes/devolucoes",
+      "exigeEstabelecimentos": true,
+      "camposPermitidos": [
+        "codEstabel",
+        "natureza",
+        "serie",
+        "emitenteOrigem",
+        "serieOrigem",
+        "numeroOrigem",
+        "naturezaOrigem",
+        "chaveIdempotente",
+        "selecao"
+      ],
+      "obrigatorios": [
+        "codEstabel",
+        "natureza",
+        "serie",
+        "emitenteOrigem",
+        "serieOrigem",
+        "numeroOrigem",
+        "naturezaOrigem",
+        "chaveIdempotente",
+        "selecao"
+      ],
+      "cursorSaida": "",
+      "cursorEntrada": "",
+      "limiteMaximo": null
+    }
+  ]
+}

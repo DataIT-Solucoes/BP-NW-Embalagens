@@ -1,0 +1,9 @@
+{
+  "name": "modelo-dataset-embalagens",
+  "private": true,
+  "version": "1.0.0",
+  "description": "DT-116: modelo Fluig; testes locais sem dependencia externa",
+  "scripts": {
+    "test": "node testes/fluig/testar-dataset-unico.cjs && node testes/fluig/testar-chamar-embalagens.cjs"
+  }
+}
