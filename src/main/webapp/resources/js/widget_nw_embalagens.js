@@ -25,6 +25,10 @@ function escaparTextoHtml(texto) {
     return texto.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function formatarRotulo(codigo, descricao) {
+    return descricao ? codigo + ' — ' + descricao : codigo;
+}
+
 function montarConsultasTipos(codigo, cursor) {
     if (codigo) return [{ codigoDe: codigo, codigoAte: codigo, limite: 1 }];
     var parametros = { limite: LIMITE_CONSULTA_TIPOS };
@@ -222,6 +226,7 @@ var cadastroEmbalagens = SuperWidget.extend({
         this.tipoSelecionado = null;
         this.$filtroTipo = $('[data-filtro-tipo]', this.DOM);
         this.$filtroTipo.on('input', function () {
+            if (self.$filtroTipo.prop('readonly')) return;
             self.tipoSelecionado = null;
             self.cancelarSugestoesTipos();
         });
@@ -231,6 +236,7 @@ var cadastroEmbalagens = SuperWidget.extend({
             self.autocompleteTipo.val(item.rotulo);
             self.tipoSelecionado = { codigo: item.codigo, rotulo: item.rotulo };
             self.cancelarSugestoesTipos();
+            self.mostrarSelecionado(item);
         });
         this.$filtroTipo.on('fluig.autocomplete.opened', function () { self.menuAutocompleteAberto = true; });
         this.$filtroTipo.on('fluig.autocomplete.closed', function () { self.menuAutocompleteAberto = false; });
@@ -247,6 +253,47 @@ var cadastroEmbalagens = SuperWidget.extend({
         });
     },
 
+    // O campo continua no lugar (com o texto escondido) e trava; a badge fica por cima dele.
+    mostrarSelecionado(item) {
+        var self = this;
+        var $campo = this.$filtroTipo;
+        if (!this.$badgeTipo) {
+            this.$badgeTipo = $('<span>', { 'class': 'embalagens-selecionado', hidden: true })
+                .append($('<span>', { 'class': 'embalagens-selecionado-chip' })
+                    .append($('<span>', { 'class': 'embalagens-selecionado-texto' })
+                        .append($('<span>', { 'class': 'embalagens-selecionado-codigo' }))
+                        .append($('<span>', { 'class': 'embalagens-selecionado-descricao' })))
+                    .append($('<button>', { type: 'button', 'class': 'embalagens-selecionado-remover' })
+                        .append($('<i>', { 'class': 'bi bi-x', 'aria-hidden': 'true' }))
+                        .on('click.cadastroEmbalagens', function () { self.removerSelecionado(); })))
+                .appendTo($campo.closest('.embalagens-campo-caixa'));
+        }
+
+        var rotulo = formatarRotulo(item.codigo, item.descricao);
+        this.$badgeTipo.find('.embalagens-selecionado-codigo').text(item.codigo);
+        this.$badgeTipo.find('.embalagens-selecionado-descricao').text(item.descricao ? ' — ' + item.descricao : '');
+        this.$badgeTipo.find('.embalagens-selecionado-chip').attr('title', rotulo);
+        this.$badgeTipo.find('.embalagens-selecionado-remover').attr({ title: 'Remover', 'aria-label': 'Remover ' + rotulo });
+
+        if (this.autocompleteTipo) this.autocompleteTipo.close();
+        $campo.addClass('is-selecionado').prop('readOnly', true);
+        this.$badgeTipo.prop('hidden', false);
+        this.$badgeTipo.find('.embalagens-selecionado-remover').trigger('focus');
+    },
+
+    removerSelecionado() {
+        var $campo = this.$filtroTipo;
+        if (this.$badgeTipo) this.$badgeTipo.prop('hidden', true);
+        $campo.removeClass('is-selecionado').prop('readOnly', false);
+        this.tipoSelecionado = null;
+        // o val('') do FLUIGC.autocomplete pode não limpar (vazio vira leitura): limpa o typeahead e o input direto
+        if ($.fn.typeahead && $campo.hasClass('tt-input')) $campo.typeahead('val', '');
+        $campo.val('');
+        if (this.autocompleteTipo) this.autocompleteTipo.close();
+        this.cancelarSugestoesTipos();
+        $campo.trigger('focus');
+    },
+
     cancelarSugestoesTipos() {
         this.apoioSeq++;
         if (this.timerApoio) clearTimeout(this.timerApoio);
@@ -260,7 +307,7 @@ var cadastroEmbalagens = SuperWidget.extend({
         termo = String(termo || '').trim();
         this.cancelarSugestoesTipos();
         var sequenciaConsulta = this.apoioSeq;
-        if (termo.length < 2) {
+        if (termo.length < 2 || this.$filtroTipo.prop('readonly')) {
             responder([]);
             return;
         }
@@ -280,7 +327,7 @@ var cadastroEmbalagens = SuperWidget.extend({
                     return item && typeof item.codigo === 'string' && item.codigo && typeof item.descricao === 'string';
                 });
                 responder($.map(itens, function (item) {
-                    return { codigo: item.codigo, descricao: item.descricao, rotulo: item.codigo + ' — ' + item.descricao };
+                    return { codigo: item.codigo, descricao: item.descricao, rotulo: formatarRotulo(item.codigo, item.descricao) };
                 }));
             }, function () {
                 if (sequenciaConsulta !== self.apoioSeq) return;

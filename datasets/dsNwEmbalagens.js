@@ -9,7 +9,7 @@ var NW_CONFIG = {
     base: "/dts/datasul-rest/resources/prg/esp/v1/controle-embalagens",
     // TESTE: comandos habilitados um a um, conforme a tela que os usa for integrada.
     // Aceita false, true (todos) ou a lista de acoes. Nao substitui a permissao por grupo em regras.
-    escritasHabilitadas: ["incluirTipo", "alterarTipo", "incluirParametro", "alterarParametro"],
+    escritasHabilitadas: ["incluirTipo", "alterarTipo", "incluirParametro", "alterarParametro", "criarTransferencia", "criarRemessa", "criarDevolucao"],
     timeoutSegundos: "60",
     maxEntrada: 120000,
     maxResposta: 2000000,
@@ -23,7 +23,11 @@ var NW_CONFIG = {
         // TESTE (07/10/2026): tela Itens Controlados (carga da tabela e apoios de estabelecimento e item dos filtros).
         // Estas acoes exigem lista de estabelecimentos autorizados (lista vazia = SEM_PERMISSAO).
         // Codigos 10904 e 11301 vistos nas operacoes de TESTE da documentacao; CONFIRMAR a lista real do grupo antes de producao.
-        { grupo: "DefaultGroup-1", acoes: ["consultarParametros", "apoiarEstabelecimentos", "apoiarItens", "incluirParametro", "alterarParametro"], estabelecimentos: ["10904", "11301"] }
+        { grupo: "DefaultGroup-1", acoes: ["consultarParametros", "apoiarEstabelecimentos", "apoiarItens", "incluirParametro", "alterarParametro"], estabelecimentos: ["10904", "11301"] },
+        // DT120: consultas da manutencao no mesmo contexto TESTE ja configurado acima.
+        { grupo: "DefaultGroup-1", acoes: ["consultarEtiquetas", "apoiarFamilias", "apoiarDepositos", "apoiarLotes", "apoiarDocumentosEntrada"], estabelecimentos: ["10904", "11301"] },
+        // TESTE (08/10/2026): operacoes da manutencao e dados de impressao, autorizados pelo usuario.
+        { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] }
     ]
 };
 
@@ -38,11 +42,14 @@ var NW_ACOES = {
     consultarParametros: nwGet("/parametros", true, "estabelDe estabelAte itemDe itemAte codTipo ativo aposId limite", "", "proximoId", "aposId", 100),
     incluirParametro: nwWrite("post", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao loteMigracao validadeMigracao chaveIdempotente", "codEstabel item codTipo capacidade unidade ativo chaveIdempotente"),
     alterarParametro: nwWrite("patch", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao acao loteMigracao validadeMigracao chaveIdempotente", "idParam codEstabel item codTipo capacidade unidade ativo versao acao chaveIdempotente"),
-    consultarEtiquetas: nwGet("/etiquetas", true, "codEstabel codEtiqueta item lote codTipo tipoControle tipoLocal situacao idBag aposId limite", "", "proximoId", "aposId", 100),
+    consultarEtiquetas: nwGet("/etiquetas", true, "codEstabel codEtiqueta item lote codTipo tipoControle tipoLocal situacao idBag aposId limite estabelDe estabelAte itemDe itemAte depositoDe depositoAte etiquetaDe etiquetaAte loteDe loteAte validadeDe validadeAte familiaDe familiaAte modoNotas notaDe notaAte documento", "", "proximoId", "aposId", 100),
     apoiarEstabelecimentos: nwGet("/apoios/estabelecimentos", true, "filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
-    apoiarItens: nwGet("/apoios/itens", true, "codEstabel filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
+    apoiarItens: nwGet("/apoios/itens", true, "codEstabel filtro tipoControleEstoque aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarTipos: nwGet("/apoios/tipos", false, "filtro ativo aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarFamilias: nwGet("/apoios/familias", true, "filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
+    apoiarDepositos: nwGet("/apoios/depositos", true, "codEstabel filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
+    apoiarLotes: nwGet("/apoios/lotes", true, "codEstabel estabelDe estabelAte item itemDe itemAte depositoDe depositoAte filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
+    apoiarDocumentosEntrada: nwGet("/apoios/documentos-entrada", true, "codEstabel estabelDe estabelAte filtro somenteComEmbalagens aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     consultarBags: nwGet("/bags", true, "idBag codEstabel filtroLacre codTipo situacao inicio fim aposId limite", "", "proximoId", "aposId", 20),
     consultarConteudoBag: nwGet("/conteudo-bag", true, "idBag aposId limite", "idBag", "proximoId", "aposId", 20),
     obterDadosImpressao: nwGet("/dados-impressao", true, "idEtiqueta", "idEtiqueta", "proximoId", "", 0),
@@ -113,8 +120,13 @@ function createDataset(fields, constraints, sortFields) {
             var query = ["usuario=" + encodeURIComponent(usuario)];
             if (regra.estabel) for (i = 0; i < permitidos.length; i++)
                 query.push("estabelecimentoPermitido=" + encodeURIComponent(permitidos[i]));
-            for (var nome in parametros) if (nwTem(parametros, nome))
-                query.push(encodeURIComponent(nome) + "=" + encodeURIComponent(String(parametros[nome])));
+            for (var nome in parametros) if (nwTem(parametros, nome)) {
+                // DT120: documento e repetido na query; nunca converter a lista para texto com virgulas.
+                if (regra.rota === "/etiquetas" && nome === "documento") {
+                    for (var d = 0; d < parametros.documento.length; d++)
+                        query.push("documento=" + encodeURIComponent(parametros.documento[d]));
+                } else query.push(encodeURIComponent(nome) + "=" + encodeURIComponent(String(parametros[nome])));
+            }
             req.endpoint += "?" + query.join("&");
         } else {
             parametros.usuario = usuario;
@@ -188,6 +200,12 @@ function nwParametros(texto, regra) {
         if (nwIndice(regra.campos, nome) < 0) nwFalhar("CAMPO_NAO_PERMITIDO", "Campo nao permitido para esta acao.");
         var v = p[nome];
         if (nome === "selecao") { nwSelecao(v); continue; }
+        if (regra.rota === "/etiquetas" && nome === "documento") { p[nome] = nwDocumentosManutencao(v); continue; }
+        // Cursor fiscal opaco: preservar integralmente, limitado pelo envelope maxEntrada.
+        if (regra.rota === "/apoios/documentos-entrada" && nome === "aposCodigo") {
+            if (typeof v !== "string" || /[\x00-\x1f]/.test(v)) nwFalhar("PARAMETROS_INVALIDOS", "Cursor de documento invalido.");
+            continue;
+        }
         if (v === null || (typeof v !== "string" && typeof v !== "number" && typeof v !== "boolean"))
             nwFalhar("PARAMETROS_INVALIDOS", "Tipo de parametro invalido.");
         if (typeof v === "string" && (v.length > (nome === "chaveIdempotente" ? 200 : 100) || /[\x00-\x1f]/.test(v)))
@@ -223,7 +241,32 @@ function nwParametros(texto, regra) {
             if (!p[origem]) nwFalhar("PARAMETRO_OBRIGATORIO", "Informe a identidade completa da origem.");
         }
     }
+    if (regra.rota === "/etiquetas") nwValidarNotasManutencao(p);
     return p;
+}
+
+// DT120: aceita uma identidade textual ou lista de ate20 identidades retornadas pelo apoio.
+// A estrutura fiscal, a existencia e a autorizacao do documento sao conferidas pelo backend.
+function nwDocumentosManutencao(valor) {
+    var lista = typeof valor === "string" ? [valor] : valor;
+    if (!nwArray(lista) || lista.length < 1 || lista.length > 20)
+        nwFalhar("PARAMETROS_INVALIDOS", "Informe de um a vinte documentos de entrada.");
+    for (var i = 0; i < lista.length; i++) {
+        if (typeof lista[i] !== "string" || !lista[i].replace(/^\s+|\s+$/g, "") || /[\x00-\x1f]/.test(lista[i]))
+            nwFalhar("PARAMETROS_INVALIDOS", "Identidade de documento invalida.");
+    }
+    return lista;
+}
+
+function nwValidarNotasManutencao(p) {
+    if (nwTem(p, "modoNotas") && p.modoNotas !== "INTERVALO" && p.modoNotas !== "ESPECIFICAS")
+        nwFalhar("FILTRO_INVALIDO", "modoNotas deve ser INTERVALO ou ESPECIFICAS.");
+    if (p.modoNotas === "ESPECIFICAS") {
+        if (!nwTem(p, "documento") || p.notaDe || p.notaAte)
+            nwFalhar("FILTRO_INVALIDO", "Selecione documentos sem misturar intervalo de notas.");
+    } else if (nwTem(p, "documento")) {
+        nwFalhar("FILTRO_INVALIDO", "Documentos selecionados exigem modoNotas ESPECIFICAS.");
+    }
 }
 
 // Mantem o cursor da pagina original (a proxima pagina continua de onde a API parou); so as linhas e o total mudam.

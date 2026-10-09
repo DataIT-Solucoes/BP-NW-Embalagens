@@ -88,6 +88,7 @@ function montarConsultaTabela(h, codigo = '') {
     const avisos = [], botao = { prop() { return this; } };
     const input = {
         val: () => filtro.valor,
+        prop: () => false,
         on(eventos, handler) { for (const nome of eventos.split(' ')) (filtro.handlers[nome] ||= []).push(handler); return this; }
     };
     filtro.emitir = (evento, item) => { for (const fn of filtro.handlers[evento] || []) fn({ item }); };
@@ -101,7 +102,7 @@ function montarConsultaTabela(h, codigo = '') {
         throw new Error('Seletor inesperado: ' + seletor);
     };
     Object.assign($, $original); h.web.$ = $;
-    const dados = { linhas: [], gravacoes: 0, pagina: 7, alerta: null, autocomplete: null };
+    const dados = { linhas: [], gravacoes: 0, pagina: 7, alerta: null, autocomplete: null, badges: [] };
     h.web.FLUIGC = h.web.window.FLUIGC = {
         autocomplete(target, options) {
             assert.equal(target, input); dados.autocomplete = options;
@@ -118,6 +119,8 @@ function montarConsultaTabela(h, codigo = '') {
     const instancia = Object.assign({}, h.web.cadastroEmbalagens, {
         tabela, consultaSeq: 0, consultasAbertas: [], instanceId: 99,
         tipoSelecionado: codigo ? { codigo, rotulo: filtro.valor } : null,
+        // a badge mexe no DOM; aqui só registra a chamada
+        mostrarSelecionado: item => dados.badges.push(item.codigo),
         avisar: (mensagem, nivel) => avisos.push({ mensagem, nivel })
     });
     return { tela: instancia, tabela, dados, filtro, avisos };
@@ -506,6 +509,7 @@ async function main() {
         s.filtro.emitir('fluig.autocomplete.selected', itens[0]);
         s.filtro.emitir('fluig.autocomplete.selected', itens[1]);
         assert.equal(s.tela.tipoSelecionado.codigo, 'PL'); assert.equal(s.filtro.valor, 'PL — PLASTICO');
+        assert.deepEqual(s.dados.badges, ['CX', 'PL']);
         h.estado.respostas.push(pagina([{ codTipo: 'PL', descricao: 'PLASTICO', ativo: false, versao: 2 }]));
         await s.tela.carregarTipos();
         assert.equal(h.chamadasApi.length, 2);

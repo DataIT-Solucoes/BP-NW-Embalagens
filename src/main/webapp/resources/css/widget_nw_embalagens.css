@@ -253,6 +253,108 @@
     color: var(--embalagens-cor-texto);
 }
 
+/* Badge da escolha no filtro: o campo fica no lugar (mantém borda e ícone), com o texto escondido; a badge fica por cima dele. */
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .embalagens-campo-entrada.is-selecionado,
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .embalagens-campo-entrada.is-selecionado:hover {
+    border-color: var(--embalagens-cor-principal);
+    background-color: #fff !important;
+    color: transparent;
+    cursor: default;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 36px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    min-width: 0;
+    pointer-events: none;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado[hidden] {
+    display: none;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 2px 2px 2px 8px;
+    border: 1px solid var(--embalagens-cor-principal);
+    border-radius: 999px;
+    background-color: var(--embalagens-fundo-hover);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--embalagens-cor-texto);
+    pointer-events: auto;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado-texto {
+    display: flex;
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado-codigo {
+    flex: 0 0 auto;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado-descricao {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado-remover {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 14px;
+    color: var(--embalagens-cor-texto-secundario);
+    cursor: pointer;
+}
+
+/* desfaz o posicionamento da lupa (".embalagens-campo-caixa i"), que pegaria também o ícone do × */
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa .embalagens-selecionado-remover i,
+.fluig-style-guide.cadastro-embalagens .embalagens-campo-caixa:focus-within .embalagens-selecionado-remover i {
+    position: static;
+    transform: none;
+    font-size: inherit;
+    color: inherit;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado-remover:hover {
+    background-color: rgba(0, 107, 53, 0.12);
+    color: var(--embalagens-cor-texto);
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-selecionado-remover:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 107, 53, 0.28);
+}
+
 .fluig-style-guide.cadastro-embalagens .embalagens-filtros-acoes {
     display: flex;
     align-self: start;
