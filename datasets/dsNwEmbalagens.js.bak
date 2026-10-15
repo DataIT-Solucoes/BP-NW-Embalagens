@@ -9,7 +9,7 @@ var NW_CONFIG = {
     base: "/dts/datasul-rest/resources/prg/esp/v1/controle-embalagens",
     // TESTE: comandos habilitados um a um, conforme a tela que os usa for integrada.
     // Aceita false, true (todos) ou a lista de acoes. Nao substitui a permissao por grupo em regras.
-    escritasHabilitadas: ["incluirTipo", "alterarTipo", "incluirParametro", "alterarParametro"],
+    escritasHabilitadas: ["incluirTipo", "alterarTipo", "incluirParametro", "alterarParametro", "criarTransferencia", "criarRemessa", "criarDevolucao"],
     timeoutSegundos: "60",
     maxEntrada: 120000,
     maxResposta: 2000000,
@@ -25,7 +25,9 @@ var NW_CONFIG = {
         // Codigos 10904 e 11301 vistos nas operacoes de TESTE da documentacao; CONFIRMAR a lista real do grupo antes de producao.
         { grupo: "DefaultGroup-1", acoes: ["consultarParametros", "apoiarEstabelecimentos", "apoiarItens", "incluirParametro", "alterarParametro"], estabelecimentos: ["10904", "11301"] },
         // DT120: consultas da manutencao no mesmo contexto TESTE ja configurado acima.
-        { grupo: "DefaultGroup-1", acoes: ["consultarEtiquetas", "apoiarFamilias", "apoiarDepositos", "apoiarLotes", "apoiarDocumentosEntrada"], estabelecimentos: ["10904", "11301"] }
+        { grupo: "DefaultGroup-1", acoes: ["consultarEtiquetas", "apoiarFamilias", "apoiarDepositos", "apoiarLotes", "apoiarDocumentosEntrada"], estabelecimentos: ["10904", "11301"] },
+        // TESTE (08/10/2026): operacoes da manutencao e dados de impressao, autorizados pelo usuario.
+        { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] }
     ]
 };
 
@@ -42,12 +44,12 @@ var NW_ACOES = {
     alterarParametro: nwWrite("patch", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao acao loteMigracao validadeMigracao chaveIdempotente", "idParam codEstabel item codTipo capacidade unidade ativo versao acao chaveIdempotente"),
     consultarEtiquetas: nwGet("/etiquetas", true, "codEstabel codEtiqueta item lote codTipo tipoControle tipoLocal situacao idBag aposId limite estabelDe estabelAte itemDe itemAte depositoDe depositoAte etiquetaDe etiquetaAte loteDe loteAte validadeDe validadeAte familiaDe familiaAte modoNotas notaDe notaAte documento", "", "proximoId", "aposId", 100),
     apoiarEstabelecimentos: nwGet("/apoios/estabelecimentos", true, "filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
-    apoiarItens: nwGet("/apoios/itens", true, "codEstabel filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
+    apoiarItens: nwGet("/apoios/itens", true, "codEstabel filtro tipoControleEstoque aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarTipos: nwGet("/apoios/tipos", false, "filtro ativo aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarFamilias: nwGet("/apoios/familias", true, "filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarDepositos: nwGet("/apoios/depositos", true, "codEstabel filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarLotes: nwGet("/apoios/lotes", true, "codEstabel estabelDe estabelAte item itemDe itemAte depositoDe depositoAte filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
-    apoiarDocumentosEntrada: nwGet("/apoios/documentos-entrada", true, "codEstabel estabelDe estabelAte filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
+    apoiarDocumentosEntrada: nwGet("/apoios/documentos-entrada", true, "codEstabel estabelDe estabelAte filtro somenteComEmbalagens aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     consultarBags: nwGet("/bags", true, "idBag codEstabel filtroLacre codTipo situacao inicio fim aposId limite", "", "proximoId", "aposId", 20),
     consultarConteudoBag: nwGet("/conteudo-bag", true, "idBag aposId limite", "idBag", "proximoId", "aposId", 20),
     obterDadosImpressao: nwGet("/dados-impressao", true, "idEtiqueta", "idEtiqueta", "proximoId", "", 0),
