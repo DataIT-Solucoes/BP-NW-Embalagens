@@ -27,7 +27,7 @@ var NW_CONFIG = {
         // DT120: consultas da manutencao no mesmo contexto TESTE ja configurado acima.
         { grupo: "DefaultGroup-1", acoes: ["consultarEtiquetas", "apoiarFamilias", "apoiarDepositos", "apoiarLotes", "apoiarDocumentosEntrada"], estabelecimentos: ["10904", "11301"] },
         // TESTE (08/10/2026): operacoes da manutencao e dados de impressao, autorizados pelo usuario.
-        { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "consultarSituacaoEtiqueta", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] }
+        { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "consultarSituacaoEtiqueta", "consultarBags", "consultarConteudoBag", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] }
     ]
 };
 

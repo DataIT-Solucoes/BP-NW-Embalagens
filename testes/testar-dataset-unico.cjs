@@ -211,7 +211,7 @@ test('projeto: configuracao existente preservada e consultas DT120 no mesmo cont
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[2].acoes),['consultarEtiquetas','apoiarFamilias','apoiarDepositos','apoiarLotes','apoiarDocumentosEntrada']);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[2].estabelecimentos),['10904','11301']);
     assert.equal(ctx.NW_CONFIG.regras[3].grupo,'DefaultGroup-1');
-    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[3].acoes),['classificarNatureza','consultarEmbalagensOrigem','consultarResultadoOperacao','obterDadosImpressao','consultarSituacaoEtiqueta','criarTransferencia','criarRemessa','criarDevolucao']);
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[3].acoes),['classificarNatureza','consultarEmbalagensOrigem','consultarResultadoOperacao','obterDadosImpressao','consultarSituacaoEtiqueta','consultarBags','consultarConteudoBag','criarTransferencia','criarRemessa','criarDevolucao']);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[3].estabelecimentos),['10904','11301']);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.escritasHabilitadas),['incluirTipo','alterarTipo','incluirParametro','alterarParametro','criarTransferencia','criarRemessa','criarDevolucao']);
     assert.equal(ctx.NW_CONFIG.serviceCode,'DATASUL_REST_HOMOLOG');
