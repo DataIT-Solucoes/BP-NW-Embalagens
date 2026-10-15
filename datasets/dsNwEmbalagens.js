@@ -27,7 +27,7 @@ var NW_CONFIG = {
         // DT120: consultas da manutencao no mesmo contexto TESTE ja configurado acima.
         { grupo: "DefaultGroup-1", acoes: ["consultarEtiquetas", "apoiarFamilias", "apoiarDepositos", "apoiarLotes", "apoiarDocumentosEntrada"], estabelecimentos: ["10904", "11301"] },
         // TESTE (08/10/2026): operacoes da manutencao e dados de impressao, autorizados pelo usuario.
-        { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] }
+        { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "consultarSituacaoEtiqueta", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] }
     ]
 };
 
@@ -43,6 +43,8 @@ var NW_ACOES = {
     incluirParametro: nwWrite("post", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao loteMigracao validadeMigracao chaveIdempotente", "codEstabel item codTipo capacidade unidade ativo chaveIdempotente"),
     alterarParametro: nwWrite("patch", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao acao loteMigracao validadeMigracao chaveIdempotente", "idParam codEstabel item codTipo capacidade unidade ativo versao acao chaveIdempotente"),
     consultarEtiquetas: nwGet("/etiquetas", true, "codEstabel codEtiqueta item lote codTipo tipoControle tipoLocal situacao idBag aposId limite estabelDe estabelAte itemDe itemAte depositoDe depositoAte etiquetaDe etiquetaAte loteDe loteAte validadeDe validadeAte familiaDe familiaAte modoNotas notaDe notaAte documento", "", "proximoId", "aposId", 100),
+    // DT121: situacao operacional de uma etiqueta; somente leitura, sem paginacao.
+    consultarSituacaoEtiqueta: nwGet("/etiquetas/situacao", true, "codEstabel idEtiqueta", "codEstabel idEtiqueta", "", "", 0),
     apoiarEstabelecimentos: nwGet("/apoios/estabelecimentos", true, "filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarItens: nwGet("/apoios/itens", true, "codEstabel filtro tipoControleEstoque aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarTipos: nwGet("/apoios/tipos", false, "filtro ativo aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),

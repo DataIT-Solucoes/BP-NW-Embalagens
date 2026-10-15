@@ -51,7 +51,7 @@ test('acoes cobrem o contrato REST e preservam alias apoiarTipos',()=>{
     const native = [
         'get /tipos', 'post /tipos', 'patch /tipos',
         'get /parametros', 'post /parametros', 'patch /parametros',
-        'get /etiquetas', 'get /apoios/estabelecimentos', 'get /apoios/itens',
+        'get /etiquetas', 'get /etiquetas/situacao', 'get /apoios/estabelecimentos', 'get /apoios/itens',
         'get /apoios/depositos', 'get /apoios/lotes', 'get /apoios/documentos-entrada',
         'get /apoios/tipos', 'get /apoios/familias', 'get /bags',
         'get /conteudo-bag', 'get /dados-impressao', 'get /geracoes',
@@ -60,7 +60,7 @@ test('acoes cobrem o contrato REST e preservam alias apoiarTipos',()=>{
         'get /operacoes/eventos', 'post /operacoes/transferencias',
         'post /operacoes/remessas', 'post /operacoes/devolucoes'
     ].sort();
-    assert.equal(Object.keys(h.context.NW_ACOES).length,28);
+    assert.equal(Object.keys(h.context.NW_ACOES).length,29);
     assert.deepEqual(JSON.parse(JSON.stringify(h.context.NW_ACOES.consultarTiposApoio)), JSON.parse(JSON.stringify(h.context.NW_ACOES.apoiarTipos)));
     assert.deepEqual(Object.entries(h.context.NW_ACOES).filter(([nome]) => nome !== 'apoiarTipos').map(([, a])=>a.metodo+' '+a.rota).sort(),native);
 });
@@ -130,6 +130,15 @@ test('geracoes preserva geracao/itens/etiquetas em vez de presumir dados',()=>{
 test('natureza preserva classificacao na colecao dados sem exigir limite',()=>{
     const h=setup(page([{natureza:'NAT',codEstabel:'ORIGEM',fluxo:'TRANSFERENCIA',ramoPadrao:'DIRETO',exigeOrigem:false,editaQuantidade:false,editaPreco:true}],false,'',true));
     assert.equal(h.run('classificarNatureza',{codEstabel:'ORIGEM',natureza:'NAT'}).result.dados[0].ramoPadrao,'DIRETO');
+});
+test('situacao da etiqueta (DT121): GET com estabelecimento e etiqueta obrigatorios, sem limite',()=>{
+    let h=setup({sucesso:true,codigoErro:'',mensagem:'',idEtiqueta:'121',situacaoApresentada:'EM_ESTOQUE',versao:8});
+    const r=h.run('consultarSituacaoEtiqueta',{codEstabel:'ORIGEM',idEtiqueta:'121'});
+    assert.equal(r.result.sucesso,true);assert.equal(h.calls.length,1);assert.equal(h.calls[0].method,'get');
+    assert.match(h.calls[0].endpoint,/\/etiquetas\/situacao\?/);assert.match(h.calls[0].endpoint,/codEstabel=ORIGEM/);
+    assert.match(h.calls[0].endpoint,/idEtiqueta=121/);assert.doesNotMatch(h.calls[0].endpoint,/limite=/);
+    h=setup();assert.equal(h.run('consultarSituacaoEtiqueta',{codEstabel:'ORIGEM'}).result.codigoErro,'PARAMETRO_OBRIGATORIO');assert.equal(h.calls.length,0);
+    h=setup();assert.equal(h.run('consultarSituacaoEtiqueta',{codEstabel:'OUTRO',idEtiqueta:'121'}).result.codigoErro,'SEM_PERMISSAO');assert.equal(h.calls.length,0);
 });
 test('temMais sem cursor, cursor repetido/regressivo e total divergente recusados',()=>{
     const cases=[page([{idOperacao:'20'}],true,''),page([{idOperacao:'20'}],true,'10'),page([{idOperacao:'20'}],true,'9'),{...page([]),total:3}];
