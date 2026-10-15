@@ -98,13 +98,6 @@ function createDataset(fields, constraints, sortFields) {
         var regra = NW_ACOES[acao];
         escrita = regra.metodo !== "get";
         var parametros = nwParametros(entrada.parametros, regra);
-        // codTipo (consultarParametros): a procedure Progress nao filtra por tipo; o filtro e aplicado aqui, sobre a resposta, e nao vai na query.
-        var codTipoFiltro = "";
-        if (acao === "consultarParametros" && nwTem(parametros, "codTipo")) {
-            codTipoFiltro = parametros.codTipo.replace(/^\s+|\s+$/g, "");
-            if (!/^[A-Za-z0-9_-]{1,10}$/.test(codTipoFiltro)) nwFalhar("PARAMETROS_INVALIDOS", "codTipo invalido.");
-            delete parametros.codTipo;
-        }
         var usuario = nwSessao("WKUser"), empresa = nwSessao("WKCompany");
         if (!usuario || !empresa) nwFalhar("CONTEXTO_INVALIDO", "Nao foi possivel identificar a sessao Fluig.");
         var permitidos = nwAutorizar(usuario, empresa, acao, regra.estabel);
@@ -152,7 +145,6 @@ function createDataset(fields, constraints, sortFields) {
         try { resultado = JSON.parse(corpo); }
         catch (eJson) { nwFalhar("RESPOSTA_INVALIDA", "A API nao retornou JSON valido."); }
         nwValidarResposta(resultado, regra, parametros);
-        if (codTipoFiltro && resultado.sucesso) nwFiltrarPorTipo(resultado, codTipoFiltro);
         confirmouResultado = true;
         if (!resultado.sucesso) {
             var codigo = /^[A-Z0-9_]{1,100}$/.test(resultado.codigoErro || "") ? resultado.codigoErro : "RECUSA_API";
@@ -269,15 +261,6 @@ function nwValidarNotasManutencao(p) {
     } else if (nwTem(p, "documento")) {
         nwFalhar("FILTRO_INVALIDO", "Documentos selecionados exigem modoNotas ESPECIFICAS.");
     }
-}
-
-// Mantem o cursor da pagina original (a proxima pagina continua de onde a API parou); so as linhas e o total mudam.
-function nwFiltrarPorTipo(r, codTipo) {
-    var mantidas = [];
-    for (var i = 0; nwArray(r.dados) && i < r.dados.length; i++)
-        if (nwObjeto(r.dados[i]) && nwTexto(r.dados[i].codTipo).replace(/^\s+|\s+$/g, "") === codTipo) mantidas.push(r.dados[i]);
-    r.dados = mantidas;
-    r.total = mantidas.length;
 }
 
 function nwSelecao(lista) {

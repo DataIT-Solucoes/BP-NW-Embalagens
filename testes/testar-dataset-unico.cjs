@@ -131,6 +131,11 @@ test('natureza preserva classificacao na colecao dados sem exigir limite',()=>{
     const h=setup(page([{natureza:'NAT',codEstabel:'ORIGEM',fluxo:'TRANSFERENCIA',ramoPadrao:'DIRETO',exigeOrigem:false,editaQuantidade:false,editaPreco:true}],false,'',true));
     assert.equal(h.run('classificarNatureza',{codEstabel:'ORIGEM',natureza:'NAT'}).result.dados[0].ramoPadrao,'DIRETO');
 });
+test('parametros: codTipo vai na query e a pagina da API volta sem filtro local (DT118)',()=>{
+    const h=setup(page([{idParam:'53',codTipo:'PL'},{idParam:'54',codTipo:'PL'}],true,'54'));
+    const r=h.run('consultarParametros',{codTipo:'PL',limite:2});
+    assert.match(h.calls[0].endpoint,/codTipo=PL/);assert.equal(r.result.total,2);assert.equal(r.result.dados.length,2);assert.equal(r.result.temMais,true);
+});
 test('situacao da etiqueta (DT121): GET com estabelecimento e etiqueta obrigatorios, sem limite',()=>{
     let h=setup({sucesso:true,codigoErro:'',mensagem:'',idEtiqueta:'121',situacaoApresentada:'EM_ESTOQUE',versao:8});
     const r=h.run('consultarSituacaoEtiqueta',{codEstabel:'ORIGEM',idEtiqueta:'121'});
@@ -197,7 +202,7 @@ test('resposta com campos sensiveis e profundidade excessiva e recusada',()=>{
 // --- Configuracao TESTE do projeto ---
 test('projeto: configuracao existente preservada e consultas DT120 no mesmo contexto TESTE',()=>{
     const ctx={};vm.createContext(ctx);vm.runInContext(source,ctx);
-    assert.equal(ctx.NW_CONFIG.regras.length,3);assert.equal(ctx.NW_CONFIG.regras[0].grupo,'DefaultGroup-1');
+    assert.equal(ctx.NW_CONFIG.regras.length,4);assert.equal(ctx.NW_CONFIG.regras[0].grupo,'DefaultGroup-1');
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].acoes),['consultarTipos','consultarTiposApoio','incluirTipo','alterarTipo']);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].estabelecimentos),[]);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[1].acoes),['consultarParametros','apoiarEstabelecimentos','apoiarItens','incluirParametro','alterarParametro']);
@@ -205,12 +210,17 @@ test('projeto: configuracao existente preservada e consultas DT120 no mesmo cont
     assert.equal(ctx.NW_CONFIG.regras[2].grupo,'DefaultGroup-1');
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[2].acoes),['consultarEtiquetas','apoiarFamilias','apoiarDepositos','apoiarLotes','apoiarDocumentosEntrada']);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[2].estabelecimentos),['10904','11301']);
-    assert.deepEqual(Array.from(ctx.NW_CONFIG.escritasHabilitadas),['incluirTipo','alterarTipo','incluirParametro','alterarParametro']);
+    assert.equal(ctx.NW_CONFIG.regras[3].grupo,'DefaultGroup-1');
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[3].acoes),['classificarNatureza','consultarEmbalagensOrigem','consultarResultadoOperacao','obterDadosImpressao','consultarSituacaoEtiqueta','criarTransferencia','criarRemessa','criarDevolucao']);
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[3].estabelecimentos),['10904','11301']);
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.escritasHabilitadas),['incluirTipo','alterarTipo','incluirParametro','alterarParametro','criarTransferencia','criarRemessa','criarDevolucao']);
     assert.equal(ctx.NW_CONFIG.serviceCode,'DATASUL_REST_HOMOLOG');
 });
 test('projeto: comando fora da lista habilitada nega sem chamar REST, mesmo com grupo autorizado',()=>{
     for(const [acao,p] of [['criarTransferencia',command]]) {
-        const h=setup();assert.equal(h.run(acao,p).result.codigoErro,'ESCRITA_DESABILITADA');assert.equal(h.calls.length,0);
+        // Todos os comandos atuais estao habilitados no TESTE; a lista reduzida aqui prova que ela e respeitada.
+        const h=setup();h.context.NW_CONFIG.escritasHabilitadas=['incluirTipo','alterarTipo','incluirParametro','alterarParametro'];
+        assert.equal(h.run(acao,p).result.codigoErro,'ESCRITA_DESABILITADA');assert.equal(h.calls.length,0);
     }
     const h=setup({sucesso:true,codigoErro:'',mensagem:'',repeticao:false,codTipo:'PL',descricao:'PLASTICO',ativo:true,versao:1,idEvento:'1'});
     assert.equal(h.run('incluirTipo',{codTipo:'PL',descricao:'PLASTICO',ativo:true,versao:0,chaveIdempotente:'k'}).result.sucesso,true);assert.equal(h.calls.length,1);
