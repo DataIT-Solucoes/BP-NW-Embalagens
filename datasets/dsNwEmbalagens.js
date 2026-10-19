@@ -1,7 +1,8 @@
 /** DT-116: modelo ES5 para publicar como dsNwEmbalagens.
  * Entrada: constraints acao e parametros (objeto JSON textual).
  * Saida: UMA linha; resultadoJson contem o envelope funcional da API.
- * Configurar regras reais abaixo antes de publicar. Nao alterar o Dataset de tipos.
+ * Base GitHub main fea8e1a78d0fbb34227f5d1b44fbb1390045b933; fechamento local das 42 rotas.
+ * Configuracao TESTE recebida preservada. Nao alterar o Dataset de tipos.
  * Sem sincronizacao, credenciais, URL livre ou repeticao automatica de comandos.
  */
 var NW_CONFIG = {
@@ -9,7 +10,9 @@ var NW_CONFIG = {
     base: "/dts/datasul-rest/resources/prg/esp/v1/controle-embalagens",
     // TESTE: comandos habilitados um a um, conforme a tela que os usa for integrada.
     // Aceita false, true (todos) ou a lista de acoes. Nao substitui a permissao por grupo em regras.
-    escritasHabilitadas: ["incluirTipo", "alterarTipo", "incluirParametro", "alterarParametro", "criarTransferencia", "criarRemessa", "criarDevolucao"],
+    escritasHabilitadas: ["incluirTipo", "alterarTipo", "incluirParametro", "alterarParametro", "criarTransferencia", "criarRemessa", "criarDevolucao",
+        "confirmarEtiqueta", "estornarEtiqueta", "inutilizarEtiqueta", "registrarPerdaExtravio",
+        "abrirBag", "alterarBag", "comandarConteudoBag", "executarEventoBag"],
     timeoutSegundos: "60",
     maxEntrada: 120000,
     maxResposta: 2000000,
@@ -27,7 +30,12 @@ var NW_CONFIG = {
         // DT120: consultas da manutencao no mesmo contexto TESTE ja configurado acima.
         { grupo: "DefaultGroup-1", acoes: ["consultarEtiquetas", "apoiarFamilias", "apoiarDepositos", "apoiarLotes", "apoiarDocumentosEntrada"], estabelecimentos: ["10904", "11301"] },
         // TESTE (08/10/2026): operacoes da manutencao e dados de impressao, autorizados pelo usuario.
-        { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "consultarSituacaoEtiqueta", "consultarBags", "consultarConteudoBag", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] }
+        { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "consultarSituacaoEtiqueta", "consultarBags", "consultarConteudoBag", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] },
+        // Fechamento local: mesmas permissoes TESTE; nao usar esta politica em producao sem revisao.
+        { grupo: "DefaultGroup-1", acoes: ["apoiarTipos", "consultarGeracao", "consultarOperacoes", "consultarItensOperacao", "consultarEventosOperacao",
+            "confirmarEtiqueta", "estornarEtiqueta", "inutilizarEtiqueta", "registrarPerdaExtravio", "consultarHistoricoEtiqueta",
+            "abrirBag", "alterarBag", "comandarConteudoBag", "executarEventoBag", "consultarElegiveisBag", "consultarHistoricoBag",
+            "consultarRecebimentos", "consultarItensRecebimento", "consultarEmbalagensRecebimento"], estabelecimentos: ["10904", "11301"] }
     ]
 };
 
@@ -64,7 +72,22 @@ var NW_ACOES = {
     consultarEventosOperacao: nwGet("/operacoes/eventos", true, "codEstabel idOperacao aposId limite", "codEstabel idOperacao", "proximoId", "aposId", 100),
     criarTransferencia: nwWrite("post", "/operacoes/transferencias", true, "codEstabel codEstabelDestino emitenteDestino natureza serie valorItem chaveIdempotente selecao", "codEstabel codEstabelDestino natureza serie valorItem chaveIdempotente selecao"),
     criarRemessa: nwWrite("post", "/operacoes/remessas", true, "codEstabel codEstabelDestino emitenteDestino natureza serie valorItem chaveIdempotente selecao", "codEstabel natureza serie valorItem chaveIdempotente selecao"),
-    criarDevolucao: nwWrite("post", "/operacoes/devolucoes", true, "codEstabel natureza serie emitenteOrigem serieOrigem numeroOrigem naturezaOrigem chaveIdempotente selecao", "codEstabel natureza serie emitenteOrigem serieOrigem numeroOrigem naturezaOrigem chaveIdempotente selecao")
+    criarDevolucao: nwWrite("post", "/operacoes/devolucoes", true, "codEstabel natureza serie emitenteOrigem serieOrigem numeroOrigem naturezaOrigem chaveIdempotente selecao", "codEstabel natureza serie emitenteOrigem serieOrigem numeroOrigem naturezaOrigem chaveIdempotente selecao"),
+    confirmarEtiqueta: nwWrite("post", "/etiquetas/confirmacoes", true, "codEstabel idEtiqueta versao acao justificativa chaveIdempotente", "codEstabel idEtiqueta versao acao chaveIdempotente"),
+    estornarEtiqueta: nwWrite("post", "/etiquetas/estorno", true, "codEstabel idEtiqueta versao quantidadeAtual justificativa chaveIdempotente", "codEstabel idEtiqueta versao quantidadeAtual justificativa chaveIdempotente"),
+    inutilizarEtiqueta: nwWrite("post", "/etiquetas/inutilizacao", true, "codEstabel idEtiqueta versao acao justificativa chaveIdempotente", "codEstabel idEtiqueta versao acao justificativa chaveIdempotente"),
+    registrarPerdaExtravio: nwWrite("post", "/etiquetas/perda-extravio", true, "codEstabel idEtiqueta versao acao justificativa chaveIdempotente", "codEstabel idEtiqueta versao acao justificativa chaveIdempotente"),
+    consultarHistoricoEtiqueta: nwGet("/etiquetas/historico", true, "codEstabel idEtiqueta aposRegistro limite", "codEstabel idEtiqueta", "proximoRegistro", "aposRegistro", 100),
+    abrirBag: nwWrite("post", "/bags", true, "codEstabel codTipo destino motorista justificativa chaveIdempotente", "codEstabel codTipo chaveIdempotente"),
+    alterarBag: nwWrite("patch", "/bags", true, "codEstabel idBag versao acao destino motorista nroLacre justificativa chaveIdempotente", "codEstabel idBag versao chaveIdempotente"),
+    comandarConteudoBag: nwWrite("post", "/bags/conteudo", true, "codEstabel idBag versao acao etiquetas justificativa chaveIdempotente", "codEstabel idBag versao acao etiquetas chaveIdempotente"),
+    executarEventoBag: nwWrite("post", "/bags/eventos", true, "codEstabel idBag versao acao nroLacre destino motorista justificativa chaveIdempotente", "codEstabel idBag versao acao chaveIdempotente"),
+    consultarElegiveisBag: nwGet("/bags/elegiveis", true, "idBag aposId limite", "idBag", "proximoId", "aposId", 20),
+    consultarHistoricoBag: nwGet("/bags/historico", true, "idBag aposId limite", "idBag", "proximoId", "aposId", 20),
+    consultarRecebimentos: nwGet("/recebimentos", true, "codEstabel dataIni dataFim tipoData emitente serie numero natureza item etiqueta atualizado somenteComEmbalagens aposDocumento limite", "codEstabel dataIni dataFim", "proximoDocumento", "aposDocumento", 100),
+    consultarItensRecebimento: nwGet("/recebimentos/itens", true, "codEstabel emitente serie numero natureza idEvento aposSequencia limite", "codEstabel emitente serie numero natureza", "proximaSequencia", "aposSequencia", 100),
+    consultarEmbalagensRecebimento: nwGet("/recebimentos/embalagens", true, "codEstabel emitente serie numero natureza idEvento sequencia aposId limite", "codEstabel emitente serie numero natureza", "proximoId", "aposId", 100)
+
 };
 
 // Nome da consulta de apoio usado pelo autocomplete; preserva a acao apoiarTipos.
@@ -190,6 +213,7 @@ function nwParametros(texto, regra) {
     var p;
     try { p = JSON.parse(texto); } catch (e) { nwFalhar("PARAMETROS_INVALIDOS", "parametros deve conter um objeto JSON valido."); }
     if (!nwObjeto(p)) nwFalhar("PARAMETROS_INVALIDOS", "parametros deve ser um objeto JSON.");
+    if (nwAcaoComplementada(regra)) return nwParametrosComplementados(p, regra);
     for (var nome in p) if (nwTem(p, nome)) {
         if (nwIndice(regra.campos, nome) < 0) nwFalhar("CAMPO_NAO_PERMITIDO", "Campo nao permitido para esta acao.");
         var v = p[nome];
@@ -236,6 +260,118 @@ function nwParametros(texto, regra) {
         }
     }
     if (regra.rota === "/etiquetas") nwValidarNotasManutencao(p);
+    return p;
+}
+
+// Contratos complementados a partir dos fontes fisicos ABL; os 28 anteriores permanecem intactos.
+function nwAcaoComplementada(r) {
+    return nwIndice(["/etiquetas/confirmacoes", "/etiquetas/estorno", "/etiquetas/inutilizacao",
+        "/etiquetas/perda-extravio", "/etiquetas/historico", "/bags/conteudo", "/bags/eventos",
+        "/bags/elegiveis", "/bags/historico", "/recebimentos", "/recebimentos/itens", "/recebimentos/embalagens"], r.rota) >= 0 ||
+        (r.rota === "/bags" && r.metodo !== "get");
+}
+function nwTextoPreenchido(p, nome) {
+    return nwTem(p, nome) && typeof p[nome] === "string" && p[nome].replace(/^\s+|\s+$/g, "") !== "";
+}
+function nwExigirCampos(p, nomes) {
+    for (var i = 0; i < nomes.length; i++) {
+        var nome = nomes[i];
+        if (!nwTem(p, nome) || (typeof p[nome] === "string" && !nwTextoPreenchido(p, nome)))
+            nwFalhar("PARAMETRO_OBRIGATORIO", "Informe " + nome + ".");
+    }
+}
+function nwVersaoBag(v) {
+    return typeof v === "number" && isFinite(v) && v % 1 === 0 && v > 0 && v <= 2147483647;
+}
+// Bag usa versao JSON numerica e NUNCA recebe quantidade por etiqueta.
+function nwEtiquetasBag(lista) {
+    if (!nwArray(lista) || lista.length < 1 || lista.length > 100)
+        nwFalhar("SELECAO_INVALIDA", "Informe de uma a cem etiquetas de Bag.");
+    var ids = {};
+    for (var i = 0; i < lista.length; i++) {
+        var e = lista[i];
+        if (!nwObjeto(e)) nwFalhar("SELECAO_INVALIDA", "Cada etiqueta deve ser um objeto.");
+        for (var campo in e) if (nwTem(e, campo) && campo !== "idEtiqueta" && campo !== "versao")
+            nwFalhar("SELECAO_INVALIDA", "Bag aceita somente idEtiqueta e versao.");
+        if (!nwIdPositivo(e.idEtiqueta) || !nwVersaoBag(e.versao))
+            nwFalhar("SELECAO_INVALIDA", "Etiqueta deve ser ID textual e versao um inteiro JSON positivo.");
+        if (nwTem(ids, e.idEtiqueta)) nwFalhar("SELECAO_INVALIDA", "Etiqueta repetida.");
+        ids[e.idEtiqueta] = true;
+    }
+}
+function nwParametrosComplementados(p, r) {
+    var leitura = r.metodo === "get", nome, v;
+    for (nome in p) if (nwTem(p, nome)) {
+        if (nwIndice(r.campos, nome) < 0) nwFalhar("CAMPO_NAO_PERMITIDO", "Campo nao permitido para esta acao.");
+        v = p[nome];
+        if (nome === "etiquetas") { nwEtiquetasBag(v); continue; }
+        if (leitura && nome === "limite") {
+            if ((typeof v !== "string" && typeof v !== "number") || !/^[1-9][0-9]*$/.test(String(v)) || Number(v) > r.teto)
+                nwFalhar("LIMITE_INVALIDO", "Limite fora da faixa desta consulta.");
+            continue;
+        }
+        if (!leitura && nome === "versao") {
+            if (!nwVersaoBag(v)) nwFalhar("PARAMETROS_INVALIDOS", "versao deve ser inteiro JSON positivo.");
+            continue;
+        }
+        if (!leitura && nome === "quantidadeAtual") {
+            if (typeof v !== "number" || !isFinite(v) || !isFinite(v * 10000) || v < 0 || Number(v.toFixed(4)) !== v)
+                nwFalhar("PARAMETROS_INVALIDOS", "quantidadeAtual deve ser numero nao negativo com ate quatro casas.");
+            continue;
+        }
+        var maximo = nome === "justificativa" ? 1000 : nome === "destino" ? 80 : nome === "nroLacre" ? 40 :
+            nome === "chaveIdempotente" ? 64 : nome === "aposDocumento" ? NW_CONFIG.maxEntrada : 100;
+        if (typeof v !== "string" || v.length > maximo ||
+            (nome === "justificativa" ? /[\x00-\x08\x0b\x0c\x0e-\x1f]/ : /[\x00-\x1f]/).test(v))
+            nwFalhar("PARAMETROS_INVALIDOS", "Tipo ou tamanho textual invalido: " + nome + ".");
+        if (leitura && nwIndice(["idEtiqueta", "idBag", "idEvento", "emitente", "sequencia", "aposSequencia", "aposId"], nome) >= 0 &&
+            (!/^[0-9]+$/.test(v) || Number(v) > 2147483647 ||
+             ((nome === "idEtiqueta" || nome === "idBag") && Number(v) <= 0)))
+            nwFalhar("PARAMETROS_INVALIDOS", "Identificador/cursor deve ser numero inteiro em texto.");
+        if (!leitura && (nome === "idEtiqueta" || nome === "idBag") && !nwIdPositivo(v))
+            nwFalhar("PARAMETROS_INVALIDOS", "ID deve ser inteiro positivo em texto.");
+        if (!leitura && nome === "chaveIdempotente" && !/^[A-Za-z0-9_-]{1,64}$/.test(v))
+            nwFalhar("PARAMETROS_INVALIDOS", "Chave idempotente invalida.");
+        if (!leitura && nome === "nroLacre" && !nwTextoPreenchido(p, nome))
+            nwFalhar("PARAMETROS_INVALIDOS", "Lacre nao pode ser vazio.");
+    }
+    nwExigirCampos(p, r.obrigatorios);
+    if (leitura) {
+        if (!nwTem(p, "limite")) p.limite = 20;
+        // Cursores fiscais/historicos sao opacos: nao converter, reconstruir ou somar IDs.
+        return p;
+    }
+    if (r.rota === "/etiquetas/confirmacoes") {
+        if (p.acao !== "CONFIRMAR_IMPRESSAO" && p.acao !== "RECEBER_FISICO")
+            nwFalhar("PARAMETROS_INVALIDOS", "Acao de confirmacao invalida.");
+        if (p.acao === "RECEBER_FISICO") nwExigirCampos(p, ["justificativa"]);
+    }
+    if ((r.rota === "/etiquetas/inutilizacao" && p.acao !== "INUTILIZAR") ||
+        (r.rota === "/etiquetas/perda-extravio" && p.acao !== "REGISTRAR_PERDA_EXTRAVIO"))
+        nwFalhar("PARAMETROS_INVALIDOS", "Acao incompativel com a rota.");
+    if (r.rota === "/bags" && r.metodo === "post" && !/^[A-Za-z0-9]{2,3}$/.test(p.codTipo))
+        nwFalhar("PARAMETROS_INVALIDOS", "Tipo de Bag invalido.");
+    if (r.rota === "/bags" && r.metodo === "patch") {
+        if (nwTem(p, "acao") && p.acao !== "EDITAR") nwFalhar("PARAMETROS_INVALIDOS", "Acao de edicao invalida.");
+        if (!nwTem(p, "destino") && !nwTem(p, "motorista") && !nwTem(p, "nroLacre"))
+            nwFalhar("PARAMETRO_OBRIGATORIO", "Informe ao menos um campo para editar.");
+        // Bag aberta/lacrada, troca efetiva de lacre e justificativa sao decididas pelo backend.
+    }
+    if (r.rota === "/bags/conteudo") {
+        if (p.acao !== "INCLUIR" && p.acao !== "RETIRAR") nwFalhar("PARAMETROS_INVALIDOS", "Acao de conteudo invalida.");
+        if (p.acao === "RETIRAR") nwExigirCampos(p, ["justificativa"]);
+    }
+    if (r.rota === "/bags/eventos") {
+        if (nwIndice(["LACRAR", "ENVIAR", "CANCELAR", "REABRIR"], p.acao) < 0)
+            nwFalhar("PARAMETROS_INVALIDOS", "Evento de Bag invalido.");
+        if (p.acao === "LACRAR") nwExigirCampos(p, ["nroLacre"]);
+        if (p.acao === "ENVIAR") nwExigirCampos(p, ["destino", "motorista"]);
+        if (p.acao === "CANCELAR" || p.acao === "REABRIR") {
+            nwExigirCampos(p, ["justificativa"]);
+            if (nwTem(p, "nroLacre") || nwTem(p, "destino") || nwTem(p, "motorista"))
+                nwFalhar("CAMPO_NAO_PERMITIDO", "Cancelamento/reabertura nao alteram metadados.");
+        }
+    }
     return p;
 }
 
