@@ -68,3 +68,12 @@ Fonte consultada somente para leitura: C:/Users/DataIt/Documents/brancoperes2026
 - CSS: container passa a position: relative; .embalagens-carregando-global cobre a widget com inset:0, z-index:50 e fundo translúcido; reutiliza o spinner existente e respeita hidden.
 - npm test: Dataset 46/0, transporte 11/0, tela 31/0 (88 cenários). Os três novos cenários verificam espera pela biblioteca/páginas/renderização, limpeza em falha da biblioteca e em falha da consulta; também verificam o tempo do toast e que buscas posteriores não reativam o overlay inicial.
 - Verificação no Fluig: não confirmada; nenhuma publicação realizada.
+
+## Loading global também ao Buscar — 2026-10-20
+
+- Pedido posterior substituiu a limitação ao carregamento inicial. A descrição da seção anterior corresponde à entrega 3bf6ce3.
+- prepararCarregamentoGlobal cria o overlay uma vez no init. definirCarregamentoTipos agora chama definirCarregamentoGlobal em todas as consultas, ativando hidden/aria-busy/bloqueio do filtro e o toast info. O spinner interno da tabela foi retirado do fluxo de consulta.
+- O fim é determinado pela renderização de todas as páginas (setData/setPage) ou pelo tratamento de erro, preservando as guardas de sequenciaConsulta. Autocomplete e comandos não foram ampliados nesta tarefa.
+- O toast usa timeout 600000 ms e remoção controlada: 100 ms após encerrar, fadeOut de 200 ms. Nova busca cancela a remoção pendente e reutiliza a referência, evitando duplicação/piscadas; após remoção completa, a próxima busca cria um novo aviso.
+- npm test: Dataset 46/0, transporte 11/0, tela 33/0, total 90. Verificados loading na busca após início concluído, erro posterior e reuso/cancelamento do timer em buscas próximas, além dos cenários anteriores de paginação e renderização.
+- Validação visual no Fluig ainda não confirmada; nenhuma publicação realizada.

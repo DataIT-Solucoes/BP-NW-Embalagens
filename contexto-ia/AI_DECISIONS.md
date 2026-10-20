@@ -4,6 +4,7 @@ Somente pedidos e decisões efetivas do usuário. Comportamentos encontrados no 
 
 | Data | Decisão | Origem |
 |---|---|---|
+| 2026-10-20 | Usar loading global e toast info também ao Buscar; retirar o toast quando os dados terminarem de carregar. Substitui a limitação anterior ao carregamento inicial. | Pedido do usuário: aplicar o loading global na busca com o toast info do padrão. |
 | 2026-10-20 | Aplicar o loading global durante o carregamento inicial da widget, usando a referência de bags estudada na tarefa anterior. Substitui a restrição de apenas aprender quanto a esse fluxo inicial. | Pedido: “Quando a página estiver fazendo o carregamento inicial, deve aplicar o carregamento global”. |
 | 2026-10-20 | Estudar na widget_nw_bags o loading global e o toast info para manter o conhecimento no contexto de embalagens; nenhuma aplicação na interface foi solicitada nesta tarefa. | Pedido do usuário nesta sessão, com caminho explícito da widget bags. |
 | 2026-10-20 | SEMPRE fazer commit, push e compilar ao concluir tarefas desta widget. Substitui a exigência anterior de pedido pontual para commit/push e autoriza build; manter apresentação prévia e exclusão de referências e alterações alheias. Publicação no Fluig depende de autorização específica. | Pedido explícito nesta sessão: “SEMPRE: Commit, push e compilar”. |

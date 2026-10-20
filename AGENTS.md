@@ -41,7 +41,7 @@ Tela **Tipos de Embalagens** do Controle de Embalagens (Datasul): consulta, cada
 - Usar jQuery 3.6.3 para DOM, eventos e requisições novos ou alterados. Não incluir novamente jQuery, Bootstrap 3.4.1 ou Style Guide 2.5.0 fornecidos pelo Fluig. Não usar classes Bootstrap 4/5 ou glyphicon.
 - Escopar seletores por this.DOM/instanceId e CSS por .fluig-style-guide.cadastro-embalagens. Preservar paleta Branco Peres e isolamento entre instâncias.
 - Modais atuais são dialog; notificações usam FLUIGC.toast; filtro atual usa FLUIGC.autocomplete. Conferir fontes antes de aplicar resumos antigos.
-- Carregamento inicial usa overlay global restrito à widget e toast info “Carregando...”, do init até a primeira consulta e renderização da tabela terminarem; falhas também liberam o bloqueio. Buscas posteriores mantêm o loading da tabela.
+- Carregamento inicial e Buscar usam overlay global restrito à widget e toast info “Carregando...”, até todas as páginas da consulta e a renderização terminarem. Sucesso ou erro liberam o bloqueio e retiram o toast; buscas próximas reutilizam o aviso enquanto a remoção de 100 ms estiver pendente.
 - Não converter códigos em número; versao de tipos é enviada como número. Sigla é imutável na edição. Limite atual: 3 caracteres; a origem de aprovação da mudança do limite histórico de 2 não foi confirmada.
 - Preservar idempotência: falha incerta exige conferência antes de nova tentativa; não repetir comandos automaticamente nem gerar chave nova para a mesma intenção.
 - Distinguir verificação local de validação no Fluig. Testes simulados não comprovam publicação ou homologação.

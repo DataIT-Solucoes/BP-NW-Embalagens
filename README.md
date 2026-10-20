@@ -54,7 +54,7 @@ O transporte envia filterFields com acao e parametros JSON e recebe uma linha cu
 
 O filtro pede ao menos 2 caracteres para sugerir tipos e permite buscar todos com o campo vazio. O cadastro limita sigla a 3 caracteres e descrição a 100; o código não muda na edição. A tabela usa paginação por cursor e ordenação local dos dados carregados.
 
-Durante o carregamento inicial, um overlay com spinner cobre a widget e o toast info “Carregando...” acompanha a espera. O filtro, Buscar e Novo ficam desabilitados até a biblioteca, todas as páginas da consulta inicial e a renderização da tabela terminarem. Falhas também retiram o bloqueio e exibem o erro. O toast começa a desaparecer 100 ms após o fim, com animação de 200 ms. Buscas posteriores mantêm o loading da tabela.
+Durante o carregamento inicial e ao Buscar, um overlay com spinner cobre a widget e o toast info “Carregando...” acompanha a espera. O filtro, Buscar e Novo ficam desabilitados até todas as páginas da consulta e a renderização da tabela terminarem; no início, também aguarda a biblioteca. Falhas retiram o bloqueio e exibem o erro. O toast começa a desaparecer 100 ms após o fim, com animação de 200 ms; buscas próximas reutilizam o aviso e cancelam a remoção pendente.
 
 Antes de mudar integrações, conferir NW_CONFIG, NW_ACOES e NW_COLUNAS no Dataset atual. Existem regras para DefaultGroup-1 e escritas habilitadas; isso não comprova homologação ou autorização para produção. O Dataset resolve identidade e permissões no servidor.
 
@@ -66,7 +66,7 @@ Com Node.js e npm disponíveis:
 npm test
 ```
 
-Executa testar-dataset-unico.cjs, testar-chamar-embalagens.cjs e testar-tela-tipos.cjs, usando jquery-falso.cjs. São testes simulados, sem Fluig/Datasul reais. Em 2026-10-20 passaram 46 cenários de Dataset, 11 de transporte e 31 de tela, todos sem falhas.
+Executa testar-dataset-unico.cjs, testar-chamar-embalagens.cjs e testar-tela-tipos.cjs, usando jquery-falso.cjs. São testes simulados, sem Fluig/Datasul reais. Em 2026-10-20 passaram 46 cenários de Dataset, 11 de transporte e 33 de tela, todos sem falhas.
 
 Autorização permanente: sempre fazer commit, push e compilar ao concluir tarefas, mostrando antes o conteúdo do commit e preservando alterações alheias e referências.
 

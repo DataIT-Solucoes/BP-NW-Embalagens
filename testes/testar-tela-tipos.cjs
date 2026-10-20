@@ -157,7 +157,8 @@ async function main() {
         Object.assign($, original); h.web.$ = $;
         h.web.document = {};
         h.web.FLUIGC.toast = opcoes => toasts.push(opcoes);
-        h.web.setTimeout = (fn, ms) => { timers.push({ fn, ms }); };
+        h.web.setTimeout = (fn, ms) => { const timer = { fn, ms }; timers.push(timer); return timer; };
+        h.web.clearTimeout = timer => { if (timer) timer.cancelado = true; };
         const biblioteca = $.Deferred();
         Object.assign(s.tela, {
             DOM: dom, prepararAutocompleteTipo() {}, moverIndicador() {},
@@ -168,7 +169,7 @@ async function main() {
         return Object.assign(s, { dom, filtro, toast, botoes, toasts, timers, biblioteca });
     }
 
-    await caso('inicio: loading aguarda biblioteca, todas as paginas e renderizacao; nao reaparece na busca', async () => {
+    await caso('loading global: aguarda biblioteca, paginas e renderizacao; reaparece ao buscar', async () => {
         const h = montar({ regras: REGRA_TIPOS }), s = montarInicio(h);
         s.tela.init();
         assert.equal(s.dom.attrs['aria-busy'], 'true');
@@ -176,13 +177,13 @@ async function main() {
         assert.equal(s.toasts.length, 1); assert.equal(s.toasts[0].type, 'info');
         assert.equal(s.toasts[0].timeout, 600000);
         s.biblioteca.resolve(); await Promise.resolve();
-        assert.equal(s.tela.montou, true); assert.equal(s.tela.carregamentoInicial, true);
+        assert.equal(s.tela.montou, true); assert.equal(s.tela.$carregandoGlobal.props.hidden, false);
         h.estado.respostas.push(pagina([{ codTipo: 'CA', descricao: 'CAIXA', ativo: true, versao: 1 }], true, 'CA'), pagina([]));
         let liberarTabela;
         s.tabela.setPage = () => new Promise(resolve => { liberarTabela = resolve; });
         const consulta = s.tela.carregarTipos();
         while (!liberarTabela) await new Promise(resolve => setImmediate(resolve));
-        assert.equal(h.chamadasApi.length, 2); assert.equal(s.tela.carregamentoInicial, true);
+        assert.equal(h.chamadasApi.length, 2); assert.equal(s.tela.$carregandoGlobal.props.hidden, false);
         assert.equal(s.dados.alerta, null); assert.equal(s.toast.removido, false);
         liberarTabela(); await consulta;
         assert.equal(s.tela.$carregandoGlobal.props.hidden, true);
@@ -191,15 +192,22 @@ async function main() {
         assert.equal(s.timers[0].ms, 100); s.timers[0].fn();
         assert.equal(s.toast.removido, true); assert.equal(s.toast.duracao, 200);
         s.tabela.setPage = () => Promise.resolve(); h.estado.respostas.push(pagina([]));
-        await s.tela.carregarTipos();
-        assert.equal(s.toasts.length, 1); assert.equal(s.tela.carregamentoInicial, false);
+        const busca = s.tela.carregarTipos();
+        assert.equal(s.tela.$carregandoGlobal.props.hidden, false);
+        assert.equal(s.dom.attrs['aria-busy'], 'true'); assert.equal(s.filtro.props.disabled, true);
+        assert.equal(s.botoes.props.disabled, true); assert.equal(s.toasts.length, 2);
+        await busca;
+        assert.equal(s.tela.$carregandoGlobal.props.hidden, true);
+        assert.equal(s.dom.attrs['aria-busy'], 'false'); assert.equal(s.filtro.props.disabled, false);
+        assert.equal(s.botoes.props.disabled, false); assert.equal(s.timers[1].ms, 100);
+        s.timers[1].fn(); assert.equal(s.tela.$avisoCarregamento, null);
     });
 
     await caso('inicio: falha da biblioteca libera overlay, filtro e botoes', async () => {
         const h = montar({ regras: REGRA_TIPOS }), s = montarInicio(h);
         s.tela.init(); s.biblioteca.reject(new Error('CDN indisponivel'));
         await Promise.resolve();
-        assert.equal(s.tela.carregamentoInicial, false);
+        assert.equal(s.tela.carregandoTipos, false);
         assert.equal(s.tela.$carregandoGlobal.props.hidden, true);
         assert.equal(s.dom.attrs['aria-busy'], 'false'); assert.equal(s.filtro.props.disabled, false);
         assert.equal(s.botoes.props.disabled, false); assert.equal(s.timers.length, 1);
@@ -210,10 +218,35 @@ async function main() {
         s.tela.init(); s.biblioteca.resolve(); await Promise.resolve();
         h.estado.falharRede = true;
         await s.tela.carregarTipos();
-        assert.equal(s.tela.carregamentoInicial, false);
+        assert.equal(s.tela.carregandoTipos, false);
         assert.equal(s.tela.$carregandoGlobal.props.hidden, true);
         assert.equal(s.dados.alerta.tipo, 'error'); assert.equal(s.botoes.props.disabled, false);
         assert.equal(s.timers.length, 1);
+    });
+
+    await caso('busca: falha posterior ao inicio libera loading e remove toast info', async () => {
+        const h = montar({ regras: REGRA_TIPOS }), s = montarInicio(h);
+        s.tela.init(); s.biblioteca.resolve(); await Promise.resolve();
+        h.estado.respostas.push(pagina([])); await s.tela.carregarTipos(); s.timers[0].fn();
+        h.estado.falharRede = true;
+        const busca = s.tela.carregarTipos();
+        assert.equal(s.tela.$carregandoGlobal.props.hidden, false); assert.equal(s.toasts.length, 2);
+        await busca;
+        assert.equal(s.tela.$carregandoGlobal.props.hidden, true); assert.equal(s.dom.attrs['aria-busy'], 'false');
+        assert.equal(s.botoes.props.disabled, false); assert.equal(s.dados.alerta.tipo, 'error');
+        s.timers[1].fn(); assert.equal(s.tela.$avisoCarregamento, null);
+    });
+
+    await caso('buscas consecutivas: reutiliza toast e cancela remocao anterior', async () => {
+        const h = montar({ regras: REGRA_TIPOS }), s = montarInicio(h);
+        s.tela.init(); s.biblioteca.resolve(); await Promise.resolve();
+        h.estado.respostas.push(pagina([])); await s.tela.carregarTipos();
+        h.estado.respostas.push(pagina([]));
+        const busca = s.tela.carregarTipos();
+        assert.equal(s.timers[0].cancelado, true); assert.equal(s.toasts.length, 1);
+        assert.equal(s.toast.removido, false); assert.equal(s.tela.$carregandoGlobal.props.hidden, false);
+        await busca;
+        s.timers[1].fn(); assert.equal(s.toast.removido, true); assert.equal(s.tela.$avisoCarregamento, null);
     });
 
     function montarModal(h, sigla, tipo = null, descricao = 'CAIXA') {
