@@ -4,6 +4,7 @@ Somente pedidos e decisões efetivas do usuário. Comportamentos encontrados no 
 
 | Data | Decisão | Origem |
 |---|---|---|
+| 2026-10-20 | Aplicar o loading global durante o carregamento inicial da widget, usando a referência de bags estudada na tarefa anterior. Substitui a restrição de apenas aprender quanto a esse fluxo inicial. | Pedido: “Quando a página estiver fazendo o carregamento inicial, deve aplicar o carregamento global”. |
 | 2026-10-20 | Estudar na widget_nw_bags o loading global e o toast info para manter o conhecimento no contexto de embalagens; nenhuma aplicação na interface foi solicitada nesta tarefa. | Pedido do usuário nesta sessão, com caminho explícito da widget bags. |
 | 2026-10-20 | SEMPRE fazer commit, push e compilar ao concluir tarefas desta widget. Substitui a exigência anterior de pedido pontual para commit/push e autoriza build; manter apresentação prévia e exclusão de referências e alterações alheias. Publicação no Fluig depende de autorização específica. | Pedido explícito nesta sessão: “SEMPRE: Commit, push e compilar”. |
 | 2026-10-20 | Adotar o padrão documental de Documentos: AGENTS.md, README e quatro arquivos em contexto-ia/, sem CLAUDE.md local duplicado. | Pedido nesta sessão: “Em documentos, veja o arquivo PADRAO_CONTEXTO_IA_WIDGETS.md - Siga esse padrão na nossa widget embalagens”. |

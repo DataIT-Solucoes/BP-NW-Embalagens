@@ -58,3 +58,13 @@ Fonte consultada somente para leitura: C:/Users/DataIt/Documents/brancoperes2026
 - JS:2514 e :2745: históricos e Inserir preparam dados com preparandoModal ativo e abrem prontos. Inserir abre temporariamente invisível (is-preparando) para calcular a tabela; finally limpa a classe e o estado e recalcula o loading.
 - Escopo de eventual adaptação: usar classes e this.DOM da widget embalagens, APIs jQuery e seus fluxos reais. Não copiar nomes, regras de negócio ou async/await do bags automaticamente.
 - Verificação desta leitura: inspeção estática dos fontes. Comportamento no Fluig e entre múltiplas widgets/modais simultâneos não confirmado nesta sessão.
+
+## Aplicação no carregamento inicial de embalagens — 2026-10-20
+
+- Pedido posterior autorizou aplicar o padrão ao carregamento inicial. O registro acima de “somente aprender” descreve a tarefa anterior.
+- JS principal: init chama iniciarCarregamentoInicial antes de carregar o Tabulator. Cria overlay por instância com jQuery, role=status, aria-live e texto acessível; marca aria-busy e desabilita o filtro. Buscar/Novo seguem definirCarregamentoTipos.
+- finalizarCarregamentoInicial é chamado ao encerrar definirCarregamentoTipos(false), tanto após consulta/renderização completas como no erro. Esconde o overlay, libera o filtro e aria-busy e remove apenas o toast capturado (info, timeout 600000 ms), após 100 ms e fadeOut de 200 ms.
+- No fluxo inicial não aparece simultaneamente o spinner da tabela; buscas posteriores conservam seu comportamento. Não foi estendido o loading global aos comandos ou modais.
+- CSS: container passa a position: relative; .embalagens-carregando-global cobre a widget com inset:0, z-index:50 e fundo translúcido; reutiliza o spinner existente e respeita hidden.
+- npm test: Dataset 46/0, transporte 11/0, tela 31/0 (88 cenários). Os três novos cenários verificam espera pela biblioteca/páginas/renderização, limpeza em falha da biblioteca e em falha da consulta; também verificam o tempo do toast e que buscas posteriores não reativam o overlay inicial.
+- Verificação no Fluig: não confirmada; nenhuma publicação realizada.

@@ -18,6 +18,7 @@
     --embalagens-cor-borda: #E3E1D8;               /* bordas (derivado do marfim) */
     --embalagens-cor-borda-campo: #D3D1C7;         /* borda dos campos */
 
+    position: relative;
     padding: 28px;
     font-family: "Mulish", "Open Sans", Helvetica, Arial, sans-serif;
     color: var(--embalagens-cor-texto);
@@ -629,6 +630,21 @@
     border-radius: 0;
     padding: 0;
     box-shadow: none;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-carregando-global {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(247, 245, 238, 0.72);
+    cursor: progress;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-carregando-global[hidden] {
+    display: none;
 }
 
 .fluig-style-guide.cadastro-embalagens .embalagens-carregando {

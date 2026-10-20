@@ -130,6 +130,92 @@ async function main() {
     let casos = 0;
     const caso = async (nome, fn) => { await fn(); casos++; console.log('OK ' + nome); };
 
+    function montarInicio(h) {
+        const s = montarConsultaTabela(h), original = h.web.$;
+        function elemento() {
+            return {
+                length: 1, props: {}, attrs: {}, removido: false,
+                prop(k, v) { this.props[k] = v; return this; },
+                attr(k, v) { this.attrs[k] = v; return this; },
+                append() { return this; }, appendTo() { return this; }, text() { return this; },
+                on() { return this; }, last() { return this; }, html() { return this; },
+                stop() { return this; }, fadeOut(ms, fn) { this.duracao = ms; fn(); return this; },
+                remove() { this.removido = true; }
+            };
+        }
+        const dom = elemento(), filtro = elemento(), toast = elemento(), botoes = elemento();
+        const toasts = [], timers = [];
+        const $ = function (seletor, attrs) {
+            if (seletor === dom || seletor === h.web.window) return dom;
+            if (seletor === '[data-filtro-tipo]') return filtro;
+            if (seletor === '[data-buscar], [data-novo]') return botoes;
+            if (seletor === '#toaster .alert') return toast;
+            if (seletor === '.embalagens-abas' || seletor === '[data-tabela]') return elemento();
+            if (seletor === '<div>' || (seletor === '<span>' && attrs)) return elemento();
+            return original(seletor);
+        };
+        Object.assign($, original); h.web.$ = $;
+        h.web.document = {};
+        h.web.FLUIGC.toast = opcoes => toasts.push(opcoes);
+        h.web.setTimeout = (fn, ms) => { timers.push({ fn, ms }); };
+        const biblioteca = $.Deferred();
+        Object.assign(s.tela, {
+            DOM: dom, prepararAutocompleteTipo() {}, moverIndicador() {},
+            prepararModalNovo() {}, prepararModalExcluir() {},
+            carregarTabulator: () => biblioteca.promise(), montarTabela() { this.montou = true; },
+            obterCodigoFiltro: () => ''
+        });
+        return Object.assign(s, { dom, filtro, toast, botoes, toasts, timers, biblioteca });
+    }
+
+    await caso('inicio: loading aguarda biblioteca, todas as paginas e renderizacao; nao reaparece na busca', async () => {
+        const h = montar({ regras: REGRA_TIPOS }), s = montarInicio(h);
+        s.tela.init();
+        assert.equal(s.dom.attrs['aria-busy'], 'true');
+        assert.equal(s.filtro.props.disabled, true); assert.equal(s.botoes.props.disabled, true);
+        assert.equal(s.toasts.length, 1); assert.equal(s.toasts[0].type, 'info');
+        assert.equal(s.toasts[0].timeout, 600000);
+        s.biblioteca.resolve(); await Promise.resolve();
+        assert.equal(s.tela.montou, true); assert.equal(s.tela.carregamentoInicial, true);
+        h.estado.respostas.push(pagina([{ codTipo: 'CA', descricao: 'CAIXA', ativo: true, versao: 1 }], true, 'CA'), pagina([]));
+        let liberarTabela;
+        s.tabela.setPage = () => new Promise(resolve => { liberarTabela = resolve; });
+        const consulta = s.tela.carregarTipos();
+        while (!liberarTabela) await new Promise(resolve => setImmediate(resolve));
+        assert.equal(h.chamadasApi.length, 2); assert.equal(s.tela.carregamentoInicial, true);
+        assert.equal(s.dados.alerta, null); assert.equal(s.toast.removido, false);
+        liberarTabela(); await consulta;
+        assert.equal(s.tela.$carregandoGlobal.props.hidden, true);
+        assert.equal(s.dom.attrs['aria-busy'], 'false'); assert.equal(s.filtro.props.disabled, false);
+        assert.equal(s.botoes.props.disabled, false); assert.equal(s.toast.removido, false);
+        assert.equal(s.timers[0].ms, 100); s.timers[0].fn();
+        assert.equal(s.toast.removido, true); assert.equal(s.toast.duracao, 200);
+        s.tabela.setPage = () => Promise.resolve(); h.estado.respostas.push(pagina([]));
+        await s.tela.carregarTipos();
+        assert.equal(s.toasts.length, 1); assert.equal(s.tela.carregamentoInicial, false);
+    });
+
+    await caso('inicio: falha da biblioteca libera overlay, filtro e botoes', async () => {
+        const h = montar({ regras: REGRA_TIPOS }), s = montarInicio(h);
+        s.tela.init(); s.biblioteca.reject(new Error('CDN indisponivel'));
+        await Promise.resolve();
+        assert.equal(s.tela.carregamentoInicial, false);
+        assert.equal(s.tela.$carregandoGlobal.props.hidden, true);
+        assert.equal(s.dom.attrs['aria-busy'], 'false'); assert.equal(s.filtro.props.disabled, false);
+        assert.equal(s.botoes.props.disabled, false); assert.equal(s.timers.length, 1);
+    });
+
+    await caso('inicio: falha da consulta libera overlay e preserva alerta de erro', async () => {
+        const h = montar({ regras: REGRA_TIPOS }), s = montarInicio(h);
+        s.tela.init(); s.biblioteca.resolve(); await Promise.resolve();
+        h.estado.falharRede = true;
+        await s.tela.carregarTipos();
+        assert.equal(s.tela.carregamentoInicial, false);
+        assert.equal(s.tela.$carregandoGlobal.props.hidden, true);
+        assert.equal(s.dados.alerta.tipo, 'error'); assert.equal(s.botoes.props.disabled, false);
+        assert.equal(s.timers.length, 1);
+    });
+
     function montarModal(h, sigla, tipo = null, descricao = 'CAIXA') {
         const dados = { erros: {}, removidas: 0, linhas: tipo ? [tipo] : [], fechou: false, foco: '', propriedades: {}, textos: {} };
         const valores = { sigla, descricao };

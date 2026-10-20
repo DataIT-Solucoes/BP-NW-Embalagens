@@ -151,6 +151,7 @@ var cadastroEmbalagens = SuperWidget.extend({
         var self = this;
         this.intencoes = {};
         this.consultasAbertas = [];
+        this.iniciarCarregamentoInicial();
         this.definirCarregamentoTipos(true);
         this.prepararAutocompleteTipo();
         this.$tabs = $('.embalagens-abas', this.DOM);
@@ -426,6 +427,35 @@ var cadastroEmbalagens = SuperWidget.extend({
     definirCarregamentoTipos(carregando) {
         this.carregandoTipos = carregando;
         $('[data-buscar], [data-novo]', this.DOM).prop('disabled', carregando);
+        if (!carregando) this.finalizarCarregamentoInicial();
+    },
+
+    iniciarCarregamentoInicial() {
+        this.carregamentoInicial = true;
+        this.$carregandoGlobal = $('<div>', {
+            'class': 'embalagens-carregando-global', role: 'status', 'aria-live': 'polite'
+        }).append($('<span>', { 'class': 'loader', 'aria-hidden': 'true' }))
+            .append($('<span>', { 'class': 'sr-only' }).text('Carregando...'))
+            .appendTo(this.DOM);
+        $(this.DOM).attr('aria-busy', 'true');
+        $('[data-filtro-tipo]', this.DOM).prop('disabled', true);
+        if (window.FLUIGC && FLUIGC.toast) {
+            FLUIGC.toast({ title: '', message: 'Carregando...', type: 'info', timeout: 600000 });
+            this.$avisoCarregamentoInicial = $('#toaster .alert').last();
+        }
+    },
+
+    finalizarCarregamentoInicial() {
+        if (!this.carregamentoInicial) return;
+        this.carregamentoInicial = false;
+        this.$carregandoGlobal.prop('hidden', true);
+        $(this.DOM).attr('aria-busy', 'false');
+        $('[data-filtro-tipo]', this.DOM).prop('disabled', false);
+        var $aviso = this.$avisoCarregamentoInicial;
+        this.$avisoCarregamentoInicial = null;
+        if ($aviso && $aviso.length) setTimeout(function () {
+            $aviso.stop(true).fadeOut(200, function () { $aviso.remove(); });
+        }, 100);
     },
 
     cancelarConsultas() {
@@ -445,7 +475,7 @@ var cadastroEmbalagens = SuperWidget.extend({
 
         this.cancelarConsultas();
         this.definirCarregamentoTipos(true);
-        this.tabela.alert('<div class="embalagens-carregando" role="status" aria-label="Carregando tipos de embalagem"><span class="loader" aria-hidden="true"></span></div>');
+        if (!this.carregamentoInicial) this.tabela.alert('<div class="embalagens-carregando" role="status" aria-label="Carregando tipos de embalagem"><span class="loader" aria-hidden="true"></span></div>');
 
         function exibirTiposCarregados() {
             return self.tabela.setData(tiposCarregados).then(function () {
