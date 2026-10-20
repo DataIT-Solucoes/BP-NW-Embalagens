@@ -40,3 +40,21 @@
 - Build em 2026-10-20 com Python zipfile.ZipFile/ZIP_DEFLATED: src/main/webapp/ na raiz; src/main/resources/ em WEB-INF/classes/. Estrutura igual ao WAR anterior; testzip() sem erro e 12 arquivos iguais aos fontes. Não há fontes Java nesta widget.
 - Artefato: target/widget_nw_embalagens.war; 26415 bytes; SHA-256 9b9a1700e8881ee14b8ba4250d5048961617d4bcacbfdb2ec21e728e5d778eee; ignorado pelo Git.
 - Commit/push/build autorizados permanentemente em 2026-10-20. Publicação no Fluig não realizada.
+
+## Loading global e toast info — referência da widget bags (2026-10-20)
+
+Fonte consultada somente para leitura: C:/Users/DataIt/Documents/brancoperes2026/wcm/widget/widget_nw_bags, HEAD 779c152. JS e CSS sem alterações rastreadas naquele momento; havia apenas debug.log não rastreado. O pedido foi aprender o funcionamento; não autoriza aplicar mudanças na interface de embalagens.
+
+- JS principal: src/main/webapp/resources/js/widget_nw_bags.js; CSS: src/main/webapp/resources/css/widget_nw_bags.css. Linhas abaixo relativas a esses fontes.
+- JS:742–747: cria $carregandoGlobal via jQuery, dentro de this.DOM, inicialmente hidden, com role="status", aria-live="polite", spinner aria-hidden e texto sr-only. Inicia definirCarregando(true); falha ao carregar Tabulator desliga o estado.
+- CSS:26, :957 e :973: container .nwb com position: relative; overlay absoluto inset: 0, z-index: 50, flex centralizado, fundo rgba(247,245,238,0.72), cursor progress; [hidden] recebe display: none. Cobre o widget, não a página inteira, e intercepta cliques. Spinner circular 48×48, borda 5 px branca com trecho na cor principal, rotação contínua de 1 s.
+- JS:1788: definirCarregando altera carregandoTela, desabilita Buscar/Novo e recalcula o overlay. JS:1795: ativo = carregandoTela || comandoEmAndamento || preparandoModal; altera hidden e aria-busy do widget e chama atualizarAvisoCarregando. Não é um contador genérico de requisições AJAX.
+- JS:3173: bloquearComando registra o disabled anterior dos controles, bloqueia-os e depois restaura os estados; atualiza aria-busy dos dialogs e o overlay. O overlay sozinho não substitui bloqueios de controles e guardas de execução.
+- JS:1809: atualizarAvisoCarregando limpa o timer anterior. Quando ativo, cria somente um aviso "Carregando..." com type: "info", timeout: 600000 ms, se não existir aviso genérico nem $avisoCriando. Ao encerrar, aguarda 100 ms, chama removerAviso e zera a referência. O atraso permite reaproveitar o aviso entre operações próximas.
+- JS:1594: avisar(mensagem, tipo, timeout) chama FLUIGC.toast com title vazio e timeout opcional; retorna o último #toaster .alert para remoção antecipada. Sem FLUIGC.toast, retorna jQuery vazio.
+- Ainda em avisar: procura o último dialog[open] desta instância e move o #toaster para dentro dele; o modal nativo está na camada superior do navegador, que z-index não supera. No evento close, devolve o toaster ao body se ele ainda pertencer àquele dialog.
+- JS:1614: removerAviso usa stop(true).fadeOut(200) e depois remove o elemento. A remoção começa 100 ms após o fim no caso do aviso genérico; a animação dura mais 200 ms.
+- JS:2414–2436: na criação, valida com o modal aberto; fecha-o antes do comando e mostra "Criando bag..." (info, 600000 ms). Não cria simultaneamente o toast genérico enquanto $avisoCriando existir. Mantém o aviso até preparar/abrir o Inserir; remove e limpa a referência tanto no sucesso como no catch.
+- JS:2514 e :2745: históricos e Inserir preparam dados com preparandoModal ativo e abrem prontos. Inserir abre temporariamente invisível (is-preparando) para calcular a tabela; finally limpa a classe e o estado e recalcula o loading.
+- Escopo de eventual adaptação: usar classes e this.DOM da widget embalagens, APIs jQuery e seus fluxos reais. Não copiar nomes, regras de negócio ou async/await do bags automaticamente.
+- Verificação desta leitura: inspeção estática dos fontes. Comportamento no Fluig e entre múltiplas widgets/modais simultâneos não confirmado nesta sessão.
