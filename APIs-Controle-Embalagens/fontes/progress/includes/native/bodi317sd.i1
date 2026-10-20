@@ -1,0 +1,49 @@
+/***********************************************************************************
+**
+** BODI317SD.I1 - Defini‡Æo da tabela tempor ria para itens de devolu‡Æo.
+**
+************************************************************************************/
+
+def temp-table tt-itens-devol no-undo
+    field serie-docto       like mgmov.item-doc-est.serie-docto 
+    field cod-emitente      like mgmov.item-doc-est.cod-emitente
+    field nro-docto         like mgmov.item-doc-est.nro-docto   
+    field nat-operacao      like mgmov.item-doc-est.nat-operacao
+    field sequencia         like mgmov.item-doc-est.sequencia
+    field it-codigo         like mgmov.item-doc-est.it-codigo
+    field cod-refer         like mgmov.item-doc-est.cod-refer
+    field desc-nar          like mgcad.item.desc-item
+    field quantidade        like mgmov.item-doc-est.quantidade
+    field preco-total       like mgmov.item-doc-est.preco-total[1]
+    field qt-ja-devolvida   like mgmov.item-doc-est.quantidade
+    field qt-a-devolver     like mgmov.item-doc-est.quantidade
+    field qt-a-devolver-inf like mgmov.item-doc-est.quantidade
+    field selecionado       as log
+    index codigo 
+          serie-docto
+          nro-docto    
+          cod-emitente 
+          nat-operacao 
+          sequencia
+    index selecionado
+          selecionado.
+
+def temp-table tt-it-terc-nf no-undo
+    field rw-saldo-terc     as rowid
+    field sequencia         like mgmov.saldo-terc.sequencia
+    field it-codigo         like mgmov.saldo-terc.it-codigo
+    field cod-refer         like mgmov.saldo-terc.cod-refer
+    field desc-nar          like mgcad.item.desc-item
+    field quantidade        like mgmov.saldo-terc.quantidade
+    field qt-alocada        like mgmov.saldo-terc.quantidade
+    field qt-disponivel     like mgmov.saldo-terc.quantidade
+    field qt-disponivel-inf like mgmov.saldo-terc.quantidade
+    field preco-total       like mgmov.componente.preco-total[1]
+    field preco-total-inf   like mgmov.componente.preco-total[1]
+    field selecionado       as log
+    index codigo 
+          sequencia
+    index selecionado
+          selecionado.
+
+/*  BODI317SD.I1  */

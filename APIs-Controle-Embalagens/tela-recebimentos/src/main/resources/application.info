@@ -1,0 +1,14 @@
+application.type=widget
+application.code=widget_nw_recebimentos
+application.title=Documentos de recebimento
+application.description=Documentos de recebimento - somente consulta
+application.category=SYSTEM
+application.renderer=freemarker
+application.uiwidget=true
+application.mobileapp=false
+application.version=1.0.0
+view.file=view.ftl
+edit.file=edit.ftl
+locale.file.base.name=widget_nw_recebimentos
+application.resource.js.1=/resources/js/widget_nw_recebimentos.js
+application.resource.css.1=/resources/css/widget_nw_recebimentos.css
