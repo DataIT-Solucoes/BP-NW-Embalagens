@@ -7,6 +7,7 @@ Pendências registradas não autorizam execução. Itens herdados de 07/10/2026 
 - Normalização de maiúsculas na sigla: orientação anterior deixava a decisão em aberto; conferir contrato vigente e aprovação antes de alterar.
 
 ## Confirmar no Fluig
+- Conferir visualmente o spinner no lugar do interruptor ao ativar/inativar, inclusive com rede lenta e falha. O ciclo de bloqueio/liberação foi verificado nos testes locais existentes.
 - Conferir visualmente overlay global e toast info no carregamento inicial e ao Buscar, inclusive com rede lenta, erro e buscas consecutivas; fluxos verificados localmente com simulação.
 - Estado atual da publicação do Dataset e do widget. Notas de “não publicado” de 07/10 são históricas; não há verificação atual nesta sessão.
 - Integração real de consulta, autocomplete, cadastro, edição, inativação/reativação e exclusão. A exclusão existe no fonte, mas não foi homologada nesta revisão.

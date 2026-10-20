@@ -954,6 +954,30 @@
     cursor: progress;
 }
 
+/* O comando mantém o espaço da ação e troca o interruptor por um spinner. */
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor[aria-busy="true"] {
+    background-color: transparent;
+    opacity: 1;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor[aria-busy="true"] .embalagens-interruptor-bolinha {
+    visibility: hidden;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-interruptor[aria-busy="true"]::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 11px;
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--embalagens-cor-borda);
+    border-bottom-color: var(--embalagens-cor-principal);
+    border-radius: 50%;
+    animation: embalagens-carregador-girar 1s linear infinite;
+}
+
 /* ---------- Tablet: botões de filtro descem para uma linha própria ---------- */
 @media (max-width: 991px) {
     .fluig-style-guide.cadastro-embalagens .embalagens-filtros {

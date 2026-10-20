@@ -77,3 +77,9 @@ Fonte consultada somente para leitura: C:/Users/DataIt/Documents/brancoperes2026
 - O toast usa timeout 600000 ms e remoção controlada: 100 ms após encerrar, fadeOut de 200 ms. Nova busca cancela a remoção pendente e reutiliza a referência, evitando duplicação/piscadas; após remoção completa, a próxima busca cria um novo aviso.
 - npm test: Dataset 46/0, transporte 11/0, tela 33/0, total 90. Verificados loading na busca após início concluído, erro posterior e reuso/cancelamento do timer em buscas próximas, além dos cenários anteriores de paginação e renderização.
 - Validação visual no Fluig ainda não confirmada; nenhuma publicação realizada.
+
+## Spinner no interruptor de situação — 2026-10-20
+
+- CSS principal: .embalagens-interruptor[aria-busy="true"] fica sem o fundo do interruptor, esconde a bolinha e desenha spinner de 18 px no centro com ::after, reutilizando embalagens-carregador-girar (1 s). O botão preserva dimensões e posição; o spinner usa borda neutra e trecho verde da paleta.
+- Reutiliza o estado existente: definirSalvando aplica disabled e aria-busy. alterarSituacao mantém o bloqueio durante executarComando e aplicarFotografia e libera nos caminhos de sucesso/erro. Nenhuma mudança no JS ou no contrato do Dataset necessária.
+- Testes existentes cobrem ativar/inativar, clique repetido, falha de rede/recusa e bloqueio até terminar a atualização da tabela. Aparência e animação no Fluig não confirmadas nesta sessão.

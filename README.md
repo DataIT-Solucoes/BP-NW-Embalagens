@@ -56,6 +56,8 @@ O filtro pede ao menos 2 caracteres para sugerir tipos e permite buscar todos co
 
 Durante o carregamento inicial e ao Buscar, um overlay com spinner cobre a widget e o toast info “Carregando...” acompanha a espera. O filtro, Buscar e Novo ficam desabilitados até todas as páginas da consulta e a renderização da tabela terminarem; no início, também aguarda a biblioteca. Falhas retiram o bloqueio e exibem o erro. O toast começa a desaparecer 100 ms após o fim, com animação de 200 ms; buscas próximas reutilizam o aviso e cancelam a remoção pendente.
 
+Ao ativar/inativar, o interruptor da linha fica bloqueado e é substituído visualmente por um spinner no mesmo espaço enquanto o comando e a atualização da linha estão pendentes. A situação muda após confirmação do servidor; recusa ou falha restauram o interruptor anterior e mostram o erro.
+
 Antes de mudar integrações, conferir NW_CONFIG, NW_ACOES e NW_COLUNAS no Dataset atual. Existem regras para DefaultGroup-1 e escritas habilitadas; isso não comprova homologação ou autorização para produção. O Dataset resolve identidade e permissões no servidor.
 
 ## Verificação local
