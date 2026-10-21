@@ -1,53 +1,72 @@
 # widget_nw_embalagens
 
-## Leitura inicial
-- Ler este arquivo e os quatro arquivos `contexto-ia/AI_*.md` no início da sessão.
-- Visão geral para desenvolvedores: `README.md`.
-- Conferir o estado real do Git e dos fontes antes de usar o contexto.
-- Ao concluir uma tarefa, atualizar o contexto afetado e manter o README coerente.
-- Este é o ponto de entrada para qualquer ferramenta de IA; não manter CLAUDE.md local duplicado.
+> Regras gerais (versões, SuperWidget, Style Guide, padrão `nw`): `CLAUDE.md` da raiz do repositório. Aqui fica só o que é deste widget.
+> Preencher só com o que o usuário informou ou o que está nos fontes. O que não se sabe fica "a definir".
+> O `CLAUDE.md` desta pasta só importa este arquivo (`@AGENTS.md`). Skill local: `.claude/skills/fluig-branco-peres/`
+> (cópia igual nos 4 widgets).
+
+## Onde está cada coisa (ler só o do assunto)
+| Arquivo | Conteúdo |
+|---|---|
+| `docs/decisoes.md` | Decisões e correções do usuário (dados, tela, forma de trabalho). **Ler antes de mudar comportamento ou texto.** |
+| `docs/pendencias.md` | Perguntas em aberto, propostas não aprovadas e o que falta confirmar no Fluig de TESTE |
+| `docs/referencias-backend.md` | Contrato do Dataset (ações, parâmetros, campos), fontes da verdade, testes e build |
+| `docs/tela-e-codigo.md` | Tela, modais e colunas, arquitetura do JS e **mapa das funções do JS**. O fonte manda |
+| `README.md` | Visão geral para pessoas (GitHub). **Não precisa ler para trabalhar**: o conteúdo está aqui e em `docs/` |
+
+Histórico e estado do trabalho: `git log`.
 
 ## Objetivo
-Tela **Tipos de Embalagens** do Controle de Embalagens (Datasul): consulta, cadastro, edição da descrição e inativação/reativação. O fonte atual também oferece exclusão; a aprovação dessa mudança e sua homologação não foram confirmadas nesta revisão documental.
+Tela **Tipos de Embalagens** do Controle de Embalagens (Datasul): consulta, cadastro, edição da descrição e inativação/reativação.
+O fonte também oferece exclusão; aprovação e homologação dela não confirmadas.
 
 ## Identificação
-- application.code e título: `widget_nw_embalagens`.
-- Versão: `0.1.0`; categoria: `SYSTEM`; uiwidget=true; mobileapp=false.
-- Context-root: `/widget_nw_embalagens`.
-- SuperWidget atual: `cadastroEmbalagens`; container: `cadastro-embalagens_${instanceId}`.
-- Escopo CSS atual: `.fluig-style-guide.cadastro-embalagens`; classes `embalagens-*`.
-- Repositório próprio: https://github.com/DataIT-Solucoes/BP-NW-Embalagens.git.
-- Página de TESTE registrada anteriormente: `/portal/p/1/cadastro_de_embalagens`; publicação atual não confirmada.
+- `application.code` e título (`application.title`): `widget_nw_embalagens`
+- **Fora do padrão da raiz** (ver `docs/pendencias.md`): container `cadastro-embalagens_${instanceId}`, SuperWidget `cadastroEmbalagens`,
+  escopo CSS `.fluig-style-guide.cadastro-embalagens` com classes `embalagens-*` (não `nwe`).
+- Onde é usado: página `/portal/p/1/cadastro_de_embalagens` do Fluig de TESTE (registro antigo; publicação atual não confirmada)
+- Repositório: `https://github.com/DataIT-Solucoes/BP-NW-Embalagens`, branch **`main`**.
 
-## Arquitetura e integrações
-- `src/main/resources/view.ftl`: interface; `src/main/webapp/resources/js/widget_nw_embalagens.js`: SuperWidget e função global chamarEmbalagens.
-- Widget → POST /api/public/ecm/dataset/search → dsNwEmbalagens → serviço DATASUL_REST_HOMOLOG → REST Datasul.
-- `datasets/dsNwEmbalagens.js` é a fonte da verdade do contrato, permissões e escritas habilitadas. Por orientação anterior do usuário registrada na skill, representa o Dataset do Fluig; conferir o arquivo atual antes de tocar dados.
-- Entrada: filterFields com acao e parametros JSON. Saída: uma linha com envelope em resultadoJson.
-- A tela usa consultarTipos, consultarTiposApoio, incluirTipo e alterarTipo. Não inventar ações, campos, rotas ou regras.
-- Identidade, empresa, grupos e estabelecimentos autorizados são resolvidos no Dataset, nunca pelo navegador.
-- Recursos declarados: JS (1), CSS (2); próximo índice livre: 3. Conferir application.info antes de adicionar recursos.
+## Recursos declarados no `application.info`
+| Índice | Tipo | Valor |
+|---|---|---|
+| 1 | js | `/resources/js/widget_nw_embalagens.js` |
+| 2 | css | `/resources/css/widget_nw_embalagens.css` |
 
-## Regras de trabalho
-- Português do Brasil, direto. O usuário define o escopo; pendência registrada não autoriza execução.
-- Respeitar instruções gerais do projeto e atuais do usuário. Usar a skill fluig-branco-peres; se divergir dos fontes atuais, registrar a diferença.
-- SEMPRE fazer commit, push e compilar ao concluir as tarefas desta widget, conforme autorização permanente do usuário em 2026-10-20. Mostrar antes o conteúdo do commit e incluir somente o escopo da entrega, preservando alterações alheias. Esta decisão substitui a exigência anterior de pedido pontual. Publicação no Fluig depende de autorização específica.
-- Pastas de servidor, homologação e modelos recebidos são somente leitura. Nunca ler compilados .r nem incluir pastas de referência em commits.
-- Não editar o Dataset sem pedido; alterações exigem republicação no Fluig e manutenção da correspondência com o servidor.
-- Não gravar credenciais no projeto, inclusive em .vscode/servers.json. Informação desconhecida: “a definir”; resultado não visto: “não confirmado”.
-- Não fazer varreduras amplas fora do projeto. Se faltar arquivo necessário, pedir ao usuário.
-- Progress (.w/.p/.i/.cls): usar a skill progress-datasul e ler references/manutencao-e-contexto.md antes de editar; CP850 + CRLF, nunca Write/Edit nesses fontes.
-- Medir e preservar encoding e quebras de linha; conferir CRLF depois de editar fontes.
-- Usar jQuery 3.6.3 para DOM, eventos e requisições novos ou alterados. Não incluir novamente jQuery, Bootstrap 3.4.1 ou Style Guide 2.5.0 fornecidos pelo Fluig. Não usar classes Bootstrap 4/5 ou glyphicon.
-- Escopar seletores por this.DOM/instanceId e CSS por .fluig-style-guide.cadastro-embalagens. Preservar paleta Branco Peres e isolamento entre instâncias.
-- Modais atuais são dialog; notificações usam FLUIGC.toast; filtro atual usa FLUIGC.autocomplete. Conferir fontes antes de aplicar resumos antigos.
-- Carregamento inicial e Buscar usam overlay global restrito à widget e toast info “Carregando...”, até todas as páginas da consulta e a renderização terminarem. Sucesso ou erro liberam o bloqueio e retiram o toast; buscas próximas reutilizam o aviso enquanto a remoção de 100 ms estiver pendente.
-- Não converter códigos em número; versao de tipos é enviada como número. Sigla é imutável na edição. Limite atual: 3 caracteres; a origem de aprovação da mudança do limite histórico de 2 não foi confirmada.
-- Preservar idempotência: falha incerta exige conferência antes de nova tentativa; não repetir comandos automaticamente nem gerar chave nova para a mesma intenção.
-- Distinguir verificação local de validação no Fluig. Testes simulados não comprovam publicação ou homologação.
+Próximo índice livre: 3
 
-## Continuidade
-- Estado e retomada: `contexto-ia/AI_HANDOFF.md`.
-- Decisões aprovadas: `contexto-ia/AI_DECISIONS.md`.
-- Pendências: `contexto-ia/AI_TODO.md`.
-- Referências: `contexto-ia/AI_REFERENCES.md`.
+## Parâmetros de configuração (`edit.ftl`)
+Nenhum (`edit.ftl` como gerado).
+
+## Dados (essencial; detalhes em `docs/referencias-backend.md`)
+- Dataset `dsNwEmbalagens`, chamado por `chamarEmbalagens`. O publicado no Fluig é sempre o `dsNwEmbalagens.js` do GitHub
+  **`DataIT-Solucoes/BP-NW-DATASET`**: ler esse arquivo antes de usar ação, parâmetro ou campo. `datasets/` é cópia local
+  (com alterações do usuário não commitadas: não incluir em commit). Não editar o Dataset sem pedido.
+- Ações usadas: `consultarTipos`, `consultarTiposApoio`, `incluirTipo`, `alterarTipo` (editar, inativar/reativar e excluir).
+- `versao` vai como número; códigos não são convertidos em número.
+
+## Regras de negócio
+- Sigla de 2 a 3 letras/números, **imutável na edição**; descrição obrigatória, até 100. Origem da mudança do limite histórico de 2: não confirmada.
+- Editar exige descrição diferente da atual. Situação muda só com a confirmação do servidor.
+- **Idempotência**: a mesma intenção reaproveita a chave; falha incerta exige conferir (Buscar) antes de tentar de novo; nunca repetir
+  comando automaticamente nem gerar chave nova para a mesma intenção.
+- Loading global (overlay dentro do widget + toast info "Carregando...") no carregamento inicial e ao Buscar; spinner no lugar do
+  interruptor ao ativar/inativar (`docs/decisoes.md`).
+
+## Forma de trabalho (pedidos do usuário)
+Depois de **qualquer** ajuste, inclusive só em `.md`, **uma chamada só**:
+```
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/entregar.ps1 -Mensagem "FIX: Texto" <arquivos...>
+```
+- Confere BOM e quebra de linha misturada nos fontes de `src/`; se algum arquivo estiver em `src/`, roda `node --check` e gera
+  `target/widget_nw_embalagens.war` (`pack-widget.ps1`; Ctrl+F7 no VSCode faz o mesmo). Só `.md`: pula os dois.
+- Mudou JS ou Dataset: rodar `npm test` antes (testes simulados; não comprovam o Fluig).
+- Commit **só dos arquivos informados** (nunca `target/`; apagado/renomeado: passar o caminho antigo também), em português,
+  **sem coautor** e **sempre com prefixo**: `DOCS: Texto` (`.md`, `AGENTS.md`, `docs/`), `FIX: Texto` (código em `src/`),
+  `CHORE: Texto` (manutenção, build, renomear sem mudar conteúdo). Nunca incluir `cheli/`, `fluig-rest/` nem pastas de referência.
+- Push no branch atual e conferência do remoto (`git ls-remote`). `-Simular` faz tudo menos commit e push.
+- Importar no Fluig (Painel de Controle → Desenvolvimento → Widgets): feito pelo usuário.
+
+Ao fim da tarefa, atualizar **só** o arquivo de `docs/` afetado: decisão nova → `decisoes.md`; pergunta ou proposta → `pendencias.md`
+(resolvida: tirar de lá); levantamento no backend → `referencias-backend.md`; mudança de comportamento da tela → `tela-e-codigo.md`.
+O `README.md` só muda quando a visão geral mudar.

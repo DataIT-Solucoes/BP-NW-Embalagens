@@ -2,7 +2,7 @@
 
 Widget WCM do Fluig da Branco Peres para consultar, cadastrar, editar e inativar/reativar tipos de embalagem do Datasul. O código atual também oferece exclusão com confirmação; sua execução no ambiente não foi confirmada nesta revisão documental.
 
-Instruções para agentes: [AGENTS.md](AGENTS.md). Estado de retomada, decisões, pendências e referências: [contexto-ia/](contexto-ia/AI_HANDOFF.md).
+Instruções para agentes: [AGENTS.md](AGENTS.md). Decisões, pendências, referências e mapa do código: [docs/](docs/decisoes.md).
 
 ## Estrutura principal
 
@@ -16,7 +16,8 @@ Instruções para agentes: [AGENTS.md](AGENTS.md). Estado de retomada, decisões
 | datasets/dsNwEmbalagens.js | Contrato, autorização e chamada ao serviço Datasul |
 | testes/*.cjs e package.json | Testes locais com Fluig/Datasul simulados |
 | fluig-rest/docs/ | Documentação técnica e matrizes da integração |
-| contexto-ia/AI_*.md | Memória de trabalho da IA |
+| docs/*.md | Decisões, pendências, referências e mapa do código (contexto para IA) |
+| scripts/entregar.ps1 | Conferências, .war, commit e push de uma entrega |
 
 O transporte está no JS principal; não há recurso separado chamar-embalagens.js registrado. O antigo dsNwEmbalagensTipos.js não está presente em datasets/ e não é usado pela tela. Modelos recebidos são referências somente leitura.
 
