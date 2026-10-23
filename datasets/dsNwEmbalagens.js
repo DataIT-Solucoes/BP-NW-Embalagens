@@ -1,37 +1,17 @@
-/** DT-116: modelo ES5 para publicar como dsNwEmbalagens.
- * Entrada: constraints acao e parametros (objeto JSON textual).
- * Saida: UMA linha; resultadoJson contem o envelope funcional da API.
- * Base GitHub main fea8e1a78d0fbb34227f5d1b44fbb1390045b933; fechamento local das 42 rotas.
- * Configuracao TESTE recebida preservada. Nao alterar o Dataset de tipos.
- * Sem sincronizacao, credenciais, URL livre ou repeticao automatica de comandos.
- */
 var NW_CONFIG = {
     serviceCode: "DATASUL_REST_HOMOLOG",
     base: "/dts/datasul-rest/resources/prg/esp/v1/controle-embalagens",
-    // TESTE: comandos habilitados um a um, conforme a tela que os usa for integrada.
-    // Aceita false, true (todos) ou a lista de acoes. Nao substitui a permissao por grupo em regras.
     escritasHabilitadas: ["incluirTipo", "alterarTipo", "incluirParametro", "alterarParametro", "criarTransferencia", "criarRemessa", "criarDevolucao",
         "confirmarEtiqueta", "estornarEtiqueta", "inutilizarEtiqueta", "registrarPerdaExtravio",
         "abrirBag", "alterarBag", "comandarConteudoBag", "executarEventoBag"],
     timeoutSegundos: "60",
     maxEntrada: 120000,
     maxResposta: 2000000,
-    // Configuracao de servidor, NAO recebida do Widget.
-    // Cada regra: { grupo: codigoReal, acoes: [nomesExatos], estabelecimentos: [codigosReais] }.
-    // Para tipos globais, estabelecimentos pode ser []; nenhuma regra usa wildcard.
-    // TESTE (07/10/2026, definido pelo usuario): DefaultGroup-1 libera tipos para o grupo padrao da empresa 1.
-    // Grupo definitivo por acao continua pendente (DT-054); revisar antes de producao.
     regras: [
         { grupo: "DefaultGroup-1", acoes: ["consultarTipos", "consultarTiposApoio", "incluirTipo", "alterarTipo"], estabelecimentos: [] },
-        // TESTE (07/10/2026): tela Itens Controlados (carga da tabela e apoios de estabelecimento e item dos filtros).
-        // Estas acoes exigem lista de estabelecimentos autorizados (lista vazia = SEM_PERMISSAO).
-        // Codigos 10904 e 11301 vistos nas operacoes de TESTE da documentacao; CONFIRMAR a lista real do grupo antes de producao.
         { grupo: "DefaultGroup-1", acoes: ["consultarParametros", "apoiarEstabelecimentos", "apoiarItens", "incluirParametro", "alterarParametro"], estabelecimentos: ["10904", "11301"] },
-        // DT120: consultas da manutencao no mesmo contexto TESTE ja configurado acima.
         { grupo: "DefaultGroup-1", acoes: ["consultarEtiquetas", "apoiarFamilias", "apoiarDepositos", "apoiarLotes", "apoiarDocumentosEntrada"], estabelecimentos: ["10904", "11301"] },
-        // TESTE (08/10/2026): operacoes da manutencao e dados de impressao, autorizados pelo usuario.
         { grupo: "DefaultGroup-1", acoes: ["classificarNatureza", "consultarEmbalagensOrigem", "consultarResultadoOperacao", "obterDadosImpressao", "consultarSituacaoEtiqueta", "consultarBags", "consultarConteudoBag", "criarTransferencia", "criarRemessa", "criarDevolucao"], estabelecimentos: ["10904", "11301"] },
-        // Fechamento local: mesmas permissoes TESTE; nao usar esta politica em producao sem revisao.
         { grupo: "DefaultGroup-1", acoes: ["apoiarTipos", "consultarGeracao", "consultarOperacoes", "consultarItensOperacao", "consultarEventosOperacao",
             "confirmarEtiqueta", "estornarEtiqueta", "inutilizarEtiqueta", "registrarPerdaExtravio", "consultarHistoricoEtiqueta",
             "abrirBag", "alterarBag", "comandarConteudoBag", "executarEventoBag", "consultarElegiveisBag", "consultarHistoricoBag",
@@ -42,7 +22,6 @@ var NW_CONFIG = {
 var NW_COLUNAS = ["acao", "sucesso", "codigoErro", "mensagem", "httpStatus",
     "total", "temMais", "campoCursor", "proximoCursor", "repeticao", "resultadoJson"];
 
-// Registro fechado. Metodos/rotas nunca sao escolhidos pelo navegador.
 var NW_ACOES = {
     consultarTipos: nwGet("/tipos", false, "codigoDe codigoAte descricao ativo aposCodigo limite", "", "proximoCodigo", "aposCodigo", 100),
     incluirTipo: nwWrite("post", "/tipos", false, "codTipo descricao ativo versao chaveIdempotente", "codTipo descricao ativo chaveIdempotente"),
@@ -51,7 +30,6 @@ var NW_ACOES = {
     incluirParametro: nwWrite("post", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao loteMigracao validadeMigracao chaveIdempotente", "codEstabel item codTipo capacidade unidade ativo chaveIdempotente"),
     alterarParametro: nwWrite("patch", "/parametros", true, "idParam codEstabel item codTipo capacidade unidade ativo versao acao loteMigracao validadeMigracao chaveIdempotente", "idParam codEstabel item codTipo capacidade unidade ativo versao acao chaveIdempotente"),
     consultarEtiquetas: nwGet("/etiquetas", true, "codEstabel codEtiqueta item lote codTipo tipoControle tipoLocal situacao idBag aposId limite estabelDe estabelAte itemDe itemAte depositoDe depositoAte etiquetaDe etiquetaAte loteDe loteAte validadeDe validadeAte familiaDe familiaAte modoNotas notaDe notaAte documento", "", "proximoId", "aposId", 100),
-    // DT121: situacao operacional de uma etiqueta; somente leitura, sem paginacao.
     consultarSituacaoEtiqueta: nwGet("/etiquetas/situacao", true, "codEstabel idEtiqueta", "codEstabel idEtiqueta", "", "", 0),
     apoiarEstabelecimentos: nwGet("/apoios/estabelecimentos", true, "filtro aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
     apoiarItens: nwGet("/apoios/itens", true, "codEstabel filtro tipoControleEstoque aposCodigo limite", "filtro", "proximoCodigo", "aposCodigo", 20),
@@ -90,7 +68,6 @@ var NW_ACOES = {
 
 };
 
-// Nome da consulta de apoio usado pelo autocomplete; preserva a acao apoiarTipos.
 NW_ACOES.consultarTiposApoio = NW_ACOES.apoiarTipos;
 
 function nwGet(rota, estabel, campos, obrigatorios, cursor, entradaCursor, teto) {
@@ -124,7 +101,6 @@ function createDataset(fields, constraints, sortFields) {
         var usuario = nwSessao("WKUser"), empresa = nwSessao("WKCompany");
         if (!usuario || !empresa) nwFalhar("CONTEXTO_INVALIDO", "Nao foi possivel identificar a sessao Fluig.");
         var permitidos = nwAutorizar(usuario, empresa, acao, regra.estabel);
-        // Itens sao catalogo global. Sem selecao na tela, a API recebe contexto autorizado pelo servidor.
         if (acao === "apoiarItens" && (!nwTem(parametros, "codEstabel") || parametros.codEstabel === ""))
             parametros.codEstabel = permitidos[0];
         nwConferirEstabelecimentos(parametros, permitidos);
@@ -139,7 +115,6 @@ function createDataset(fields, constraints, sortFields) {
             if (regra.estabel) for (i = 0; i < permitidos.length; i++)
                 query.push("estabelecimentoPermitido=" + encodeURIComponent(permitidos[i]));
             for (var nome in parametros) if (nwTem(parametros, nome)) {
-                // DT120: documento e repetido na query; nunca converter a lista para texto com virgulas.
                 if (regra.rota === "/etiquetas" && nome === "documento") {
                     for (var d = 0; d < parametros.documento.length; d++)
                         query.push("documento=" + encodeURIComponent(parametros.documento[d]));
@@ -155,7 +130,7 @@ function createDataset(fields, constraints, sortFields) {
         }
         var client = fluigAPI.getAuthorizeClientService();
         invocou = true;
-        var resposta = client.invoke(JSON.stringify(req)); // Uma unica invocacao; sem retry.
+        var resposta = client.invoke(JSON.stringify(req));
         try { status = nwTexto(resposta.getHttpStatusResult()); } catch (eStatus) { status = ""; }
         if (!/^[0-9]{3}$/.test(status)) nwFalhar("HTTP_STATUS_INDISPONIVEL", "Nao foi possivel confirmar o status HTTP da API.");
         var numeroStatus = Number(status);
@@ -177,7 +152,6 @@ function createDataset(fields, constraints, sortFields) {
     } catch (erro) {
         var codigoErro = erro && erro.nwCodigo ? erro.nwCodigo : "FALHA_CHAMADA";
         var mensagem = erro && erro.nwCodigo ? erro.nwMensagem : "Nao foi possivel concluir a chamada autorizada.";
-        // Timeout/HTTP/JSON invalidos apos envio de comando nao provam rollback.
         if (escrita && invocou && !confirmouResultado) {
             mensagem += " Se o resultado for incerto, consulte a mesma chave antes de repetir; nao gere chave nova.";
         }
@@ -188,7 +162,6 @@ function createDataset(fields, constraints, sortFields) {
     return ds;
 }
 
-// Constraints que o proprio Fluig acrescenta na chamada (nao vem do Widget e nao sao repassadas a API).
 var NW_CONSTRAINTS_FLUIG = ["sqlLimit"];
 
 function nwEntrada(constraints) {
@@ -200,7 +173,6 @@ function nwEntrada(constraints) {
             nwFalhar("ENTRADA_INVALIDA", "Constraint desconhecida ou repetida: " + nome.replace(/[^A-Za-z0-9_.-]/g, "").substring(0, 40) + ".");
         var valor = nwTexto(c.getInitialValue());
         var valorFinal = c.getFinalValue ? nwTexto(c.getFinalValue()) : "";
-        // filterFields pode chegar sem valor final; isso e constraint escalar.
         if (valorFinal !== "" && valorFinal !== valor) nwFalhar("ENTRADA_INVALIDA", "Faixas de constraints nao sao aceitas; use parametros JSON.");
         if (valor.length > NW_CONFIG.maxEntrada) nwFalhar("ENTRADA_INVALIDA", "Entrada acima do limite.");
         entrada[nome] = valor;
@@ -219,7 +191,6 @@ function nwParametros(texto, regra) {
         var v = p[nome];
         if (nome === "selecao") { nwSelecao(v); continue; }
         if (regra.rota === "/etiquetas" && nome === "documento") { p[nome] = nwDocumentosManutencao(v); continue; }
-        // Cursor fiscal opaco: preservar integralmente, limitado pelo envelope maxEntrada.
         if (regra.rota === "/apoios/documentos-entrada" && nome === "aposCodigo") {
             if (typeof v !== "string" || /[\x00-\x1f]/.test(v)) nwFalhar("PARAMETROS_INVALIDOS", "Cursor de documento invalido.");
             continue;
@@ -236,7 +207,6 @@ function nwParametros(texto, regra) {
             } else if (typeof v !== "string") nwFalhar("PARAMETROS_INVALIDOS", "Filtros e IDs devem ser texto; limite pode ser numero.");
         } else {
             if (nwIndice(["idParam", "versao"], nome) >= 0) {
-                // O adaptador cadastral vigente usa GetInteger: numeros JSON aqui.
                 if (typeof v !== "number" || v % 1 !== 0 || v < 0 || v > 2147483647) nwFalhar("PARAMETROS_INVALIDOS", "Versao/idParam cadastral deve ser inteiro JSON valido.");
             } else if (nome === "capacidade" || nome === "valorItem") {
                 if (typeof v !== "number" || !isFinite(v) || v < 0) nwFalhar("PARAMETROS_INVALIDOS", "Quantidade monetaria/capacidade deve ser numero nao negativo.");
@@ -263,7 +233,6 @@ function nwParametros(texto, regra) {
     return p;
 }
 
-// Contratos complementados a partir dos fontes fisicos ABL; os 28 anteriores permanecem intactos.
 function nwAcaoComplementada(r) {
     return nwIndice(["/etiquetas/confirmacoes", "/etiquetas/estorno", "/etiquetas/inutilizacao",
         "/etiquetas/perda-extravio", "/etiquetas/historico", "/bags/conteudo", "/bags/eventos",
@@ -283,7 +252,7 @@ function nwExigirCampos(p, nomes) {
 function nwVersaoBag(v) {
     return typeof v === "number" && isFinite(v) && v % 1 === 0 && v > 0 && v <= 2147483647;
 }
-// Bag usa versao JSON numerica e NUNCA recebe quantidade por etiqueta.
+
 function nwEtiquetasBag(lista) {
     if (!nwArray(lista) || lista.length < 1 || lista.length > 100)
         nwFalhar("SELECAO_INVALIDA", "Informe de uma a cem etiquetas de Bag.");
@@ -338,7 +307,6 @@ function nwParametrosComplementados(p, r) {
     nwExigirCampos(p, r.obrigatorios);
     if (leitura) {
         if (!nwTem(p, "limite")) p.limite = 20;
-        // Cursores fiscais/historicos sao opacos: nao converter, reconstruir ou somar IDs.
         return p;
     }
     if (r.rota === "/etiquetas/confirmacoes") {
@@ -355,7 +323,6 @@ function nwParametrosComplementados(p, r) {
         if (nwTem(p, "acao") && p.acao !== "EDITAR") nwFalhar("PARAMETROS_INVALIDOS", "Acao de edicao invalida.");
         if (!nwTem(p, "destino") && !nwTem(p, "motorista") && !nwTem(p, "nroLacre"))
             nwFalhar("PARAMETRO_OBRIGATORIO", "Informe ao menos um campo para editar.");
-        // Bag aberta/lacrada, troca efetiva de lacre e justificativa sao decididas pelo backend.
     }
     if (r.rota === "/bags/conteudo") {
         if (p.acao !== "INCLUIR" && p.acao !== "RETIRAR") nwFalhar("PARAMETROS_INVALIDOS", "Acao de conteudo invalida.");
@@ -375,8 +342,6 @@ function nwParametrosComplementados(p, r) {
     return p;
 }
 
-// DT120: aceita uma identidade textual ou lista de ate20 identidades retornadas pelo apoio.
-// A estrutura fiscal, a existencia e a autorizacao do documento sao conferidas pelo backend.
 function nwDocumentosManutencao(valor) {
     var lista = typeof valor === "string" ? [valor] : valor;
     if (!nwArray(lista) || lista.length < 1 || lista.length > 20)
@@ -418,7 +383,6 @@ function nwSelecao(lista) {
 
 function nwAutorizar(usuario, empresa, acao, exigeEstabel) {
     if (!nwArray(NW_CONFIG.regras) || !NW_CONFIG.regras.length) nwFalhar("AUTORIZACAO_NAO_CONFIGURADA", "Configure os grupos e permissoes no servidor Fluig.");
-    // Campos documentados do Dataset interno; conferir na instalacao 1.8.1.
     var constraints = [
         DatasetFactory.createConstraint("colleagueGroupPK.companyId", empresa, empresa, ConstraintType.MUST),
         DatasetFactory.createConstraint("colleagueGroupPK.colleagueId", usuario, usuario, ConstraintType.MUST)
@@ -427,7 +391,6 @@ function nwAutorizar(usuario, empresa, acao, exigeEstabel) {
     if (!grupos || typeof grupos.rowsCount === "undefined") nwFalhar("FALHA_AUTORIZACAO", "Nao foi possivel consultar os grupos da sessao.");
     var membros = {};
     for (var i = 0; i < grupos.rowsCount; i++) {
-        // Revalidar identidade mesmo se a instalacao ignorar algum filtro.
         if (nwCampoGrupo(grupos, i, "companyId") !== empresa ||
             nwCampoGrupo(grupos, i, "colleagueId") !== usuario) continue;
         var grupo = nwCampoGrupo(grupos, i, "groupId");
@@ -439,7 +402,6 @@ function nwAutorizar(usuario, empresa, acao, exigeEstabel) {
         if (!nwObjeto(r) || !r.grupo || !nwArray(r.acoes) || !nwArray(r.estabelecimentos)) nwFalhar("AUTORIZACAO_NAO_CONFIGURADA", "Politica de autorizacao invalida.");
         if (!nwTem(membros, "g:" + r.grupo) || nwIndice(r.acoes, acao) < 0) continue;
         liberado = true;
-        // Uniao SOMENTE de regras que concedem ESTA acao; nao misturar permissoes.
         for (var j = 0; j < r.estabelecimentos.length; j++) {
             var est = r.estabelecimentos[j];
             if (typeof est !== "string" || !/^[A-Za-z0-9_-]{1,20}$/.test(est)) nwFalhar("AUTORIZACAO_NAO_CONFIGURADA", "Estabelecimento da politica invalido.");
@@ -451,9 +413,6 @@ function nwAutorizar(usuario, empresa, acao, exigeEstabel) {
     return permitidos;
 }
 
-// TESTE 1.8.1 (07/10/2026): pela API REST o colleagueGroup aceita o filtro colleagueGroupPK.colleagueId,
-// mas devolve as colunas como companyId/groupId/colleagueId. Le o nome PK documentado e, vazio, o nome
-// curto da MESMA linha. Nao confirmado ainda dentro de um Dataset publicado.
 function nwCampoGrupo(grupos, linha, campo) {
     var valor = "";
     try { valor = nwTexto(grupos.getValue(linha, "colleagueGroupPK." + campo)); } catch (ePk) { valor = ""; }
@@ -479,7 +438,6 @@ function nwValidarResposta(r, regra, parametros) {
     if (!r.sucesso) return;
     if (nwTem(r, "dados") && !nwArray(r.dados)) nwFalhar("RESPOSTA_INVALIDA", "dados deve ser uma lista.");
     if (regra.metodo === "get" && regra.teto) {
-        // Geracoes usa etiquetas/itens/geracao, NAO dados; preservar esse contrato.
         var linhas = regra.rota === "/geracoes" ? r.etiquetas : r.dados;
         if (!nwArray(linhas) || typeof r.total !== "number" || r.total !== linhas.length ||
             typeof r.temMais !== "boolean" || linhas.length > Number(parametros.limite))
@@ -492,7 +450,6 @@ function nwValidarResposta(r, regra, parametros) {
                 nwFalhar("CURSOR_INVALIDO", "Cursor numerico nao avancou.");
         }
     }
-    // Defesa contra propagacao acidental de campos tecnicos/credenciais.
     nwConferirRespostaSegura(r, 0);
 }
 function nwConferirRespostaSegura(valor, nivel) {

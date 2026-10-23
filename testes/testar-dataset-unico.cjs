@@ -47,20 +47,26 @@ function setup(result = page(), status = '200') {
 }
 test('acoes cobrem o contrato REST e preservam alias apoiarTipos',()=>{
     const h=setup();
-    // Contrato central ampliado pela DT120: 27 rotas, mais o alias de apoio.
+    // Contrato central: 42 rotas, mais o alias de apoio (apoiarTipos).
     const native = [
         'get /tipos', 'post /tipos', 'patch /tipos',
         'get /parametros', 'post /parametros', 'patch /parametros',
-        'get /etiquetas', 'get /etiquetas/situacao', 'get /apoios/estabelecimentos', 'get /apoios/itens',
+        'get /etiquetas', 'get /etiquetas/situacao', 'get /etiquetas/historico',
+        'post /etiquetas/confirmacoes', 'post /etiquetas/estorno',
+        'post /etiquetas/inutilizacao', 'post /etiquetas/perda-extravio',
+        'get /apoios/estabelecimentos', 'get /apoios/itens',
         'get /apoios/depositos', 'get /apoios/lotes', 'get /apoios/documentos-entrada',
-        'get /apoios/tipos', 'get /apoios/familias', 'get /bags',
+        'get /apoios/tipos', 'get /apoios/familias',
+        'get /bags', 'get /bags/elegiveis', 'get /bags/historico',
+        'post /bags', 'patch /bags', 'post /bags/conteudo', 'post /bags/eventos',
         'get /conteudo-bag', 'get /dados-impressao', 'get /geracoes',
+        'get /recebimentos', 'get /recebimentos/embalagens', 'get /recebimentos/itens',
         'get /operacoes/natureza', 'get /operacoes/embalagens-origem',
         'get /operacoes', 'get /operacoes/resultado', 'get /operacoes/itens',
         'get /operacoes/eventos', 'post /operacoes/transferencias',
         'post /operacoes/remessas', 'post /operacoes/devolucoes'
     ].sort();
-    assert.equal(Object.keys(h.context.NW_ACOES).length,29);
+    assert.equal(Object.keys(h.context.NW_ACOES).length,43);
     assert.deepEqual(JSON.parse(JSON.stringify(h.context.NW_ACOES.consultarTiposApoio)), JSON.parse(JSON.stringify(h.context.NW_ACOES.apoiarTipos)));
     assert.deepEqual(Object.entries(h.context.NW_ACOES).filter(([nome]) => nome !== 'apoiarTipos').map(([, a])=>a.metodo+' '+a.rota).sort(),native);
 });
@@ -202,7 +208,7 @@ test('resposta com campos sensiveis e profundidade excessiva e recusada',()=>{
 // --- Configuracao TESTE do projeto ---
 test('projeto: configuracao existente preservada e consultas DT120 no mesmo contexto TESTE',()=>{
     const ctx={};vm.createContext(ctx);vm.runInContext(source,ctx);
-    assert.equal(ctx.NW_CONFIG.regras.length,4);assert.equal(ctx.NW_CONFIG.regras[0].grupo,'DefaultGroup-1');
+    assert.equal(ctx.NW_CONFIG.regras.length,5);assert.equal(ctx.NW_CONFIG.regras[0].grupo,'DefaultGroup-1');
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].acoes),['consultarTipos','consultarTiposApoio','incluirTipo','alterarTipo']);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[0].estabelecimentos),[]);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[1].acoes),['consultarParametros','apoiarEstabelecimentos','apoiarItens','incluirParametro','alterarParametro']);
@@ -213,7 +219,10 @@ test('projeto: configuracao existente preservada e consultas DT120 no mesmo cont
     assert.equal(ctx.NW_CONFIG.regras[3].grupo,'DefaultGroup-1');
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[3].acoes),['classificarNatureza','consultarEmbalagensOrigem','consultarResultadoOperacao','obterDadosImpressao','consultarSituacaoEtiqueta','consultarBags','consultarConteudoBag','criarTransferencia','criarRemessa','criarDevolucao']);
     assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[3].estabelecimentos),['10904','11301']);
-    assert.deepEqual(Array.from(ctx.NW_CONFIG.escritasHabilitadas),['incluirTipo','alterarTipo','incluirParametro','alterarParametro','criarTransferencia','criarRemessa','criarDevolucao']);
+    assert.equal(ctx.NW_CONFIG.regras[4].grupo,'DefaultGroup-1');
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[4].acoes),['apoiarTipos','consultarGeracao','consultarOperacoes','consultarItensOperacao','consultarEventosOperacao','confirmarEtiqueta','estornarEtiqueta','inutilizarEtiqueta','registrarPerdaExtravio','consultarHistoricoEtiqueta','abrirBag','alterarBag','comandarConteudoBag','executarEventoBag','consultarElegiveisBag','consultarHistoricoBag','consultarRecebimentos','consultarItensRecebimento','consultarEmbalagensRecebimento']);
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.regras[4].estabelecimentos),['10904','11301']);
+    assert.deepEqual(Array.from(ctx.NW_CONFIG.escritasHabilitadas),['incluirTipo','alterarTipo','incluirParametro','alterarParametro','criarTransferencia','criarRemessa','criarDevolucao','confirmarEtiqueta','estornarEtiqueta','inutilizarEtiqueta','registrarPerdaExtravio','abrirBag','alterarBag','comandarConteudoBag','executarEventoBag']);
     assert.equal(ctx.NW_CONFIG.serviceCode,'DATASUL_REST_HOMOLOG');
 });
 test('projeto: comando fora da lista habilitada nega sem chamar REST, mesmo com grupo autorizado',()=>{
