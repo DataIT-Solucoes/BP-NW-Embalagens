@@ -451,6 +451,8 @@ async function main() {
         const s = montarConsultaTabela(h);
         let opcoes;
         h.web.Tabulator = function (el, config) { opcoes = config; return { on() {} }; };
+        // o cabeçalho fixo mexe no DOM da janela; aqui só interessa a configuração
+        s.tela.prepararCabecalhoFixo = () => {};
         s.tela.montarTabela();
         assert.equal(opcoes.pagination, true); assert.equal(opcoes.paginationSize, 10);
         assert.equal(opcoes.footerElement, undefined);

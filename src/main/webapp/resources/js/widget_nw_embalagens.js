@@ -2,6 +2,8 @@ var URL_SCRIPT_TABULATOR = 'https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.4
 var promessaCarregamentoTabulator = null;
 
 var LIMITE_CONSULTA_TIPOS = 20;
+// cabeçalho fixo da tabela: distância do topo da janela (abaixo da barra do Fluig)
+var TOPO_CABECALHO_FIXO_EMBALAGENS = 100;
 
 var MENSAGENS_ERRO_CADASTRO = {
     AUTORIZACAO_NAO_CONFIGURADA: 'O acesso a esta tela ainda não foi configurado no Fluig (grupos e permissões).',
@@ -421,6 +423,66 @@ var cadastroEmbalagens = SuperWidget.extend({
             ]
         });
         this.tabela.on('tableBuilt', function () { self.carregarTipos(); });
+        this.prepararCabecalhoFixo();
+    },
+
+    // Ao descer a página, uma cópia do .tabulator-header fica presa no topo, alinhada à tabela, até o fim dela.
+    // A cópia é refeita quando a tabela redesenha; clicar numa coluna da cópia ordena a tabela de verdade.
+    prepararCabecalhoFixo() {
+        var tabela = this.tabela,
+            $tabela = $(tabela.element),
+            desatualizado = true,
+            evento = '.embalagensCabecalhoFixo' + this.instanceId;
+        var $fixo = $('<div>', { 'class': 'embalagens-cabecalho-fixo', 'aria-hidden': 'true', hidden: true })
+            .css('top', TOPO_CABECALHO_FIXO_EMBALAGENS + 'px')
+            .appendTo(this.DOM);
+
+        // a cópia vai dentro de uma div com as classes da tabela, para pegar o mesmo CSS (.embalagens-tabela.tabulator .tabulator-header)
+        var copiar = function () {
+            var $copia = $tabela.children('.tabulator-header').clone();
+            $copia.find('[id]').removeAttr('id');
+            $copia.find('[tabindex]').addBack('[tabindex]').removeAttr('tabindex');
+            $fixo.empty().append($('<div>', {
+                'class': $tabela.attr('class'),
+                'tabulator-layout': $tabela.attr('tabulator-layout')
+            }).append($copia));
+            desatualizado = false;
+        };
+
+        var ajustar = function () {
+            var caixa = $tabela[0].getBoundingClientRect(),
+                alturaCabecalho = $tabela.children('.tabulator-header').outerHeight() || 0,
+                alturaRodape = $tabela.children('.tabulator-footer').outerHeight() || 0;
+            var mostrar = $tabela.is(':visible') &&
+                caixa.top < TOPO_CABECALHO_FIXO_EMBALAGENS &&
+                caixa.bottom - alturaRodape > TOPO_CABECALHO_FIXO_EMBALAGENS + alturaCabecalho;
+            if (!mostrar) {
+                $fixo.prop('hidden', true);
+                return;
+            }
+            if (desatualizado || $fixo.prop('hidden')) copiar();
+            $fixo.css({ left: caixa.left + 'px', width: caixa.width + 'px' }).prop('hidden', false);
+            $fixo.find('.tabulator-header').scrollLeft($tabela.children('.tabulator-tableholder').scrollLeft());
+        };
+
+        var refazer = function () {
+            desatualizado = true;
+            ajustar();
+        };
+        $.each(['renderComplete', 'dataSorted', 'columnResized'], function (i, nome) {
+            tabela.on(nome, refazer);
+        });
+        $(window).off(evento)
+            .on('scroll' + evento, ajustar)
+            .on('resize' + evento, refazer);
+        $tabela.children('.tabulator-tableholder').on('scroll' + evento, ajustar);
+
+        $fixo.on('click', '.tabulator-col[tabulator-field]', function () {
+            var coluna = tabela.getColumn($(this).attr('tabulator-field'));
+            if (coluna && coluna.getDefinition().headerSort !== false) {
+                coluna.getElement().dispatchEvent(new MouseEvent('click', { bubbles: true }));
+            }
+        });
     },
 
     definirCarregamentoTipos(carregando) {

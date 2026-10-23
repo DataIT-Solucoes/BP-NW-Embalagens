@@ -631,6 +631,28 @@
     box-shadow: none;
 }
 
+/* Cabeçalho fixo: cópia do cabeçalho da tabela presa no topo ao descer a página (prepararCabecalhoFixo; top, left e width no JS) */
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-fixo {
+    position: fixed;
+    z-index: 40;
+    overflow: hidden;
+    border-radius: 0 0 14px 14px;
+    box-shadow: 0 6px 16px rgba(32, 32, 30, 0.12);
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-fixo[hidden] {
+    display: none !important;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-fixo > .embalagens-tabela.tabulator {
+    margin: 0;
+    border-radius: 0 0 14px 14px;
+}
+
+.fluig-style-guide.cadastro-embalagens .embalagens-cabecalho-fixo .tabulator-header {
+    overflow: hidden;
+}
+
 .fluig-style-guide.cadastro-embalagens .embalagens-carregando {
     display: flex;
     align-items: center;
