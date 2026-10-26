@@ -126,6 +126,112 @@ function montarConsultaTabela(h, codigo = '') {
     return { tela: instancia, tabela, dados, filtro, avisos };
 }
 
+// DOM mínimo para o cabeçalho fixo: só o que prepararCabecalhoFixo usa, com a semântica do jQuery 3
+// (children/find/addBack/clone, eventos com namespace e delegação). Seletores: .classe, [atributo] ou .classe[atributo].
+function criarDomCabecalho(h) {
+    const no = (attrs = {}, filhos = [], extra = {}) => {
+        const n = Object.assign({ attrs: { ...attrs }, filhos: [], pai: null, css: {}, hidden: false, visivel: true, altura: 0, rolagem: 0, ouvintes: [] }, extra);
+        filhos.forEach(f => { f.pai = n; n.filhos.push(f); });
+        return n;
+    };
+    const casa = (n, sel) => {
+        const m = /^(?:\.([\w-]+))?(?:\[([\w-]+)\])?$/.exec(sel);
+        if (!m) throw new Error('Seletor não suportado: ' + sel);
+        return (!m[1] || (n.attrs.class || '').split(' ').includes(m[1])) && (!m[2] || m[2] in n.attrs);
+    };
+    const descendentes = n => n.filhos.flatMap(f => [f, ...descendentes(f)]);
+    const clonar = n => no(n.attrs, n.filhos.map(clonar), { altura: n.altura });
+    const metodos = {
+        children(sel) { return Q(this.nos.flatMap(n => n.filhos.filter(f => casa(f, sel))), this); },
+        find(sel) { return Q(this.nos.flatMap(n => descendentes(n).filter(f => casa(f, sel))), this); },
+        addBack(sel) { return Q([...this.nos, ...this.anterior.nos.filter(n => casa(n, sel))], this); },
+        clone() { return Q(this.nos.map(clonar)); },
+        removeAttr(k) { this.nos.forEach(n => { delete n.attrs[k]; }); return this; },
+        attr(k) { return this.nos[0] && this.nos[0].attrs[k]; },
+        css(k, v) { const o = typeof k === 'string' ? { [k]: v } : k; this.nos.forEach(n => Object.assign(n.css, o)); return this; },
+        appendTo(alvo) { alvo.append(this); return this; },
+        append(q) { const pai = this.nos[0]; q.nos.forEach(f => { f.pai = pai; pai.filhos.push(f); }); return this; },
+        empty() { this.nos.forEach(n => { n.filhos.forEach(f => { f.pai = null; }); n.filhos = []; }); return this; },
+        prop(k, v) {
+            assert.equal(k, 'hidden');
+            if (arguments.length < 2) return this.nos[0].hidden;
+            this.nos.forEach(n => { n.hidden = v; }); return this;
+        },
+        outerHeight() { return this.nos[0] ? this.nos[0].altura : undefined; },
+        is(sel) { assert.equal(sel, ':visible'); return this.nos.some(n => n.visivel); },
+        scrollLeft(v) {
+            if (!arguments.length) return this.nos[0].rolagem;
+            this.nos.forEach(n => { n.rolagem = v; }); return this;
+        },
+        on(eventos, sel, fn) {
+            if (typeof sel === 'function') { fn = sel; sel = null; }
+            for (const ev of eventos.split(' ')) {
+                const [tipo, ns] = ev.split(/\.(.*)/);
+                this.nos.forEach(n => n.ouvintes.push({ tipo, ns, sel, fn }));
+            }
+            return this;
+        },
+        off(eventos) {
+            const ns = eventos.replace(/^\./, '');
+            this.nos.forEach(n => { n.ouvintes = n.ouvintes.filter(o => o.ns !== ns); }); return this;
+        }
+    };
+    const Q = (nos, anterior = null) => {
+        const q = Object.assign(Object.create(metodos), { nos, anterior, length: nos.length });
+        nos.forEach((n, i) => { q[i] = n; });
+        return q;
+    };
+    // dispara no nó; com seletor, sobe do alvo até o nó (delegação do jQuery)
+    const disparar = (n, tipo, alvo = n) => {
+        for (const o of n.ouvintes.filter(o => o.tipo === tipo)) {
+            if (!o.sel) { o.fn.call(n, { type: tipo }); continue; }
+            for (let a = alvo; a && a !== n; a = a.pai) if (casa(a, o.sel)) { o.fn.call(a, { type: tipo, target: alvo }); break; }
+        }
+    };
+
+    const janela = no();
+    const $original = h.web.$;
+    const $ = function (x, attrs) {
+        if (x === '<div>') {
+            const n = no(Object.fromEntries(Object.entries(attrs).filter(([k]) => k !== 'hidden')));
+            n.hidden = !!attrs.hidden; return Q([n]);
+        }
+        if (x === h.web.window) return Q([janela]);
+        if (x && x.attrs) return Q([x]);
+        throw new Error('$ inesperado: ' + x);
+    };
+    Object.assign($, $original); h.web.$ = $;
+    h.web.MouseEvent = function (type, init) { this.type = type; this.bubbles = !!(init && init.bubbles); };
+
+    // Tabulator: .tabulator-header (colunas com id/tabindex), .tabulator-tableholder e .tabulator-footer
+    const col = campo => no({ class: 'tabulator-col', 'tabulator-field': campo, id: 'col-' + campo, tabindex: '0' },
+        [no({ class: 'tabulator-col-title' })]);
+    const cabecalho = no({ class: 'tabulator-header', tabindex: '-1' }, [col('codTipo'), col('descricao'), col('ativo')], { altura: 40 });
+    const corpo = no({ class: 'tabulator-tableholder' });
+    const rodape = no({ class: 'tabulator-footer' }, [], { altura: 30 });
+    const elemento = no({ class: 'embalagens-tabela tabulator', 'tabulator-layout': 'fitColumns' }, [cabecalho, corpo, rodape]);
+    elemento.caixa = { top: 300, bottom: 900, left: 20, width: 600 };
+    elemento.getBoundingClientRect = () => elemento.caixa;
+    const eventosTabela = {}, cliques = [];
+    const tabela = {
+        element: elemento,
+        on(nome, fn) { (eventosTabela[nome] ||= []).push(fn); },
+        emitir(nome) { (eventosTabela[nome] || []).forEach(fn => fn()); },
+        getColumn(campo) {
+            if (!cabecalho.filhos.some(c => c.attrs['tabulator-field'] === campo)) return false;
+            return {
+                getDefinition: () => (campo === 'ativo' ? { headerSort: false } : {}),
+                getElement: () => ({ dispatchEvent: ev => cliques.push({ campo, tipo: ev.type, bubbles: ev.bubbles }) })
+            };
+        }
+    };
+    const widget = no({ class: 'fluig-style-guide cadastro-embalagens' });
+    const tela = Object.assign({}, h.web.cadastroEmbalagens, { tabela, DOM: Q([widget]), instanceId: 99 });
+    const fixo = () => widget.filhos.find(f => casa(f, '.embalagens-cabecalho-fixo'));
+    const copia = () => fixo().filhos[0].filhos[0];
+    return { tela, tabela, elemento, cabecalho, corpo, janela, widget, disparar, fixo, copia, cliques, casa, descendentes };
+}
+
 async function main() {
     let casos = 0;
     const caso = async (nome, fn) => { await fn(); casos++; console.log('OK ' + nome); };
@@ -548,6 +654,68 @@ async function main() {
         const itens = await new Promise(resolve => s.dados.autocomplete.source('cx', resolve));
         assert.equal(h.chamadasApi.length, 1); assert.equal(query(h.chamadasApi[0]).get('filtro'), 'cx');
         assert.equal(itens[0].rotulo, 'CX — CAIXA'); assert.equal(descartadas, 0);
+    });
+
+    await caso('cabecalho fixo: aparece so enquanto a tabela passa sob o topo, alinhado e sem id/tabindex na copia', async () => {
+        const h = montar({ regras: REGRA_TIPOS });
+        const d = criarDomCabecalho(h);
+        d.tela.prepararCabecalhoFixo();
+        const fixo = d.fixo();
+        assert.equal(d.widget.filhos.length, 1); assert.equal(fixo.hidden, true);
+        assert.equal(fixo.attrs['aria-hidden'], 'true'); assert.equal(fixo.css.top, '100px');
+        d.disparar(d.janela, 'scroll'); assert.equal(fixo.hidden, true);
+        d.elemento.caixa = { top: 100, bottom: 900, left: 24, width: 640 };
+        d.disparar(d.janela, 'scroll'); assert.equal(fixo.hidden, true);
+        d.elemento.caixa.top = 50; d.disparar(d.janela, 'scroll');
+        assert.equal(fixo.hidden, false); assert.equal(fixo.css.left, '24px'); assert.equal(fixo.css.width, '640px');
+        // a cópia vai numa div com as classes e o layout da tabela, para pegar o mesmo CSS
+        assert.equal(fixo.filhos.length, 1);
+        assert.equal(fixo.filhos[0].attrs.class, 'embalagens-tabela tabulator'); assert.equal(fixo.filhos[0].attrs['tabulator-layout'], 'fitColumns');
+        const copia = d.copia();
+        assert.ok(d.casa(copia, '.tabulator-header')); assert.notEqual(copia, d.cabecalho);
+        assert.deepEqual(copia.filhos.map(c => c.attrs['tabulator-field']), ['codTipo', 'descricao', 'ativo']);
+        for (const n of [copia, ...d.descendentes(copia)]) { assert.equal('id' in n.attrs, false); assert.equal('tabindex' in n.attrs, false); }
+        assert.equal(d.cabecalho.attrs.tabindex, '-1'); assert.equal(d.cabecalho.filhos[0].attrs.id, 'col-codTipo');
+        assert.equal(d.cabecalho.filhos[0].attrs.tabindex, '0');
+        // rolagem horizontal da tabela acompanha na cópia
+        d.corpo.rolagem = 35; d.disparar(d.corpo, 'scroll'); assert.equal(copia.rolagem, 35);
+        // fim da tabela: some antes de cobrir o rodapé (topo 100 + cabeçalho 40 + rodapé 30)
+        d.elemento.caixa.bottom = 171; d.disparar(d.janela, 'scroll'); assert.equal(fixo.hidden, false);
+        d.elemento.caixa.bottom = 170; d.disparar(d.janela, 'scroll'); assert.equal(fixo.hidden, true);
+        // tabela escondida (outra aba): não mostra
+        d.elemento.caixa.bottom = 900; d.elemento.visivel = false;
+        d.disparar(d.janela, 'scroll'); assert.equal(fixo.hidden, true);
+    });
+
+    await caso('cabecalho fixo: copia refeita ao redesenhar, clique ordena a coluna real e eventos da janela por instancia', async () => {
+        const h = montar({ regras: REGRA_TIPOS });
+        const d = criarDomCabecalho(h);
+        d.elemento.caixa = { top: 50, bottom: 900, left: 0, width: 600 };
+        d.tela.prepararCabecalhoFixo();
+        d.disparar(d.janela, 'scroll');
+        let antes = d.copia();
+        d.disparar(d.janela, 'scroll'); assert.equal(d.copia(), antes);
+        d.cabecalho.filhos[0].attrs['aria-sort'] = 'ascending';
+        d.tabela.emitir('dataSorted');
+        assert.notEqual(d.copia(), antes); assert.equal(d.copia().filhos[0].attrs['aria-sort'], 'ascending');
+        assert.equal(d.fixo().filhos.length, 1);
+        for (const nome of ['renderComplete', 'columnResized']) {
+            antes = d.copia(); d.tabela.emitir(nome); assert.notEqual(d.copia(), antes, nome);
+        }
+        antes = d.copia(); d.disparar(d.janela, 'resize'); assert.notEqual(d.copia(), antes);
+        // escondida e mostrada de novo: copia outra vez
+        d.elemento.caixa.top = 300; d.disparar(d.janela, 'scroll'); assert.equal(d.fixo().hidden, true);
+        antes = d.copia(); d.elemento.caixa.top = 50; d.disparar(d.janela, 'scroll');
+        assert.equal(d.fixo().hidden, false); assert.notEqual(d.copia(), antes);
+        // clique no título dentro da coluna copiada ordena a coluna real; coluna sem ordenação e fora de coluna não
+        d.disparar(d.fixo(), 'click', d.copia().filhos[0].filhos[0]);
+        assert.deepEqual(d.cliques, [{ campo: 'codTipo', tipo: 'click', bubbles: true }]);
+        d.disparar(d.fixo(), 'click', d.copia().filhos[2]);
+        d.disparar(d.fixo(), 'click', d.copia());
+        assert.equal(d.cliques.length, 1);
+        // eventos da janela com namespace da instância (vários widgets na mesma página)
+        assert.deepEqual(d.janela.ouvintes.map(o => o.tipo + '.' + o.ns), ['scroll.embalagensCabecalhoFixo99', 'resize.embalagensCabecalhoFixo99']);
+        assert.deepEqual(d.corpo.ouvintes.map(o => o.tipo + '.' + o.ns), ['scroll.embalagensCabecalhoFixo99']);
     });
 
     console.log('TELA_TIPOS|CENARIOS=' + casos + '|FALHAS=0|FLUIG_REAL=nao');

@@ -378,4 +378,231 @@ test('DT120: inclusao de parametro ja habilitada permanece disponivel',()=>{
     assert.equal(h.calls[0].method,'post');assert.equal(h.calls[0].params.capacidade,20);
 });
 
+// --- Rotas 28 a 42: comandos de etiqueta e Bag, historicos e recebimentos (servico simulado) ---
+const okCmd={sucesso:true,codigoErro:'',mensagem:'',repeticao:false,versao:3};
+const recusaAntesDoRest=(acao,p,codigo)=>{
+    const h=setup(okCmd);const r=h.run(acao,p);
+    assert.equal(r.result.sucesso,false,acao+' '+JSON.stringify(p));
+    if(codigo)assert.equal(r.result.codigoErro,codigo,acao+' '+JSON.stringify(p));
+    assert.equal(h.calls.length,0);
+};
+const etiquetaCmd={codEstabel:'ORIGEM',idEtiqueta:'123',versao:2,chaveIdempotente:'chave-1'};
+const comandosEtiqueta=[
+    ['confirmarEtiqueta','/etiquetas/confirmacoes',{...etiquetaCmd,acao:'CONFIRMAR_IMPRESSAO'}],
+    ['estornarEtiqueta','/etiquetas/estorno',{...etiquetaCmd,quantidadeAtual:7.5,justificativa:'Contagem fisica'}],
+    ['inutilizarEtiqueta','/etiquetas/inutilizacao',{...etiquetaCmd,acao:'INUTILIZAR',justificativa:'Etiqueta rasgada'}],
+    ['registrarPerdaExtravio','/etiquetas/perda-extravio',{...etiquetaCmd,acao:'REGISTRAR_PERDA_EXTRAVIO',justificativa:'Nao localizada'}]
+];
+const bagCmd={codEstabel:'ORIGEM',idBag:'77',versao:4,chaveIdempotente:'chave-bag'};
+const comandosBag=[
+    ['abrirBag','post','/bags',{codEstabel:'ORIGEM',codTipo:'BG',destino:'DESTINO',motorista:'JOAO',chaveIdempotente:'chave-bag'}],
+    ['alterarBag','patch','/bags',{...bagCmd,acao:'EDITAR',nroLacre:'L-001'}],
+    ['comandarConteudoBag','post','/bags/conteudo',{...bagCmd,acao:'INCLUIR',etiquetas:[{idEtiqueta:'10',versao:1},{idEtiqueta:'11',versao:2}]}],
+    ['executarEventoBag','post','/bags/eventos',{...bagCmd,acao:'LACRAR',nroLacre:'L-001'}]
+];
+test('rotas 28-42: comandos de etiqueta e Bag usam o metodo da rota, corpo JSON e identidade do servidor',()=>{
+    for(const [acao,method,rota,p] of [...comandosEtiqueta.map(([a,r,p])=>[a,'post',r,p]),...comandosBag]) {
+        const h=setup(okCmd);const r=h.run(acao,p);
+        assert.equal(r.result.sucesso,true,acao);assert.equal(r.row.acao,acao);assert.equal(h.calls.length,1);
+        const req=h.calls[0];
+        assert.equal(req.method,method);assert.ok(req.endpoint.endsWith('/controle-embalagens'+rota),acao);
+        assert.doesNotMatch(req.endpoint,/\?/);assert.equal(req.headers['Content-Type'],'application/json');
+        assert.equal(req.options.mediaType,'application/json');
+        assert.deepEqual(req.params,{...p,usuario:'usuario-teste',estabelecimentosPermitidos:['DESTINO','ORIGEM']});
+    }
+});
+test('rotas 28-42: comandos novos fora da lista habilitada ou sem grupo nao chamam REST',()=>{
+    for(const [acao,p] of [...comandosEtiqueta.map(([a,,p])=>[a,p]),...comandosBag.map(([a,,,p])=>[a,p])]) {
+        let h=setup(okCmd);h.context.NW_CONFIG.escritasHabilitadas=['incluirTipo','alterarTipo'];
+        assert.equal(h.run(acao,p).result.codigoErro,'ESCRITA_DESABILITADA');assert.equal(h.calls.length,0);
+        h=setup(okCmd);h.context.NW_CONFIG.regras=[{grupo:'grupo-teste',acoes:['consultarBags'],estabelecimentos:['ORIGEM']}];
+        assert.equal(h.run(acao,p).result.codigoErro,'SEM_PERMISSAO');assert.equal(h.calls.length,0);
+        recusaAntesDoRest(acao,{...p,codEstabel:'FORA'},'SEM_PERMISSAO');
+        for(const campo of ['usuario','estabelecimentosPermitidos','endpoint','headers'])
+            recusaAntesDoRest(acao,{...p,[campo]:'FORJADO'},'CAMPO_NAO_PERMITIDO');
+    }
+});
+test('rotas 28-42: falha apos enviar comando novo pede a mesma chave e nao repete',()=>{
+    for(const [acao,p] of [...comandosEtiqueta.map(([a,,p])=>[a,p]),...comandosBag.map(([a,,,p])=>[a,p])]) {
+        const h=setup(okCmd);h.state.fail=true;const r=h.run(acao,p);
+        assert.equal(r.result.sucesso,false);assert.equal(h.calls.length,1);assert.match(r.result.mensagem,/nao gere chave nova/);
+        assert.doesNotMatch(JSON.stringify(r)+h.logs.join(''),/SEGREDO|Bearer/);
+    }
+    const h=setup({sucesso:false,codigoErro:'CONFLITO_VERSAO',mensagem:'Etiqueta alterada por outro usuario.'});
+    const r=h.run('confirmarEtiqueta',comandosEtiqueta[0][2]);
+    assert.equal(r.result.codigoErro,'CONFLITO_VERSAO');assert.doesNotMatch(r.result.mensagem,/chave nova/);
+});
+test('rotas 28-42: etiqueta exige ID textual positivo, versao inteira positiva e chave sem espacos',()=>{
+    const [acao,,p]=comandosEtiqueta[0];
+    for(const idEtiqueta of [123,'0','-1','12a','',' 1','99999999999'])recusaAntesDoRest(acao,{...p,idEtiqueta});
+    for(const versao of [0,-1,1.5,'2',null,true])recusaAntesDoRest(acao,{...p,versao},'PARAMETROS_INVALIDOS');
+    for(const chaveIdempotente of ['com espaco','k'.repeat(65),'acentuação','',1])recusaAntesDoRest(acao,{...p,chaveIdempotente});
+    for(const campo of ['codEstabel','idEtiqueta','versao','acao','chaveIdempotente']) {
+        const q={...p};delete q[campo];recusaAntesDoRest(acao,q,'PARAMETRO_OBRIGATORIO');
+    }
+    const h=setup(okCmd);assert.equal(h.run(acao,{...p,chaveIdempotente:'A-z_0'.padEnd(64,'9')}).result.sucesso,true);
+});
+test('rotas 28-42: confirmacao, inutilizacao e perda aceitam somente a acao da propria rota',()=>{
+    const [,,conf]=comandosEtiqueta[0],[,,inut]=comandosEtiqueta[2],[,,perda]=comandosEtiqueta[3];
+    for(const acao of ['confirmar_impressao','INUTILIZAR','OUTRA',''])recusaAntesDoRest('confirmarEtiqueta',{...conf,acao});
+    recusaAntesDoRest('confirmarEtiqueta',{...conf,acao:'RECEBER_FISICO'},'PARAMETRO_OBRIGATORIO');
+    recusaAntesDoRest('confirmarEtiqueta',{...conf,acao:'RECEBER_FISICO',justificativa:'   '},'PARAMETRO_OBRIGATORIO');
+    const h=setup(okCmd);assert.equal(h.run('confirmarEtiqueta',{...conf,acao:'RECEBER_FISICO',justificativa:'Chegou sem NF'}).result.sucesso,true);
+    recusaAntesDoRest('inutilizarEtiqueta',{...inut,acao:'REGISTRAR_PERDA_EXTRAVIO'},'PARAMETROS_INVALIDOS');
+    recusaAntesDoRest('registrarPerdaExtravio',{...perda,acao:'INUTILIZAR'},'PARAMETROS_INVALIDOS');
+    for(const [acao,p] of [['inutilizarEtiqueta',inut],['registrarPerdaExtravio',perda]]) {
+        const q={...p};delete q.justificativa;recusaAntesDoRest(acao,q,'PARAMETRO_OBRIGATORIO');
+    }
+});
+test('rotas 28-42: estorno aceita quantidade nao negativa com ate quatro casas e exige justificativa',()=>{
+    const [acao,,p]=comandosEtiqueta[1];
+    for(const quantidadeAtual of [0,1,1.2345,999999.9999]) {
+        const h=setup(okCmd);assert.equal(h.run(acao,{...p,quantidadeAtual}).result.sucesso,true,String(quantidadeAtual));
+        assert.equal(h.calls[0].params.quantidadeAtual,quantidadeAtual);
+    }
+    for(const quantidadeAtual of [-1,1.23456,'1',null,true])recusaAntesDoRest(acao,{...p,quantidadeAtual},'PARAMETROS_INVALIDOS');
+    const q={...p};delete q.quantidadeAtual;recusaAntesDoRest(acao,q,'PARAMETRO_OBRIGATORIO');
+    recusaAntesDoRest(acao,{...p,justificativa:''},'PARAMETRO_OBRIGATORIO');
+});
+test('rotas 28-42: justificativa aceita varias linhas ate 1000 caracteres, sem outros controles',()=>{
+    const [acao,,p]=comandosEtiqueta[2];
+    const h=setup(okCmd);const texto='Linha 1\r\nLinha\t2\n'+'x'.repeat(980);
+    assert.equal(h.run(acao,{...p,justificativa:texto}).result.sucesso,true);assert.equal(h.calls[0].params.justificativa,texto);
+    for(const justificativa of ['x'.repeat(1001),'antes\u0000depois','sino\u0007','esc\u001b',5])recusaAntesDoRest(acao,{...p,justificativa},'PARAMETROS_INVALIDOS');
+});
+test('rotas 28-42: abrir Bag exige tipo de 2 ou 3 letras/numeros e limita destino',()=>{
+    const [acao,,,p]=comandosBag[0];
+    for(const codTipo of ['BG','Z9R']){const h=setup(okCmd);assert.equal(h.run(acao,{...p,codTipo}).result.sucesso,true);}
+    for(const codTipo of ['B','ABCD','B-G','B G'])recusaAntesDoRest(acao,{...p,codTipo},'PARAMETROS_INVALIDOS');
+    recusaAntesDoRest(acao,{...p,destino:'d'.repeat(81)},'PARAMETROS_INVALIDOS');
+    const h=setup(okCmd);assert.equal(h.run(acao,{...p,destino:'d'.repeat(80)}).result.sucesso,true);
+    for(const campo of ['codEstabel','codTipo','chaveIdempotente']){const q={...p};delete q[campo];recusaAntesDoRest(acao,q,'PARAMETRO_OBRIGATORIO');}
+    recusaAntesDoRest(acao,{...p,idBag:'1'},'CAMPO_NAO_PERMITIDO');
+});
+test('rotas 28-42: alterar Bag exige ao menos um campo editavel, acao EDITAR e lacre preenchido',()=>{
+    const [acao,,,p]=comandosBag[1];
+    for(const extra of [{destino:'CD'},{motorista:'ANA'},{nroLacre:'L-9'}]) {
+        const q={...bagCmd,...extra};const h=setup(okCmd);assert.equal(h.run(acao,q).result.sucesso,true,JSON.stringify(extra));
+        assert.equal(h.calls[0].method,'patch');
+    }
+    recusaAntesDoRest(acao,{...bagCmd},'PARAMETRO_OBRIGATORIO');
+    recusaAntesDoRest(acao,{...bagCmd,acao:'EDITAR'},'PARAMETRO_OBRIGATORIO');
+    recusaAntesDoRest(acao,{...p,acao:'LACRAR'},'PARAMETROS_INVALIDOS');
+    for(const nroLacre of ['','   ','l'.repeat(41)])recusaAntesDoRest(acao,{...p,nroLacre},'PARAMETROS_INVALIDOS');
+    for(const idBag of ['0','7a',77])recusaAntesDoRest(acao,{...p,idBag},'PARAMETROS_INVALIDOS');
+});
+test('rotas 28-42: conteudo do Bag aceita de 1 a 100 etiquetas com versao numerica e exige justificativa para retirar',()=>{
+    const [acao,,,p]=comandosBag[2];
+    const cem=Array.from({length:100},(_,i)=>({idEtiqueta:String(i+1),versao:1}));
+    let h=setup(okCmd);assert.equal(h.run(acao,{...p,etiquetas:cem}).result.sucesso,true);assert.equal(h.calls[0].params.etiquetas.length,100);
+    h=setup(okCmd);assert.equal(h.run(acao,{...p,acao:'RETIRAR',justificativa:'Etiqueta errada'}).result.sucesso,true);
+    recusaAntesDoRest(acao,{...p,acao:'RETIRAR'},'PARAMETRO_OBRIGATORIO');
+    for(const a of ['incluir','MOVER'])recusaAntesDoRest(acao,{...p,acao:a},'PARAMETROS_INVALIDOS');
+    recusaAntesDoRest(acao,{...p,acao:''},'PARAMETRO_OBRIGATORIO');
+    for(const etiquetas of [[],[...cem,{idEtiqueta:'101',versao:1}],'10',{idEtiqueta:'10',versao:1},[null],['10'],
+        [{idEtiqueta:'10',versao:'1'}],[{idEtiqueta:10,versao:1}],[{idEtiqueta:'0',versao:1}],[{idEtiqueta:'10',versao:0}],
+        [{idEtiqueta:'10',versao:1,quantidade:5}],[{idEtiqueta:'10',versao:1},{idEtiqueta:'10',versao:2}]])
+        recusaAntesDoRest(acao,{...p,etiquetas},'SELECAO_INVALIDA');
+    const q={...p};delete q.etiquetas;recusaAntesDoRest(acao,q,'PARAMETRO_OBRIGATORIO');
+});
+test('rotas 28-42: eventos do Bag exigem os dados de cada evento e cancelar/reabrir nao mudam metadados',()=>{
+    const acao='executarEventoBag';
+    for(const p of [{acao:'LACRAR',nroLacre:'L-1'},{acao:'ENVIAR',destino:'CD',motorista:'ANA'},{acao:'ENVIAR',destino:'CD',motorista:'ANA',nroLacre:'L-1'},
+        {acao:'CANCELAR',justificativa:'Bag vazio'},{acao:'REABRIR',justificativa:'Faltou etiqueta'}]) {
+        const h=setup(okCmd);assert.equal(h.run(acao,{...bagCmd,...p}).result.sucesso,true,p.acao);assert.equal(h.calls[0].params.acao,p.acao);
+    }
+    for(const p of [{acao:'LACRAR'},{acao:'ENVIAR',destino:'CD'},{acao:'ENVIAR',motorista:'ANA'},{acao:'ENVIAR',destino:' ',motorista:'ANA'},
+        {acao:'CANCELAR'},{acao:'REABRIR',justificativa:''}])
+        recusaAntesDoRest(acao,{...bagCmd,...p},'PARAMETRO_OBRIGATORIO');
+    for(const extra of [{nroLacre:'L-1'},{destino:'CD'},{motorista:'ANA'}]) {
+        recusaAntesDoRest(acao,{...bagCmd,acao:'CANCELAR',justificativa:'x',...extra},'CAMPO_NAO_PERMITIDO');
+        recusaAntesDoRest(acao,{...bagCmd,acao:'REABRIR',justificativa:'x',...extra},'CAMPO_NAO_PERMITIDO');
+    }
+    for(const a of ['lacrar','FECHAR','EDITAR'])recusaAntesDoRest(acao,{...bagCmd,acao:a,nroLacre:'L-1'},'PARAMETROS_INVALIDOS');
+    recusaAntesDoRest(acao,{...bagCmd,acao:'',nroLacre:'L-1'},'PARAMETRO_OBRIGATORIO');
+});
+const consultasNovas=[
+    ['consultarHistoricoEtiqueta','/etiquetas/historico',{codEstabel:'ORIGEM',idEtiqueta:'123'},'proximoRegistro','aposRegistro',100],
+    ['consultarElegiveisBag','/bags/elegiveis',{idBag:'77'},'proximoId','aposId',20],
+    ['consultarHistoricoBag','/bags/historico',{idBag:'77'},'proximoId','aposId',20],
+    ['consultarRecebimentos','/recebimentos',{codEstabel:'ORIGEM',dataIni:'2026-10-01',dataFim:'2026-10-23'},'proximoDocumento','aposDocumento',100],
+    ['consultarItensRecebimento','/recebimentos/itens',{codEstabel:'ORIGEM',emitente:'000123',serie:'001',numero:'0009999801',natureza:'1.102'},'proximaSequencia','aposSequencia',100],
+    ['consultarEmbalagensRecebimento','/recebimentos/embalagens',{codEstabel:'ORIGEM',emitente:'000123',serie:'001',numero:'0009999801',natureza:'1.102'},'proximoId','aposId',100]
+];
+test('rotas 28-42: consultas novas usam GET com filtros na query, limite padrao 20 e cursor proprio',()=>{
+    for(const [acao,rota,p,cursor] of consultasNovas) {
+        const h=setup({...page([{id:'1'}],true,''),[cursor]:'50'});const r=h.run(acao,p);
+        assert.equal(r.result.sucesso,true,acao);assert.equal(r.row.campoCursor,cursor);assert.equal(r.row.proximoCursor,'50');
+        const req=h.calls[0];assert.equal(req.method,'get');assert.equal(req.params,undefined);
+        const url=new URL('https://teste'+req.endpoint);assert.ok(url.pathname.endsWith('/controle-embalagens'+rota),acao);
+        const q=url.searchParams;
+        for(const [k,v] of Object.entries(p))assert.equal(q.get(k),v,acao+' '+k);
+        assert.equal(q.get('limite'),'20');assert.equal(q.get('usuario'),'usuario-teste');
+        assert.deepEqual(q.getAll('estabelecimentoPermitido'),['DESTINO','ORIGEM']);
+    }
+});
+test('rotas 28-42: consultas novas exigem filtros obrigatorios e respeitam o teto de cada rota',()=>{
+    for(const [acao,,p,,,teto] of consultasNovas) {
+        for(const campo of Object.keys(p)){const q={...p};delete q[campo];recusaAntesDoRest(acao,q,'PARAMETRO_OBRIGATORIO');}
+        for(const campo of Object.keys(p).filter(c=>!/^(idEtiqueta|idBag|emitente)$/.test(c)))recusaAntesDoRest(acao,{...p,[campo]:'  '},'PARAMETRO_OBRIGATORIO');
+        for(const limite of [0,teto+1,'abc',true,-1,1.5])recusaAntesDoRest(acao,{...p,limite},'LIMITE_INVALIDO');
+        for(const limite of [teto,String(teto)]){const h=setup(page());assert.equal(h.run(acao,{...p,limite}).result.sucesso,true,acao+' '+limite);}
+        recusaAntesDoRest(acao,{...p,usuario:'forjado'},'CAMPO_NAO_PERMITIDO');
+        recusaAntesDoRest(acao,{...p,estabelecimentoPermitido:'FORA'},'CAMPO_NAO_PERMITIDO');
+        if(p.codEstabel)recusaAntesDoRest(acao,{...p,codEstabel:'FORA'},'SEM_PERMISSAO');
+    }
+});
+test('rotas 28-42: IDs, emitente e cursores numericos das consultas novas sao inteiros em texto',()=>{
+    const porAcao=Object.fromEntries(consultasNovas.map(c=>[c[0],c[2]]));
+    for(const [acao,campo,valores] of [
+        ['consultarHistoricoEtiqueta','idEtiqueta',['0','12a',123,'99999999999']],
+        ['consultarElegiveisBag','idBag',['0','-7',77,'7.0']],
+        ['consultarHistoricoBag','aposId',['','x',10]],
+        ['consultarItensRecebimento','emitente',['ABC','12 3',123]],
+        ['consultarItensRecebimento','aposSequencia',['x','1.5']],
+        ['consultarItensRecebimento','idEvento',['evento','']],
+        ['consultarEmbalagensRecebimento','sequencia',['a']]
+    ]) for(const v of valores)recusaAntesDoRest(acao,{...porAcao[acao],[campo]:v},'PARAMETROS_INVALIDOS');
+    const h=setup(page());
+    assert.equal(h.run('consultarEmbalagensRecebimento',{...porAcao.consultarEmbalagensRecebimento,idEvento:'0',sequencia:'0010',aposId:'0'}).result.sucesso,true);
+    const q=new URL('https://teste'+h.calls[0].endpoint).searchParams;assert.equal(q.get('sequencia'),'0010');assert.equal(q.get('emitente'),'000123');
+});
+test('rotas 28-42: cursores textuais de historico e recebimentos chegam intactos; longos so no aposDocumento',()=>{
+    const registro='2026-10-23T10:00:00.000|000045';
+    let h=setup(page());assert.equal(h.run('consultarHistoricoEtiqueta',{codEstabel:'ORIGEM',idEtiqueta:'123',aposRegistro:registro}).result.sucesso,true);
+    assert.equal(new URL('https://teste'+h.calls[0].endpoint).searchParams.get('aposRegistro'),registro);
+    recusaAntesDoRest('consultarHistoricoEtiqueta',{codEstabel:'ORIGEM',idEtiqueta:'123',aposRegistro:'r'.repeat(101)},'PARAMETROS_INVALIDOS');
+    const documento='0001|000123|001|0009999801|1.102 & A+B/ç?=#'+'.'.repeat(300);
+    const base={codEstabel:'ORIGEM',dataIni:'2026-10-01',dataFim:'2026-10-23'};
+    h=setup(page([],false,''));assert.equal(h.run('consultarRecebimentos',{...base,aposDocumento:documento}).result.sucesso,true);
+    assert.equal(new URL('https://teste'+h.calls[0].endpoint).searchParams.get('aposDocumento'),documento);
+    for(const aposDocumento of ['a\nb','\u0000',7])recusaAntesDoRest('consultarRecebimentos',{...base,aposDocumento},'PARAMETROS_INVALIDOS');
+    recusaAntesDoRest('consultarRecebimentos',{...base,emitente:'e'.repeat(101)},'PARAMETROS_INVALIDOS');
+});
+test('rotas 28-42: envelope das consultas novas exige pagina coerente e cursor que avance',()=>{
+    for(const [acao,,p,cursor,entrada] of consultasNovas) {
+        const anterior=entrada==='aposRegistro'?'R-10':entrada==='aposDocumento'?'DOC-10':'10';
+        for(const r of [{...page([{id:'1'}],true,''),[cursor]:''},{...page([{id:'1'}],true,''),[cursor]:anterior},
+            {...page([],true,''),[cursor]:'99'},{...page([{id:'1'}]),total:2},{...page(),dados:{}}]) {
+            const h=setup(r);const out=h.run(acao,{...p,[entrada]:anterior});
+            assert.equal(out.result.sucesso,false,acao+' '+JSON.stringify(r));assert.equal(h.calls.length,1);
+        }
+        const h=setup({...page([{id:'1'},{id:'2'}],false,'')});assert.equal(h.run(acao,{...p,limite:1}).result.codigoErro,'RESPOSTA_INVALIDA');
+    }
+    for(const acao of ['consultarElegiveisBag','consultarHistoricoBag','consultarEmbalagensRecebimento']) {
+        const [,,p]=consultasNovas.find(c=>c[0]===acao);
+        for(const proximoId of ['9','abc','0']) {
+            const h=setup(page([{id:'1'}],true,proximoId));assert.equal(h.run(acao,{...p,aposId:'10'}).result.codigoErro,'CURSOR_INVALIDO',acao+' '+proximoId);
+        }
+    }
+});
+test('rotas 28-42: recusa funcional e campos sensiveis nas consultas novas nao viram sucesso',()=>{
+    for(const [acao,,p] of consultasNovas) {
+        let h=setup({sucesso:false,codigoErro:'RECEBIMENTO_INDISPONIVEL',mensagem:'Bearer segredo'});let r=h.run(acao,p);
+        assert.equal(r.result.codigoErro,'RECEBIMENTO_INDISPONIVEL');assert.doesNotMatch(JSON.stringify(r),/segredo/);assert.equal('dados' in r.result,false);
+        h=setup({...page([{idEtiqueta:'1',observacao:'interna'}])});r=h.run(acao,p);
+        assert.equal(r.result.codigoErro,'RESPOSTA_INVALIDA');assert.doesNotMatch(JSON.stringify(r),/interna/);
+    }
+});
+
 console.log('DATASET_UNICO|CENARIOS='+total+'|FALHAS=0|FLUIG_REAL=nao');
