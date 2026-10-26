@@ -1,11 +1,10 @@
-# APIs Controle de Embalagens e tela de recebimentos
+# APIs Controle de Embalagens
 
 Entrega de referência de 20/10/2026 para revisão do Humberto.
 
 ## Organização
 
 - `fontes/progress/`: fontes `.p`, `.i` e o include `.i1` atual, mantendo a estrutura de caminhos do projeto.
-- `tela-recebimentos/src/`: widget final `widget_nw_recebimentos` para publicar e homologar no Fluig TESTE.
 
 Os fontes Progress são a cópia física local atual para investigar rotas, parâmetros, assinaturas e regras. Esta inclusão no Git não comprova que todos correspondam aos binários publicados e não indica nova compilação, carga de banco ou instalação automática. As rotinas em `database/` são fontes de manutenção já existentes, não etapas para publicar a tela.
 
@@ -13,7 +12,7 @@ Os fontes Progress são a cópia física local atual para investigar rotas, par�
 
 Acompanha documentos desde sua criação no RE1001, inclusive sem estoque atualizado e sem embalagens. Somente consulta: filtros por fazenda autorizada/período, paginação e detalhe em abas Itens e Embalagens, com rateios/lotes/validades e participação histórica por ciclo. Não soma ciclos compensados nem substitui quantidade recebida por saldo atual. Estoque não atualizado não significa cancelamento ou erro.
 
-Publicar o widget da pasta `tela-recebimentos/src/` e disponibilizar a página e suas permissões no Fluig TESTE. SuperWidget e jQuery são fornecidos pelo Fluig. Não são necessárias bibliotecas de grid adicionais.
+O widget `widget_nw_recebimentos` foi retirado deste repositório em 26/10/2026 (fica só a tela de tipos); os fontes dele estão no histórico do git (commit `b26b5f5`).
 
 O widget utiliza o `dsNwEmbalagens` aprovado, já existente na branch. Não altera o Dataset, grupos, serviço configurado ou arquivos atuais da raiz do repositório. Conferir estas ações:
 
