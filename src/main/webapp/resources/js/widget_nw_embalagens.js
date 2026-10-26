@@ -11,6 +11,7 @@ var MENSAGENS_ERRO_CADASTRO = {
     ESCRITA_DESABILITADA: 'A gravação ainda não está habilitada para esta ação.',
     CODIGO_INVALIDO: 'Informe um código válido',
     TIPO_JA_EXISTE: 'Já existe um tipo de embalagem com esta sigla.',
+    CODIGO_TIPO_RESERVADO: 'Esta sigla pertence a um tipo excluído e não pode ser reutilizada.',
     CONFLITO_VERSAO: 'Este tipo foi alterado por outra pessoa depois que a lista foi carregada. Clique em Buscar para recarregar e tente de novo.'
 };
 
@@ -770,7 +771,7 @@ var cadastroEmbalagens = SuperWidget.extend({
         return this.executarComando(acao, parametros).then(function (saida) {
             self.definirSalvando(false, $salvar);
             if (!saida.ok) {
-                if (saida.codigoErro === 'TIPO_JA_EXISTE' || saida.codigoErro === 'CODIGO_INVALIDO') {
+                if (saida.codigoErro === 'TIPO_JA_EXISTE' || saida.codigoErro === 'CODIGO_TIPO_RESERVADO' || saida.codigoErro === 'CODIGO_INVALIDO') {
                     self.marcarErro('sigla', saida.mensagem);
                     self.$formNovo.find('[name="sigla"]').trigger('focus');
                 } else {
@@ -779,7 +780,7 @@ var cadastroEmbalagens = SuperWidget.extend({
                 return;
             }
             self.fecharModalNovo();
-            if (tipo) self.avisar(escaparTextoHtml(saida.resultado.descricao + ' editado com sucesso!'), 'success');
+            self.avisar(escaparTextoHtml(saida.resultado.descricao + (tipo ? ' editado' : ' cadastrado') + ' com sucesso!'), 'success');
             if (saida.resultado.repeticao) self.avisar('Esta gravação já tinha sido registrada pelo Datasul.', 'info');
             return self.aplicarFotografia(saida.resultado);
         });

@@ -97,14 +97,17 @@ Usuário ─┬─ texto + Buscar (ou Enter) ─► carregarTipos(false) ─► 
 
 ### 4. Cadastro e edição (mesmo modal)
 - **Novo** abre o modal vazio; o **lápis** abre preenchido, com a **sigla somente leitura** (o código não muda).
-- Validação na tela: descrição obrigatória; sigla obrigatória com até 2 caracteres no cadastro; na edição a descrição
+- Validação na tela: descrição obrigatória; sigla obrigatória com 2 ou 3 letras/números no cadastro; na edição a descrição
   precisa mudar. O resto (duplicidade, versão, permissão) é do Datasul/Dataset.
 - **Salvar** faz **uma** chamada e desabilita o botão até a resposta; o modal não fecha enquanto grava.
-  Sucesso: fecha, aplica na tabela a fotografia devolvida (`codTipo`, `descricao`, `ativo`, `versao`) e destaca a linha.
-  Recusa: `TIPO_JA_EXISTE` aparece na sigla; as demais no alerta do modal.
+  Sucesso: fecha, avisa por toast (cadastrado/editado), aplica na tabela a fotografia devolvida (`codTipo`, `descricao`,
+  `ativo`, `versao`) e destaca a linha.
+  Recusa: `TIPO_JA_EXISTE`, `CODIGO_TIPO_RESERVADO` e `CODIGO_INVALIDO` aparecem na sigla; as demais no alerta do modal.
 
-### 5. Inativar / reativar
-- A API de tipos **não exclui**: a lixeira virou **Inativar** (tipos ativos) ou **Reativar** (inativos), com confirmação.
+### 5. Inativar / reativar / excluir
+- O **interruptor** da linha inativa (`INATIVAR`) ou reativa (`ALTERAR` com `ativo: true`).
+- A **lixeira** pede confirmação e manda `alterarTipo` com `acao: 'excluir'`. A exclusão é lógica: o tipo some das consultas e
+  a sigla não pode ser reutilizada (`CODIGO_TIPO_RESERVADO`).
 
 ### 6. Chave idempotente e falha incerta
 - Cada intenção (ação + conteúdo) recebe uma `chaveIdempotente` (UUID v4 via `crypto.getRandomValues`, porque o

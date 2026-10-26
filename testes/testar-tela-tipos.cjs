@@ -237,7 +237,7 @@ async function main() {
     const caso = async (nome, fn) => { await fn(); casos++; console.log('OK ' + nome); };
 
     function montarModal(h, sigla, tipo = null, descricao = 'CAIXA') {
-        const dados = { erros: {}, removidas: 0, linhas: tipo ? [tipo] : [], fechou: false, foco: '', propriedades: {}, textos: {} };
+        const dados = { erros: {}, removidas: 0, linhas: tipo ? [tipo] : [], fechou: false, foco: '', propriedades: {}, textos: {}, avisos: [] };
         const valores = { sigla, descricao };
         const campo = nome => ({
             val(valor) { if (arguments.length) valores[nome] = valor; return valores[nome]; },
@@ -258,7 +258,8 @@ async function main() {
                 updateOrAddData(linhas) { dados.linhas = dados.linhas.filter(l => !linhas.some(n => n.codTipo === l.codTipo)).concat(linhas); return Promise.resolve(); },
                 getRow: () => ({ reformat() {} }), setPage: () => Promise.resolve()
             },
-            reaplicarOrdem() {}, destacarLinha() {}
+            reaplicarOrdem() {}, destacarLinha() {},
+            avisar: (mensagem, nivel) => dados.avisos.push({ mensagem, nivel })
         });
         return { tela, dados };
     }
@@ -325,6 +326,28 @@ async function main() {
             assert.equal(s.dados.fechou, false);
             assert.equal(s.dados.removidas, 0);
             assert.deepEqual(s.dados.linhas, tipo ? [tipo] : []);
+        }
+    });
+
+    await caso('modal: CODIGO_TIPO_RESERVADO da API aparece na sigla com texto da tela', async () => {
+        const h = montar({ regras: REGRA_TIPOS });
+        const s = montarModal(h, 'ZT');
+        h.estado.respostas.push({ sucesso: false, codigoErro: 'CODIGO_TIPO_RESERVADO', mensagem: 'O codigo pertence a um tipo excluido e nao pode ser reutilizado.' });
+        await s.tela.salvarCadastro();
+        assert.equal(s.dados.erros.sigla, 'Esta sigla pertence a um tipo excluído e não pode ser reutilizada.');
+        assert.equal(s.dados.foco, 'sigla');
+        assert.equal(s.dados.fechou, false);
+        assert.equal(s.dados.avisos.length, 0);
+    });
+
+    await caso('modal: inclusao e edicao com sucesso avisam por toast', async () => {
+        for (const tipo of [null, { codTipo: 'CX', descricao: 'CAIXA', ativo: true, versao: 3 }]) {
+            const h = montar({ regras: REGRA_TIPOS });
+            const s = montarModal(h, 'Z9R', tipo, 'CAIXA <b>NOVA</b>');
+            h.estado.respostas.push(fotografia({ codTipo: tipo ? 'CX' : 'Z9R', descricao: 'CAIXA <b>NOVA</b>', ativo: true, versao: tipo ? 4 : 1 }));
+            await s.tela.salvarCadastro();
+            assert.equal(s.dados.fechou, true);
+            assert.deepEqual(s.dados.avisos, [{ mensagem: 'CAIXA &lt;b&gt;NOVA&lt;/b&gt; ' + (tipo ? 'editado' : 'cadastrado') + ' com sucesso!', nivel: 'success' }]);
         }
     });
 
