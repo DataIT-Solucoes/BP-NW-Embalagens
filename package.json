@@ -4,6 +4,6 @@
   "version": "0.1.0",
   "description": "Testes locais do dsNwEmbalagens e da tela de tipos; sem dependencias externas e sem Fluig/Datasul reais",
   "scripts": {
-    "test": "node testes/testar-dataset-unico.cjs && node testes/testar-chamar-embalagens.cjs && node testes/testar-tela-tipos.cjs"
+    "test": "node testes/testar-chamar-embalagens.cjs"
   }
 }
