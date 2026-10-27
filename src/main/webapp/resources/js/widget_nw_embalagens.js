@@ -421,7 +421,7 @@ var cadastroEmbalagens = SuperWidget.extend({
                 }
             ]
         });
-        this.tabela.on('tableBuilt', function () { self.carregarTipos(); });
+        this.tabela.on('tableBuilt', function () { self.definirCarregamentoTipos(false); });
     },
 
     definirCarregamentoTipos(carregando) {

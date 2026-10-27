@@ -54,7 +54,7 @@ O transporte envia filterFields com acao e parametros JSON e recebe uma linha cu
 
 O filtro pede ao menos 2 caracteres para sugerir tipos e permite buscar todos com o campo vazio. O cadastro limita sigla a 3 caracteres e descrição a 100; o código não muda na edição. A tabela usa paginação por cursor e ordenação local dos dados carregados.
 
-Durante o carregamento inicial e ao Buscar, um overlay com spinner cobre a widget e o toast info “Carregando...” acompanha a espera. O filtro, Buscar e Novo ficam desabilitados até todas as páginas da consulta e a renderização da tabela terminarem; no início, também aguarda a biblioteca. Falhas retiram o bloqueio e exibem o erro. O toast começa a desaparecer 100 ms após o fim, com animação de 200 ms; buscas próximas reutilizam o aviso e cancelam a remoção pendente.
+A tabela abre vazia: os tipos só são consultados ao clicar em Buscar. Enquanto a biblioteca da tabela carrega e ao Buscar, um overlay com spinner cobre a widget e o toast info “Carregando...” acompanha a espera. O filtro, Buscar e Novo ficam desabilitados até todas as páginas da consulta e a renderização da tabela terminarem. Falhas retiram o bloqueio e exibem o erro. O toast começa a desaparecer 100 ms após o fim, com animação de 200 ms; buscas próximas reutilizam o aviso e cancelam a remoção pendente.
 
 Ao ativar/inativar, o interruptor da linha fica bloqueado e é substituído visualmente por um spinner no mesmo espaço enquanto o comando e a atualização da linha estão pendentes. A situação muda após confirmação do servidor; recusa ou falha restauram o interruptor anterior e mostram o erro.
 

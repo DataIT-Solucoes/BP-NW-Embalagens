@@ -28,7 +28,7 @@
 - **Busca** (`carregarTipos`): lê todas as páginas por cursor (`proximoCodigo`; cursor vazio ou repetido = erro), junta sem duplicar
   (`mesclarTiposSemDuplicacao`) e só então `setData` + `setPage(1)`. Erro → `mostrarErroCarga` (alerta na tabela + console `[cadastroEmbalagens]`).
 - **Loading global** (`prepararCarregamentoGlobal`, `definirCarregamentoGlobal`, `.embalagens-carregando-global`): overlay dentro do
-  widget no carregamento inicial (inclusive espera do Tabulator) e em toda busca; `aria-busy`, filtro/Buscar/Novo desabilitados;
+  widget enquanto o Tabulator carrega (sem consulta: a tabela abre vazia até Buscar) e em toda busca; `aria-busy`, filtro/Buscar/Novo desabilitados;
   toast info "Carregando..." (600000 ms) único, removido 100 ms após o fim (`fadeOut` 200 ms); busca próxima cancela a remoção e reaproveita.
   Comandos e autocomplete não usam o overlay.
 - **Idempotência** (`executarComando`): a chave é guardada por `acao|parametros` em `intencoes` e só é descartada no sucesso; repetir

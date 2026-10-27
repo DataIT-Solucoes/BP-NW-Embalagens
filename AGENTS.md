@@ -50,7 +50,8 @@ Nenhum (`edit.ftl` como gerado).
 - Editar exige descrição diferente da atual. Situação muda só com a confirmação do servidor.
 - **Idempotência**: a mesma intenção reaproveita a chave; falha incerta exige conferir (Buscar) antes de tentar de novo; nunca repetir
   comando automaticamente nem gerar chave nova para a mesma intenção.
-- Loading global (overlay dentro do widget + toast info "Carregando...") no carregamento inicial e ao Buscar; spinner no lugar do
+- A tabela não consulta ao abrir: só ao Buscar.
+- Loading global (overlay dentro do widget + toast info "Carregando...") na espera do Tabulator e ao Buscar; spinner no lugar do
   interruptor ao ativar/inativar (`docs/decisoes.md`).
 
 ## Forma de trabalho (pedidos do usuário)

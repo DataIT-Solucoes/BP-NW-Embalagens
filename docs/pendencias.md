@@ -14,7 +14,7 @@
 
 ## Confirmar no Fluig de TESTE (nada visto ainda)
 - Spinner no lugar do interruptor ao ativar/inativar, inclusive com rede lenta e falha (bloqueio/liberação verificados só nos testes locais).
-- Overlay global e toast info no carregamento inicial e ao Buscar, inclusive com rede lenta, erro e buscas consecutivas (verificado só com simulação).
+- Tabela vazia ao abrir (sem consulta até Buscar); overlay global e toast info na espera do Tabulator e ao Buscar, inclusive com rede lenta, erro e buscas consecutivas (verificado só com simulação).
 - Estado atual da publicação do Dataset e do widget (notas de "não publicado" de 07/10 são históricas). Página registrada: `/portal/p/1/cadastro_de_embalagens`.
 - Integração real de consulta, autocomplete, cadastro, edição, inativação/reativação e **exclusão** (existe no fonte, não homologada).
 - Pendências técnicas herdadas: `getHttpStatusResult()`, envio de `params` JSON com booleanos/números em POST/PATCH e nomes de colunas
