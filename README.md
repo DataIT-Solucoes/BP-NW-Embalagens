@@ -17,8 +17,6 @@ Publicado no servidor de teste em `/portal/p/1/cadastro_de_embalagens`.
 | `src/main/webapp/resources/js/chamar-embalagens.js` | Transporte do Widget para o `dsNwEmbalagens` (cópia do modelo, sem alteração de conteúdo) |
 | `src/main/webapp/resources/css/widget_nw_embalagens.css` | Estilos e paleta de cores |
 | `src/main/resources/application.info` | Registra JS (1), CSS (2) e `chamar-embalagens.js` (3) |
-| `datasets/dsNwEmbalagens.js` | Dataset central (24 ações fechadas). Publicar como Dataset customizado **dsNwEmbalagens** |
-| `datasets/dsNwEmbalagensTipos.js` | Dataset antigo de tipos (uma linha por tipo). Não usado pela tela; não alterar |
 | `testes/*.cjs` + `package.json` | Testes locais (`npm test`), sem Fluig/Datasul reais. Não entram no `.war` |
 | `fluig-rest/MODELO_DATASET_UNICO_HUMBERTO_20261006/` | Modelo recebido (referência, mantido como veio) |
 
@@ -121,9 +119,8 @@ Usuário ─┬─ texto + Buscar (ou Enter) ─► carregarTipos(false) ─► 
 ```
 npm test
 ```
-Roda `testes/testar-dataset-unico.cjs` (Dataset), `testes/testar-chamar-embalagens.cjs` (transporte) e
-`testes/testar-tela-tipos.cjs` (funções da tela → transporte → Dataset → serviço simulado), com um jQuery mínimo
-simulado (`testes/jquery-falso.cjs`), porque o Node não tem DOM. Não conectam ao
+Roda `testes/testar-chamar-embalagens.cjs` (transporte), com um jQuery mínimo
+simulado (`testes/jquery-falso.cjs`), porque o Node não tem DOM. Não conecta ao
 Fluig nem ao Datasul; não substituem a homologação no servidor.
 
 ## Visual

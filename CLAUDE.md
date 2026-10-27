@@ -16,10 +16,11 @@ do Controle de Embalagens (Datasul). Fluxo e detalhes da tela: `README.md` desta
 
 ## Estado atual (2026-10-07)
 - Tela integrada ao Dataset central **`dsNwEmbalagens`** (modelo DT-116 recebido em
-  `fluig-rest/MODELO_DATASET_UNICO_HUMBERTO_20261006/`, mantido como veio). Fonte do projeto: `datasets/dsNwEmbalagens.js`.
+  `fluig-rest/MODELO_DATASET_UNICO_HUMBERTO_20261006/`, mantido como veio). O fonte do Dataset não fica mais neste repositório (pasta `datasets/` retirada em 27/10/2026).
 - `dsNwEmbalagensTipos` (antigo, uma linha por tipo) segue publicado e intacto; a tela não o usa mais.
 - `dsNwEmbalagens` **não publicado** no TESTE (conferido em 07/10 pela lista de datasets).
-- Testes locais: `npm test` → Dataset 25/0, transporte 7/0, tela de tipos 9/0 (sem Fluig/Datasul reais).
+- Testes locais: `npm test` → só transporte (`testes/testar-chamar-embalagens.cjs`, 11/0; sem Fluig/Datasul reais).
+  Testes do Dataset e da tela de tipos retirados em 27/10/2026.
   Tela também conferida no navegador com Fluig/API simulados (busca, cursor, inclusão, duplicidade, edição,
   falha incerta com mesma chave, inativar/reativar).
 
@@ -60,7 +61,7 @@ Próximo índice livre: 4
 
 ## Entrega (commit, push e .war)
 Só quando o usuário pedir, pelo comando **`/entregar "texto"`** (`.claude/commands/entregar.md`, igual ao do `widget_nw_manutEtiq`).
-Ele escolhe o prefixo, roda `npm test` se o JS, o Dataset ou os testes mudaram e chama `scripts/entregar.ps1` (cópia do script do `widget_nw_manutEtiq`):
+Ele escolhe o prefixo, roda `npm test` se o JS ou os testes mudaram e chama `scripts/entregar.ps1` (cópia do script do `widget_nw_manutEtiq`):
 ```
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/entregar.ps1 -Mensagem "FIX: Texto" <arquivos...>
 ```
