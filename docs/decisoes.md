@@ -16,6 +16,7 @@ A origem de aprovação da sigla de 3 caracteres, do autocomplete e da exclusão
 | Data | Decisão | Origem |
 |---|---|---|
 | 27/10 | A tabela não consulta ao abrir a tela: fica vazia até o usuário clicar em Buscar. O overlay inicial cobre só a espera do Tabulator | "Retire esse carregamento inicial da tabela, o usuário vai ter que buscar" |
+| 27/10 | A tabela vazia ao abrir mantém o texto "Nenhum tipo de embalagem encontrado." (proposta de trocar por "Clique em Buscar..." recusada) | "Não, deixe do jeito que está" |
 | 20/10 | Ao ativar/inativar, o interruptor vira um spinner no mesmo espaço e fica bloqueado durante a operação. Mostra a situação confirmada pelo servidor; em falha, restaura o estado anterior e informa o erro | Usuário aprovou a ideia 1 e o exemplo: "Pode seguir"; `077378f` |
 | 20/10 | Loading global e toast info também ao Buscar; o toast sai quando os dados terminam de carregar (substitui a limitação ao carregamento inicial) | Pedido do usuário; `1f0ec9c` |
 | 20/10 | Loading global no carregamento inicial da widget, no padrão do `widget_nw_bags` | "Quando a página estiver fazendo o carregamento inicial, deve aplicar o carregamento global"; `3bf6ce3` |
