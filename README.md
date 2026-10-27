@@ -13,13 +13,12 @@ Instruções para agentes: [AGENTS.md](AGENTS.md). Decisões, pendências, refer
 | src/main/webapp/resources/css/widget_nw_embalagens.css | Estilos em .fluig-style-guide.cadastro-embalagens |
 | src/main/resources/application.info | Identificação e recursos: JS (1), CSS (2) |
 | src/main/webapp/WEB-INF/jboss-web.xml | Context-root /widget_nw_embalagens |
-| datasets/dsNwEmbalagens.js | Contrato, autorização e chamada ao serviço Datasul |
 | testes/*.cjs e package.json | Testes locais com Fluig/Datasul simulados |
 | fluig-rest/docs/ | Documentação técnica e matrizes da integração |
 | docs/*.md | Decisões, pendências, referências e mapa do código (contexto para IA) |
 | scripts/entregar.ps1 | Conferências, .war, commit e push de uma entrega |
 
-O transporte está no JS principal; não há recurso separado chamar-embalagens.js registrado. O antigo dsNwEmbalagensTipos.js não está presente em datasets/ e não é usado pela tela. Modelos recebidos são referências somente leitura.
+O transporte está no JS principal; não há recurso separado chamar-embalagens.js registrado. O Dataset dsNwEmbalagens fica no repositório DataIT-Solucoes/BP-NW-DATASET (sem cópia local). Modelos recebidos são referências somente leitura.
 
 ## Dependências
 

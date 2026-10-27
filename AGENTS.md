@@ -40,8 +40,8 @@ Nenhum (`edit.ftl` como gerado).
 
 ## Dados (essencial; detalhes em `docs/referencias-backend.md`)
 - Dataset `dsNwEmbalagens`, chamado por `chamarEmbalagens`. O publicado no Fluig é sempre o `dsNwEmbalagens.js` do GitHub
-  **`DataIT-Solucoes/BP-NW-DATASET`**: ler esse arquivo antes de usar ação, parâmetro ou campo. `datasets/` é cópia local
-  (com alterações do usuário não commitadas: não incluir em commit). Não editar o Dataset sem pedido.
+  **`DataIT-Solucoes/BP-NW-DATASET`**: ler esse arquivo antes de usar ação, parâmetro ou campo. Não há cópia local
+  (`datasets/` removida em 27/10/2026). Não editar o Dataset sem pedido.
 - Ações usadas: `consultarTipos`, `consultarTiposApoio`, `incluirTipo`, `alterarTipo` (editar, inativar/reativar e excluir).
 - `versao` vai como número; códigos não são convertidos em número.
 

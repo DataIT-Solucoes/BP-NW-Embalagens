@@ -9,7 +9,7 @@
 - Transporte: `filterFields` com `acao` e `parametros` (JSON); resposta de **uma linha** com o envelope em `resultadoJson`
   (`sucesso` tem de bater com o da linha). O `limit` de transporte é `"1"`; o limite de negócio é outro parâmetro.
 - Fonte da verdade: `dsNwEmbalagens.js` do GitHub **`DataIT-Solucoes/BP-NW-DATASET`** (decisão do usuário, 19/10). A cópia local
-  `datasets/dsNwEmbalagens.js` tem alterações locais não commitadas (21/10): conferir antes de usar. Conferir `NW_CONFIG`,
+  `datasets/` foi removida a pedido do usuário (27/10). Conferir `NW_CONFIG`,
   `NW_ACOES` e `NW_COLUNAS` antes de mudar integrações; não editar o Dataset sem pedido.
 - Identidade, empresa, grupos e estabelecimentos autorizados são resolvidos no Dataset, nunca no navegador.
 
@@ -29,9 +29,8 @@
   `CODIGO_INVALIDO`, `TIPO_JA_EXISTE`, `CONFLITO_VERSAO`. Resultado incerto: `FALHA_CHAMADA`, `RESPOSTA_INVALIDA`, `HTTP_*`.
 
 ## Descobertas (20/10/2026)
-- `datasets/dsNwEmbalagens.js:1`: serviço `DATASUL_REST_HOMOLOG`, regras `DefaultGroup-1`, estabelecimentos 10904/11301 nas ações com
+- `datasets/dsNwEmbalagens.js:1` (cópia local, removida em 27/10): serviço `DATASUL_REST_HOMOLOG`, regras `DefaultGroup-1`, estabelecimentos 10904/11301 nas ações com
   recorte e escritas habilitadas além de tipos. Não usar a lista antiga de 24 ações como contrato atual.
-- `datasets/` contém `dsNwEmbalagens.js` e um `.bak` (não consultado, não é contrato). `dsNwEmbalagensTipos.js` não existe mais.
 - O transporte está no JS principal; não há `chamar-embalagens.js` separado registrado no `application.info`.
 - Consulta de `colleagueGroup` por REST em 07/10 teria aceitado `colleagueGroupPK.colleagueId` e devolvido `companyId/groupId/colleagueId`;
   execução dentro do Dataset publicado não confirmada.
@@ -42,7 +41,7 @@
 |---|---|
 | Widget | repositório deste widget (`git remote -v`), branch `main` |
 | Dataset publicado | `https://github.com/DataIT-Solucoes/BP-NW-DATASET` → `dsNwEmbalagens.js` |
-| Cópia local do Dataset e testes | `datasets/dsNwEmbalagens.js`; `package.json` + `testes/*.cjs` |
+| Testes | `package.json` + `testes/*.cjs` (dois deles ainda leem `datasets/`, removida: ver `pendencias.md`) |
 | API e decisões técnicas | `fluig-rest/docs/02_DECISOES_TECNICAS.md` (`grep -n "^## DT-"`) e `fluig-rest/docs/entregas/MATRIZ_TELAS_CAMPOS_ACOES.md` (não revisados por inteiro) |
 | Contexto compartilhado | `CLAUDE.md` da raiz e skill local `.claude/skills/fluig-branco-peres/` |
 

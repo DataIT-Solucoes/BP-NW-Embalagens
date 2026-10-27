@@ -9,8 +9,8 @@
 - **Identificação fora do padrão da raiz** (21/10): o `CLAUDE.md` da raiz diz prefixo `nwe` e `id` = `<nome>_${instanceId}`; o fonte usa
   container `cadastro-embalagens_${instanceId}`, SuperWidget `cadastroEmbalagens` e escopo CSS `.fluig-style-guide.cadastro-embalagens`
   (classes `embalagens-*`). Ajustar a raiz, o widget ou deixar como está.
-- **Cópia local do Dataset** (21/10): `datasets/dsNwEmbalagens.js` tem alterações locais não commitadas; o publicado é o do GitHub `BP-NW-DATASET`.
-  Confirmar se a cópia local continua sendo mantida e se deve ficar igual ao GitHub.
+- **Testes sem a cópia local do Dataset** (27/10): `datasets/` foi removida a pedido do usuário; `testes/testar-dataset-unico.cjs` e
+  `testes/testar-tela-tipos.cjs` ainda leem `datasets/dsNwEmbalagens.js` e falham. Definir de onde passam a ler o Dataset.
 
 ## Confirmar no Fluig de TESTE (nada visto ainda)
 - Spinner no lugar do interruptor ao ativar/inativar, inclusive com rede lenta e falha (bloqueio/liberação verificados só nos testes locais).
